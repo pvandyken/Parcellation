@@ -1,4 +1,4 @@
-### Execute the file "example.py" to obtain the intersection between the fascicles with the cortical meshing. 
+### Execute the file "ejemplo.py" to obtain the intersection between the fascicles with the cortical meshing. 
 ### Inside the file there is the path of the fascicles and the mesh in this layer, which can be modified to try with another subject. 
 ### The "example.py" calls the Makefile to perform the intersection calculation in C++ in a parallel way.
 
