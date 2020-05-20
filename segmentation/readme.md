@@ -1,20 +1,18 @@
 
-Authors:  
-    Narciso López López
-    Andrea Vázquez Varela
-Last modification: 24-10-2018
+## Authors:  
+    ## Narciso López López
+    ## Andrea Vázquez Varela
+##Last modification: 24-10-2018
 
 
-Compile: 
-
+# Compile: 
 g++ -std=c++14 -O3 main.cpp -o main -fopenmp -ffast-math
 
-Execute:
-
+# Execute:
 ./main 21 x.bundles subject  atlas/bundles atlas/atlas_info.txt results_folder
 
 
-Cite: 
+# Cite: 
 
 @inproceedings{vazquez2019parallel,
   title={Parallel Optimization of Fiber Bundle Segmentation for Massive Tractography Datasets},
