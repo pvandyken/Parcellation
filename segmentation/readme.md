@@ -1,8 +1,8 @@
 
 ## Authors:  
-    ## Narciso López López
-    ## Andrea Vázquez Varela
-##Last modification: 24-10-2018
+    Narciso López López
+    Andrea Vázquez Varela
+Last modification: 24-10-2018
 
 
 # Compile: 
