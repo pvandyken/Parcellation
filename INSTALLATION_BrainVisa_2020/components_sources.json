@@ -1,0 +1,212 @@
+{
+  "documentation": {
+    "bug_fix": [
+      "communication/documentation/bug_fix", 
+      null
+    ]
+  }, 
+  "anatomist-free": {
+    "bug_fix": [
+      "anatomist/anatomist-free/bug_fix", 
+      null
+    ]
+  }, 
+  "axon": {
+    "bug_fix": [
+      "axon/bug_fix", 
+      null
+    ]
+  }, 
+  "tms": {
+    "bug_fix": [
+      "morphologist/tms/bug_fix", 
+      null
+    ]
+  }, 
+  "capsul": {
+    "bug_fix": [
+      "/home/narciso/neurosvn/brainvisa-stable/capsul/bug_fix", 
+      null
+    ]
+  }, 
+  "sulci-data": {
+    "bug_fix": [
+      "morphologist/sulci-data/bug_fix", 
+      null
+    ]
+  }, 
+  "datamind": {
+    "bug_fix": [
+      "datamind/bug_fix", 
+      null
+    ]
+  }, 
+  "aims-gpl": {
+    "bug_fix": [
+      "aims/aims-gpl/bug_fix", 
+      null
+    ]
+  }, 
+  "anatomist-gpl": {
+    "bug_fix": [
+      "anatomist/anatomist-gpl/bug_fix", 
+      null
+    ]
+  }, 
+  "freesurfer_plugin": {
+    "bug_fix": [
+      "cortical_surface/freesurfer_plugin/bug_fix", 
+      null
+    ]
+  }, 
+  "snapbase": {
+    "bug_fix": [
+      "snapbase/bug_fix", 
+      null
+    ]
+  }, 
+  "bibliography": {
+    "bug_fix": [
+      "communication/bibliography/bug_fix", 
+      null
+    ]
+  }, 
+  "brainvisa-installer": {
+    "bug_fix": [
+      "brainvisa-installer/bug_fix", 
+      null
+    ]
+  }, 
+  "brainvisa_spm": {
+    "bug_fix": [
+      "spm/bug_fix", 
+      null
+    ]
+  }, 
+  "fiber-clustering": {
+    "6.0": [
+      "ptk/toolbox-fiber-clustering/trunk", 
+      null
+    ]
+  }, 
+  "soma-workflow": {
+    "bug_fix": [
+      "/home/narciso/neurosvn/brainvisa-stable/soma/soma-workflow/bug_fix", 
+      null
+    ]
+  }, 
+  "sulci-private": {
+    "bug_fix": [
+      "morphologist/sulci-private/bug_fix", 
+      null
+    ]
+  }, 
+  "morphologist-gpl": {
+    "bug_fix": [
+      "morphologist/morphologist-gpl/bug_fix", 
+      null
+    ]
+  }, 
+  "cortical_surface-private": {
+    "bug_fix": [
+      "cortical_surface/cortical_surface-private/bug_fix", 
+      null
+    ]
+  }, 
+  "nuclear_imaging-gpl": {
+    "bug_fix": [
+      "nuclear_imaging/nuclear_imaging-gpl/bug_fix", 
+      null
+    ]
+  }, 
+  "brainvisa-share": {
+    "bug_fix": [
+      "brainvisa-share/bug_fix", 
+      null
+    ]
+  }, 
+  "sulci-models": {
+    "bug_fix": [
+      "morphologist/sulci-models/bug_fix", 
+      null
+    ]
+  }, 
+  "aims-free": {
+    "bug_fix": [
+      "aims/aims-free/bug_fix", 
+      null
+    ]
+  }, 
+  "aims-til": {
+    "bug_fix": [
+      "aims/aims-til/bug_fix", 
+      null
+    ]
+  }, 
+  "baby": {
+    "bug_fix": [
+      "morphologist/baby/bug_fix", 
+      null
+    ]
+  }, 
+  "brainvisa-release": {
+    "bug_fix": [
+      "development/brainvisa-release/bug_fix", 
+      null
+    ]
+  }, 
+  "cortical_surface-gpl": {
+    "bug_fix": [
+      "cortical_surface/cortical_surface-gpl/bug_fix", 
+      null
+    ]
+  }, 
+  "soma-io-gpl": {
+    "bug_fix": [
+      "soma/soma-io-gpl/bug_fix", 
+      null
+    ]
+  }, 
+  "soma-base": {
+    "bug_fix": [
+      "soma/soma-base/bug_fix", 
+      null
+    ]
+  }, 
+  "brainvisa-cmake": {
+    "bug_fix": [
+      "development/brainvisa-cmake/bug_fix", 
+      null
+    ]
+  }, 
+  "morphologist-private": {
+    "bug_fix": [
+      "morphologist/morphologist-private/bug_fix", 
+      null
+    ]
+  }, 
+  "morphologist-ui": {
+    "bug_fix": [
+      "/home/narciso/neurosvn/brainvisa-stable/morphologist/morphologist-ui/bug_fix", 
+      null
+    ]
+  }, 
+  "data_storage_client": {
+    "bug_fix": [
+      "data_storage_client/bug_fix", 
+      null
+    ]
+  }, 
+  "nuclear_imaging-private": {
+    "bug_fix": [
+      "nuclear_imaging/nuclear_imaging-private/bug_fix", 
+      null
+    ]
+  }, 
+  "soma-io": {
+    "bug_fix": [
+      "soma/soma-io/bug_fix", 
+      null
+    ]
+  }
+}
