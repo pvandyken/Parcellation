@@ -1,10 +1,9 @@
 
-#from soma import aims
+
 import numpy as N
 import os
 import shutil
 import math
-#from soma import aims
 
 def getBundleNames( bundlefile ):
 
