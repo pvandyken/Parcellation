@@ -1,7 +1,7 @@
 # Parcellation
 
 
-INSTALLATION IN UBUNTU 16.04 LTS FROM SCRATCH
+### BV INSTALLATION IN UBUNTU 16.04 LTS FROM SCRATCH
 
 
 Copy the files from “INSTALLATION_BrainVisa_2020” folder and paste them somewhere in the computer.
