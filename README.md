@@ -11,22 +11,22 @@ Copy the files from “INSTALLATION_BrainVisa_2020” folder and paste them some
 
 Configuration settings. These files are: bv_maker.cfg y .bashrc.
 
-Make a backup of .bashrc. The path is /home/username. 
+1. Make a backup of .bashrc. The path is /home/username. 
 
-•	Replace file .bashrc to .bashrcBACKUP:
+2. Replace file .bashrc to .bashrcBACKUP:
   cd ~/
   mv ~/.bashrc ~/.bashrcBACKUP
 
-•	Copy file .bashrc from the INSTALLATION_BrainVisa_2020 folder to the path /home/username:
+3. Copy file .bashrc from the INSTALLATION_BrainVisa_2020 folder to the path /home/username:
   cp /path/.bashrc ~/.bashrc 
 
 Change your username in the file.
 
-•	Close .bashrc file and create the folder .brainvisa:
+4. Close .bashrc file and create the folder .brainvisa:
   cd ~/
   mkdir ~/.brainvisa
 
-•	Copy the file bv_maker.cfg from the folder INSTALLATION_BrainVisa_2020 to (.brainvisa):
+5. Copy the file bv_maker.cfg from the folder INSTALLATION_BrainVisa_2020 to (.brainvisa):
   cp /path/bv_maker.cfg ~/.brainvisa  
 
 Close the terminal to update.
