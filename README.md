@@ -85,6 +85,7 @@ Mark to install and then press Apply.
   
 1. Download necessary svn files. Write in console:
   - svn export https://bioproj.extra.cea.fr/neurosvn/brainvisa/development/brainvisa-cmake/branches/bug_fix /home/username/neurosvn/brainvisa-cmake
+  - request user and password
 
 2. Configure cmake. Write in console:
   - cd /home/ username /neurosvn/brainvisa-cmake
