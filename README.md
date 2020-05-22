@@ -1,4 +1,4 @@
-# Parcellation
+# From coarse to fine-grained parcellation
 
 
 ![fs](/imgParcellation/fs_atlas5.png)
