@@ -13,6 +13,8 @@ Configuration settings. These files are: bv_maker.cfg y .bashrc.
 
 1. Make a backup of .bashrc. The path is /home/username. 
 
+![bashrc](/INSTALLATION_BrainVisa_2020/1.png)
+
 2. Replace file .bashrc to .bashrcBACKUP:
   - cd ~/
   - mv ~/.bashrc ~/.bashrcBACKUP
