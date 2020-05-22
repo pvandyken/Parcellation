@@ -24,12 +24,20 @@ Configuration settings. These files are: bv_maker.cfg y .bashrc.
 
 Change your username in the file.
 
+![bashrc](/INSTALLATION_BrainVisa_2020/imgs/2.png)
+
 4. Close .bashrc file and create the folder .brainvisa:
   - cd ~/
   - mkdir ~/.brainvisa
+  
+![bashrc](/INSTALLATION_BrainVisa_2020/imgs/3.png)
 
 5. Copy the file bv_maker.cfg from the folder INSTALLATION_BrainVisa_2020 to (.brainvisa):
   - cp /path/bv_maker.cfg ~/.brainvisa  
+
+![bashrc](/INSTALLATION_BrainVisa_2020/imgs/4.png)
+
+![bashrc](/INSTALLATION_BrainVisa_2020/imgs/5.png)
 
 Close the terminal to update.
 
@@ -102,11 +110,15 @@ Mark to install and then press Apply.
   - cd /home/username/neurosvn/brainvisa-cmake/bin/
   - ./bv_env_host bv_maker sources
 
+![bashrc](/INSTALLATION_BrainVisa_2020/imgs/6.png)
+
 If the download fails or some of the directories are not completely downloaded, you must re-launch the command. In case of error you must access the directory with problems (you have to look where it says FAILED in the terminal, that will be the path in which we will have to be to launch the svn cleanup command), to know the directory in which we are, by terminal we introduce pwd and it will show us the path in which we are, we only have to compare the path that we see in FAILED with the one that throws pwd, if we are in it we launch svn cleanup, otherwise we move to that path with the command:
 
   - cd /home/username/neurosvn/brainvisa-stable/folder…
 
 and launch svn cleanup command.
+
+![bashrc](/INSTALLATION_BrainVisa_2020/imgs/7.png)
 
 2. Relaunch:
   - cd /home/username/neurosvn/brainvisa-cmake/bin/
@@ -118,6 +130,8 @@ If everything went well the message All went good will be displayed and you can 
 
 First of all, make sure that you have downloaded the ptk (Connect commands) folder in /home/username/neurosvn/brainvisa-stable
 
+![bashrc](/INSTALLATION_BrainVisa_2020/imgs/9.png)
+
 
 #### ********************************** CAPSUL *************************************
 
@@ -126,9 +140,15 @@ First of all, make sure that you have downloaded the ptk (Connect commands) fold
   - cd home/username/neurosvn/brainvisa-stable
   - rm -rf capsul/
 
+![bashrc](/INSTALLATION_BrainVisa_2020/imgs/8.png)
+
 2. Copy capsul folder (INSTALLATION_BrainVisa_2020) in home/username/neurosvn/brainvisa-stable
 
+![bashrc](/INSTALLATION_BrainVisa_2020/imgs/10.png)
+
 3. Copy the  file components_sources.json in /home/username/neurosvn/brainvisa-stable in case you do not find it (rare if you have downloaded well but also included in INSTALLATION_BrainVisa_2020).
+
+![bashrc](/INSTALLATION_BrainVisa_2020/imgs/11.png)
 
 4. Move to:
   - cd /home/username/neurosvn/brainvisa-stable 
@@ -136,6 +156,10 @@ First of all, make sure that you have downloaded the ptk (Connect commands) fold
 and tip:
   - svn cleanup
   - svn update
+
+![bashrc](/INSTALLATION_BrainVisa_2020/imgs/13.png)
+ 
+![bashrc](/INSTALLATION_BrainVisa_2020/imgs/12.png)
 
 When you finish updating the svn you can go to the CONFIGURE section.
 
@@ -155,7 +179,9 @@ If you do the ./bv_env_host bv_maker configure and the All went good message app
 
 #### *********************************** BUILD*************************************
   
-Nota: Verify in file bv_maker.cfg that “build” section is not commented.
+Verify in file bv_maker.cfg that “build” section is not commented.
+
+![bashrc](/INSTALLATION_BrainVisa_2020/imgs/14.png)
 
 1. Compile the code:
   - cd /home/username/neurosvn/brainvisa-cmake/bin/
