@@ -7,8 +7,8 @@
 Copy the files from “INSTALLATION_BrainVisa_2020” folder and paste them somewhere in the computer.
 
 
-************************** bv_maker.cfg .bashrc **********************************
-
+#### ************************** bv_maker.cfg .bashrc **********************************
+<details>
 Configuration settings. These files are: bv_maker.cfg y .bashrc.
 
 1. Make a backup of .bashrc. The path is /home/username. 
@@ -31,7 +31,7 @@ Change your username in the file.
 
 Close the terminal to update.
 
-
+</details>
 **************** INSTALLATION OF NECESSARY PACKAGES****************
 
 1. Install packages:
