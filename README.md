@@ -63,48 +63,47 @@ Close the terminal(s) since we have modified the .bashrc file, this way the chan
 
 ******************************* SYNAPTIC **********************************
 
-Open synaptic and install all the following libraries:
+Open synaptic and install all the following libraries.
 
-Search in synaptic the library g++-4.9, right click on it and press Mark to install and then press Apply.
+1. Search in synaptic the library g++-4.9, right click on it and press Mark to install and then press Apply.
 
-Look for:
-•	libsigc++-2.0-dev
-•	libXml2-dev 
-•	libboost-all-dev
+2. Look for:
+  - libsigc++-2.0-dev
+  - libXml2-dev 
+  - libboost-all-dev
 
 Mark to install and then press Apply.
 
-Look for:
-•	libsphinxbase-dev, libssl-dev, libcairo2-dev, libxcb-composite0-dev, libxcb-cursor-dev, libxcb-damage0-dev, libxcb-dpms0-dev, libjpeg-dev, libpng++-dev, libtiff5-dev, libjasper-dev, doxygen, libarchive-dev, libghc-bzlib-dev, libghc-pipes-zlib-dev, gfortran-4.9, libdee-qt4-dev, libntrack-qt4-dev, libqjdns-qt4-dev, libqglviewer2-qt4, libqt4pas5, libqtgstreamer-dev, libqtweetlib1.0, libqwt5-qt4-dev, libqwtplot3d-qt4-dev, libsoqt4-dev, python-qt4, python-qt4-dev, libvtk-dicom-dev, libblas-dev, liblapack-dev, libgsl-dev, libhdf5-dev, hdf5-tools, liblinear3-dev, libsvm-dev, libhdf5-10-dev, libhdf5-mpi-dev,  libhdf5-mpich-dev, libhdf5-serial-dev, libjhdf5-java, libhdf5-openmpi-dev, libjpeg62-dev, libtiff5-dev, libminc-dev.   Mark to install and apply.
+3. Look for:
+  -	libsphinxbase-dev, libssl-dev, libcairo2-dev, libxcb-composite0-dev, libxcb-cursor-dev, libxcb-damage0-dev, libxcb-dpms0-dev, libjpeg-dev, libpng++-dev, libtiff5-dev, libjasper-dev, doxygen, libarchive-dev, libghc-bzlib-dev, libghc-pipes-zlib-dev, gfortran-4.9, libdee-qt4-dev, libntrack-qt4-dev, libqjdns-qt4-dev, libqglviewer2-qt4, libqt4pas5, libqtgstreamer-dev, libqtweetlib1.0, libqwt5-qt4-dev, libqwtplot3d-qt4-dev, libsoqt4-dev, python-qt4, python-qt4-dev, libvtk-dicom-dev, libblas-dev, liblapack-dev, libgsl-dev, libhdf5-dev, hdf5-tools, liblinear3-dev, libsvm-dev, libhdf5-10-dev, libhdf5-mpi-dev,  libhdf5-mpich-dev, libhdf5-serial-dev, libjhdf5-java, libhdf5-openmpi-dev, libjpeg62-dev, libtiff5-dev, libminc-dev.   Mark to install and apply.
 
 
 ************************************ SVN *************************************
 
-•	Download necessary svn files. Write in console:
+1. Download necessary svn files. Write in console:
+  - svn export https://bioproj.extra.cea.fr/neurosvn/brainvisa/development/brainvisa-cmake/branches/bug_fix /home/username/neurosvn/brainvisa-cmake
 
-svn export https://bioproj.extra.cea.fr/neurosvn/brainvisa/development/brainvisa-cmake/branches/bug_fix /home/username/neurosvn/brainvisa-cmake
-
-•	Configure cmake. Write in console:
-  cd /home/ username /neurosvn/brainvisa-cmake
-  cmake -DCMAKE_INSTALL_PREFIX=. .         
-  make install
+2. Configure cmake. Write in console:
+  - cd /home/ username /neurosvn/brainvisa-cmake
+  - cmake -DCMAKE_INSTALL_PREFIX=. .         
+  - make install
 
 
 ********************************* SOURCES ************************************
 
-•	Download code:
-  cd /home/username/neurosvn/brainvisa-cmake/bin/
-  ./bv_env_host bv_maker sources
+1. Download code:
+  - cd /home/username/neurosvn/brainvisa-cmake/bin/
+  - ./bv_env_host bv_maker sources
 
 If the download fails or some of the directories are not completely downloaded, you must re-launch the command. In case of error you must access the directory with problems (you have to look where it says FAILED in the terminal, that will be the path in which we will have to be to launch the svn cleanup command), to know the directory in which we are, by terminal we introduce pwd and it will show us the path in which we are, we only have to compare the path that we see in FAILED with the one that throws pwd, if we are in it we launch svn cleanup, otherwise we move to that path with the command:
 
-  cd /home/username/neurosvn/brainvisa-stable/folder…
+  - cd /home/username/neurosvn/brainvisa-stable/folder…
 
 and launch svn cleanup command.
 
-•	Relaunch:
-  cd /home/username/neurosvn/brainvisa-cmake/bin/
-  ./bv_env_host bv_maker sources
+2. Relaunch:
+  - cd /home/username/neurosvn/brainvisa-cmake/bin/
+  - ./bv_env_host bv_maker sources
 
 If it still doesn't work you have to keep trying, sometimes it's the fault of the connection or the servers.
 
@@ -115,22 +114,20 @@ First of all, make sure that you have downloaded the ptk (Connect commands) fold
 
 ********************************** CAPSUL *************************************
 
-•	In case the error occurs through the /capsul directory, what we'll have to do is open a terminal and press
+1. In case the error occurs through the /capsul directory, what we'll have to do is open a terminal and press
+  - cd home/username/neurosvn/brainvisa-stable
+  - rm -rf capsul/
 
-  cd home/username/neurosvn/brainvisa-stable
-  rm -rf capsul/
+2. Copy capsul folder (INSTALLATION_BrainVisa_2020) in home/username/neurosvn/brainvisa-stable
 
-•	Copy capsul folder (INSTALLATION_BrainVisa_2020) in home/username/neurosvn/brainvisa-stable
+3. Copy the  file components_sources.json in /home/username/neurosvn/brainvisa-stable in case you do not find it (rare if you have downloaded well but also included in INSTALLATION_BrainVisa_2020).
 
-•	Copy the  file components_sources.json in /home/username/neurosvn/brainvisa-stable in case you do not find it (rare if you have downloaded well but also included in INSTALLATION_BrainVisa_2020).
+4. Move to:
+  - cd /home/username/neurosvn/brainvisa-stable 
 
-
-•	Move to:
-  cd /home/username/neurosvn/brainvisa-stable 
-
-•	and tip:
-  svn cleanup
-  svn update
+and tip:
+  - svn cleanup
+  - svn update
 
 When you finish updating the svn you can go to the CONFIGURE section.
 
@@ -139,9 +136,9 @@ Here you should finish without errors.
 
 ******************************* CONFIGURE ************************************
 
-•	Launch configure in terminal:
-  cd /home/username/neurosvn/brainvisa-cmake/bin/
-  ./bv_env_host bv_maker configure
+1. Launch configure in terminal:
+  - cd /home/username/neurosvn/brainvisa-cmake/bin/
+  - ./bv_env_host bv_maker configure
 
 For all the errors you will have to download the libraries with synaptic (it is preferable to download the libraries with -dev), most of them should already be installed at this time because at the beginning of this guide there is an installation section.
 
@@ -152,9 +149,9 @@ If you do the ./bv_env_host bv_maker configure and the All went good message app
 
 Nota: Verify in file bv_maker.cfg that “build” section is not commented.
 
-•	Compile the code:
-  cd /home/username/neurosvn/brainvisa-cmake/bin/
-  ./bv_env_host bv_maker build
+1. Compile the code:
+  - cd /home/username/neurosvn/brainvisa-cmake/bin/
+  - ./bv_env_host bv_maker build
 
 Here you have to take into account the execution threads, if it gives problems when doing the build, vary the threads, for example, -j4 = 4 threads, -j1 = 1 execution thread. The threads are varied in the bv_maker.cfg file.
 
@@ -162,43 +159,43 @@ You have to execute ./bv_env_host bv_maker build as many times as necessary (var
 
 At some point in the build, some libraries will fail. Usually they will be in the path shown here, if not just change the path and copy those files to the Brainvisa folder.
 
-•	At some point you may have to create the /usr/X11R6/lib64/ directory by typing in terminal:
-  sudo mkdir /usr/X11R6
-  cd /usr/X11R6
-  sudo mkdir lib64
+2. At some point you may have to create the /usr/X11R6/lib64/ directory by typing in terminal:
+  - sudo mkdir /usr/X11R6
+  - cd /usr/X11R6
+  - sudo mkdir lib64
 
-•	Copy these libraries:
-  sudo cp /usr/lib/x86_64-linux-gnu/libjpeg.so /usr/lib64/
-  sudo cp /usr/lib/x86_64-linux-gnu/libtiff.a /usr/lib64/
-  sudo cp /usr/lib/x86_64-linux-gnu/libexpat.a /usr/lib64/
-  sudo cp /usr/lib/x86_64-linux-gnu/libfreetype.so /usr/lib64/
-  sudo cp /usr/lib/x86_64-linux-gnu/libXt.so /usr/lib/
-  sudo cp /usr/lib/x86_64-linux-gnu/libSM.so /usr/X11R6/lib64/
-  sudo cp /usr/lib/x86_64-linux-gnu/libICE.so /usr/X11R6/lib64/
-  sudo cp /usr/lib/x86_64-linux-gnu/libX11.so /usr/X11R6/lib64/
-  sudo cp /usr/lib/x86_64-linux-gnu/libXext.so /usr/X11R6/lib64/
-  sudo cp /usr/lib/x86_64-linux-gnu/libXss.so /usr/X11R6/lib64/   (included in INSTALLATION_BrainVisa_2020, copy all the files from folder lib64 to that path)
-  -sudo cp /usr/lib/x86_64-linux-gnu/libGL.so /usr/lib64/
+3. Copy these libraries:
+  - sudo cp /usr/lib/x86_64-linux-gnu/libjpeg.so /usr/lib64/
+  - sudo cp /usr/lib/x86_64-linux-gnu/libtiff.a /usr/lib64/
+  - sudo cp /usr/lib/x86_64-linux-gnu/libexpat.a /usr/lib64/
+  - sudo cp /usr/lib/x86_64-linux-gnu/libfreetype.so /usr/lib64/
+  - sudo cp /usr/lib/x86_64-linux-gnu/libXt.so /usr/lib/
+  - sudo cp /usr/lib/x86_64-linux-gnu/libSM.so /usr/X11R6/lib64/
+  - sudo cp /usr/lib/x86_64-linux-gnu/libICE.so /usr/X11R6/lib64/
+  - sudo cp /usr/lib/x86_64-linux-gnu/libX11.so /usr/X11R6/lib64/
+  - sudo cp /usr/lib/x86_64-linux-gnu/libXext.so /usr/X11R6/lib64/
+  - sudo cp /usr/lib/x86_64-linux-gnu/libXss.so /usr/X11R6/lib64/   (included in INSTALLATION_BrainVisa_2020, copy all the files from folder lib64 to that path)
+  - sudo cp /usr/lib/x86_64-linux-gnu/libGL.so /usr/lib64/
 
 Now launch the command ./bv_env_host bv_maker build. Don't forget to constantly throw ./bv_env_host bv_maker build changing the number of threads.
 
 When you finish and get to 100% and put All went good, we will prove that the installation works. Therefore, you have to use the two folders from INSTALLATION_BrainVisa_2020: testAims and testConnect.
 
-•	We move to the folder:
-  cd /home/username/neurosvn/build-brainvisa-stable-release/bin/
+4. We move to the folder:
+  - cd /home/username/neurosvn/build-brainvisa-stable-release/bin/
 
 and open a terminal.
 
-•	For the testAims:
-  ./AimsThreshold -i /path/testAims/t1.ima -o /path/testAims/out.ima -t 50 -m lt
+5. For the testAims:
+  - ./AimsThreshold -i /path/testAims/t1.ima -o /path/testAims/out.ima -t 50 -m lt
 
-•	For the testConnect:
-  ./ConnectFiberDistanceMatrix -i /path/pruebaConnect/short_2_28.bundles -outdir /path/pruebaConnect/ -outstr TEST
+6. For the testConnect:
+  - ./ConnectFiberDistanceMatrix -i /path/pruebaConnect/short_2_28.bundles -outdir /path/pruebaConnect/ -outstr TEST
 
 In addition, we will also check that soma can be imported.
 
-•	We type in the terminal:
-  from soma import aims
+7. We type in the terminal:
+  - from soma import aims
 
 If no mistakes, everything went well and aims can be imported.
 
