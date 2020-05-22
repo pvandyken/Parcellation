@@ -1,7 +1,10 @@
 # Parcellation
 
 
-#### BV INSTALLATION IN UBUNTU 18.04 LTS FROM SCRATCH
+![bashrc](/imgParcellation/fs_atlas5.tif)
+
+
+## BV INSTALLATION IN UBUNTU 18.04 LTS FROM SCRATCH
 
 
 Copy the files from “INSTALLATION_BrainVisa_2020” folder and paste them somewhere in the computer.
