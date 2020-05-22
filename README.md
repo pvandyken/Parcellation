@@ -34,29 +34,29 @@ Close the terminal to update.
 
 **************** INSTALLATION OF NECESSARY PACKAGES****************
 
-•	Install packages:
- •	sudo apt-get install subversion
- •	sudo apt-get install cmake
- •	sudo apt-get install python-pip
- •	sudo pip install python-dateutil
- •	sudo apt-get install synaptic
- •	sudo apt-get install texlive-full
- •	sudo apt-get install python-sphinx
- •	sudo apt-get install gfortran
- •	sudo pip install soma-workflow
- •	sudo apt install python-numpy python-scipy
- •	sudo apt install default-jdk
- •	sudo apt install python-matplotlib python-paramiko pyro
- •	sudo apt install swig
+1. Install packages:
+  -	sudo apt-get install subversion
+  -	sudo apt-get install cmake
+  -	sudo apt-get install python-pip
+  -	sudo pip install python-dateutil
+  -	sudo apt-get install synaptic
+  -	sudo apt-get install texlive-full
+  -	sudo apt-get install python-sphinx
+  -	sudo apt-get install gfortran
+  -	sudo pip install soma-workflow
+  -	sudo apt install python-numpy python-scipy
+  -	sudo apt install default-jdk
+  -	sudo apt install python-matplotlib python-paramiko pyro
+  -	sudo apt install swig
 
 
-•	Configure the environment variable VTK in .bashrc: 
+2. Configure the environment variable VTK in .bashrc: 
 
-  export VTK_DIR=/home/username/freesurfer/lib/vtk/lib/vtk-5.6  
+  - export VTK_DIR=/home/username/freesurfer/lib/vtk/lib/vtk-5.6  
 
-•	Configure the environment variable soma_workflow in .bashrc:
+3. Configure the environment variable soma_workflow in .bashrc:
 
-  export soma_workflow_DIR=/usr/local/lib/python2.7/dist-packages
+  - export soma_workflow_DIR=/usr/local/lib/python2.7/dist-packages
 
 Close the terminal(s) since we have modified the .bashrc file, this way the changes are updated (in principle all these changes should already appear in the .bashrc file).
 
