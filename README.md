@@ -1,7 +1,7 @@
 # Parcellation
 
 
-![bashrc](/imgParcellation/fs_atlas5.tif)
+![bashrc](/imgParcellation/fs_atlas5.tiff)
 
 
 ## BV INSTALLATION IN UBUNTU 18.04 LTS FROM SCRATCH
