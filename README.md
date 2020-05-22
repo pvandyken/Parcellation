@@ -9,6 +9,8 @@ Copy the files from “INSTALLATION_BrainVisa_2020” folder and paste them some
 
 #### ************************** bv_maker.cfg .bashrc **********************************
 <details>
+  <summary>Show</summary>
+  
 Configuration settings. These files are: bv_maker.cfg y .bashrc.
 
 1. Make a backup of .bashrc. The path is /home/username. 
@@ -32,8 +34,11 @@ Change your username in the file.
 Close the terminal to update.
 
 </details>
-**************** INSTALLATION OF NECESSARY PACKAGES****************
 
+#### **************** INSTALLATION OF NECESSARY PACKAGES****************
+<details>
+  <summary>Show</summary>
+  
 1. Install packages:
   -	sudo apt-get install subversion
   -	sudo apt-get install cmake
@@ -60,9 +65,12 @@ Close the terminal to update.
 
 Close the terminal(s) since we have modified the .bashrc file, this way the changes are updated (in principle all these changes should already appear in the .bashrc file).
 
+</details>
 
-******************************* SYNAPTIC **********************************
-
+#### ******************************* SYNAPTIC **********************************
+<details>
+  <summary>Show</summary>
+  
 Open synaptic and install all the following libraries.
 
 1. Search in synaptic the library g++-4.9, right click on it and press Mark to install and then press Apply.
@@ -77,9 +85,12 @@ Mark to install and then press Apply.
 3. Look for:
   -	libsphinxbase-dev, libssl-dev, libcairo2-dev, libxcb-composite0-dev, libxcb-cursor-dev, libxcb-damage0-dev, libxcb-dpms0-dev, libjpeg-dev, libpng++-dev, libtiff5-dev, libjasper-dev, doxygen, libarchive-dev, libghc-bzlib-dev, libghc-pipes-zlib-dev, gfortran-4.9, libdee-qt4-dev, libntrack-qt4-dev, libqjdns-qt4-dev, libqglviewer2-qt4, libqt4pas5, libqtgstreamer-dev, libqtweetlib1.0, libqwt5-qt4-dev, libqwtplot3d-qt4-dev, libsoqt4-dev, python-qt4, python-qt4-dev, libvtk-dicom-dev, libblas-dev, liblapack-dev, libgsl-dev, libhdf5-dev, hdf5-tools, liblinear3-dev, libsvm-dev, libhdf5-10-dev, libhdf5-mpi-dev,  libhdf5-mpich-dev, libhdf5-serial-dev, libjhdf5-java, libhdf5-openmpi-dev, libjpeg62-dev, libtiff5-dev, libminc-dev.   Mark to install and apply.
 
+</details>
 
-************************************ SVN *************************************
-
+#### ************************************ SVN *************************************
+<details>
+  <summary>Show</summary>
+  
 1. Download necessary svn files. Write in console:
   - svn export https://bioproj.extra.cea.fr/neurosvn/brainvisa/development/brainvisa-cmake/branches/bug_fix /home/username/neurosvn/brainvisa-cmake
 
@@ -88,9 +99,12 @@ Mark to install and then press Apply.
   - cmake -DCMAKE_INSTALL_PREFIX=. .         
   - make install
 
+</details>
 
-********************************* SOURCES ************************************
-
+#### ********************************* SOURCES ************************************
+<details>
+  <summary>Show</summary>
+  
 1. Download code:
   - cd /home/username/neurosvn/brainvisa-cmake/bin/
   - ./bv_env_host bv_maker sources
@@ -111,9 +125,12 @@ If everything went well the message All went good will be displayed and you can 
 
 First of all, make sure that you have downloaded the ptk (Connect commands) folder in /home/username/neurosvn/brainvisa-stable
 
+</details>
 
-********************************** CAPSUL *************************************
-
+#### ********************************** CAPSUL *************************************
+<details>
+  <summary>Show</summary>
+  
 1. In case the error occurs through the /capsul directory, what we'll have to do is open a terminal and press
   - cd home/username/neurosvn/brainvisa-stable
   - rm -rf capsul/
@@ -133,9 +150,12 @@ When you finish updating the svn you can go to the CONFIGURE section.
 
 Here you should finish without errors.
 
+</details>
 
-******************************* CONFIGURE ************************************
-
+#### ******************************* CONFIGURE ************************************
+<details>
+  <summary>Show</summary>
+  
 1. Launch configure in terminal:
   - cd /home/username/neurosvn/brainvisa-cmake/bin/
   - ./bv_env_host bv_maker configure
@@ -144,9 +164,12 @@ For all the errors you will have to download the libraries with synaptic (it is 
 
 If you do the ./bv_env_host bv_maker configure and the All went good message appears at the end, you can go to the last command that performs the compilation (BUILD section).
 
+</details>
 
-*********************************** BUILD*************************************
-
+#### *********************************** BUILD*************************************
+<details>
+  <summary>Show</summary>
+  
 Nota: Verify in file bv_maker.cfg that “build” section is not commented.
 
 1. Compile the code:
@@ -202,7 +225,7 @@ If no mistakes, everything went well and aims can be imported.
 
 ...---===---...---===---...===---...---===*** END ***===---...---===---...===----...---===---...
 
-
+</details>
 
 
 
