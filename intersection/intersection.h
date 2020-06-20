@@ -6,25 +6,28 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include "math.h"
+
+using namespace std;
 
 const float dotProduct(const float a[], float *&b);
 float* crossProduct(const float a[], const float b[]);
 bool ray_triangle_intersection(const float ray_near[], const float ray_dir[], const float Points[][3], float &t);
 
 float** multiple_vertices(float **&triangle);
-float*** multiple_triangles(float ***&triangles, uint16_t &len, const uint8_t polys[][3]);
-float** triangle_interpolation(float ***&triangles, const uint8_t &N);
+float*** multiple_triangles(float ***&triangles, int &len, const int polys[][3]);
+float** triangle_interpolation(float ***&triangles, const int &N);
 
-const bool getMeshAndFiberEndIntersection(float *&fiberP0, float *&fiberP1, const uint16_t &nPoints, const uint8_t &nPtsLine, const uint8_t &N, const uint8_t &npbp,
-	float **&index, const float &step, bool ***&cubeNotEmpty, const std::vector<std::vector<std::vector<std::vector<uint32_t>>>> &centroidIndex,
-	const std::vector<std::vector<std::vector<std::vector<std::vector<float>>>>> &almacen, float **&vertex, uint32_t **&polygons, uint32_t &Ind, float *&ptInt);
+const bool getMeshAndFiberEndIntersection(vector<float> &fiberP0, vector<float> &fiberP1, const int &nPoints, const int &nPtsLine, const int &N, const int &npbp,
+	vector<vector<float>> &index, const float &step, vector<vector<vector<bool>>> &cubeNotEmpty, const vector<vector<vector<vector<int>>>> &centroidIndex,
+	const vector<vector<vector<vector<vector<float>>>>> &almacen, vector<vector<float>> &vertex, vector<vector<int>> &polygons, int &Ind, vector<float>&ptInt) ;
 
-const bool getMeshAndFiberIntersection(float **&fiber, const uint16_t &nPoints, const uint8_t &nPtsLine, const uint8_t &N, const uint8_t &npbp, float **&index,
-	const float &step, bool ***&cubeNotEmpty, const std::vector<std::vector<std::vector<std::vector<uint32_t>>>> &centroidIndex,
-	const std::vector<std::vector<std::vector<std::vector<std::vector<float>>>>> &almacen, float **&vertex, uint32_t **&polygons,
-	uint32_t &InInd, uint32_t &FnInd, float *&InPtInt, float *&FnPtInt);
+const bool getMeshAndFiberIntersection(vector<vector<float>> &fiber, const int &nPoints, const int &nPtsLine, const int &N, const int &npbp, vector<vector<float>> &index,
+	const float &step, vector<vector<vector<bool>>> &cubeNotEmpty, const vector<vector<vector<vector<int>>>> &centroidIndex,
+	const vector<vector<vector<vector<vector<float>>>>> &almacen, vector<vector<float>> &vertex, vector<vector<int>>&polygons,
+	int &InInd, int &FnInd, vector<float> &InPtInt, vector<float> &FnPtInt);
 
-void meshAndBundlesIntersection(float **&vertex, const uint32_t &n_vertex, uint32_t **&polygons, const uint32_t &n_polygons,
-	const uint16_t &nBundles, uint32_t *&nFibers, uint16_t **&nPoints, float ****&Points, const uint8_t& nPtsLine,
-	std::vector<std::vector<uint32_t>> &InTri, std::vector<std::vector<uint32_t>> &FnTri, std::vector<std::vector<std::vector<float>>> &InPoints,
-	std::vector<std::vector<std::vector<float>>> &FnPoints, std::vector<std::vector<uint32_t>> &fib_index);
+void meshAndBundlesIntersection(vector<vector<float>> &vertex, const int &n_vertex, vector<vector<int>>&polygons, const int &n_polygons,
+	const int &nBundles, vector<int> &nFibers, vector<vector<int>> &nPoints, vector<vector<vector<vector<float>>>> &Points, const int& nPtsLine,
+	vector<vector<int>> &InTri, vector<vector<int>> &FnTri, vector<vector<vector<float>>> &InPoints,
+	vector<vector<vector<float>>> &FnPoints, vector<vector<int>> &fib_index);

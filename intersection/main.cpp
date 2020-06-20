@@ -1,12 +1,14 @@
 #include "intersection.h"
-#include "bundleTools.h"
+#include "felipeTools.h"
+
+using namespace std;
 
 int main(int argc, char const *argv[])
 {
-	float **Lvertex, **Rvertex;
-	uint32_t **Lpolygons, **Rpolygons;
-	uint32_t n_Lvertex, n_Lpolygons;
-	uint32_t n_Rvertex, n_Rpolygons;
+	vector<vector<float>> Lvertex, Rvertex;
+	vector<vector<int>> Lpolygons, Rpolygons;
+	int n_Lvertex, n_Lpolygons;
+	int n_Rvertex, n_Rpolygons;
 
 	// ========================== Se lee el mallado =======================================
 
@@ -14,20 +16,20 @@ int main(int argc, char const *argv[])
 	read_mesh(argv[2], Rvertex, Rpolygons, n_Rvertex, n_Rpolygons);
 
 	// ========================== Se leen las fibras ======================================
-	uint16_t nLBundles, nRBundles;
-	uint32_t *nLFibers, *nRFibers;
-	uint16_t **nLPoints, **nRPoints;
-	float ****LPoints, ****RPoints;
+	int nLBundles, nRBundles;
+	vector<int> nLFibers, nRFibers;
+	vector<vector<int>> nLPoints, nRPoints;
+	vector<vector<vector<vector<float>>>> LPoints, RPoints;
 
 	read_bundles(argv[3], nLBundles, nLFibers, nLPoints, LPoints);
 	read_bundles(argv[4], nRBundles, nRFibers, nRPoints, RPoints);
 
 	// =========================== Intersección ===========================================
-	const uint8_t nPtsLine = 2;
+	const int nPtsLine = 2;
 
-	std::vector<std::vector<uint32_t>> Lfib_index, Rfib_index;
-	std::vector<std::vector<uint32_t>> LInTri, LFnTri, RInTri, RFnTri;
-	std::vector<std::vector<std::vector<float>>> LInPoints, LFnPoints, RInPoints, RFnPoints;
+	vector<vector<int>> Lfib_index, Rfib_index;
+	vector<vector<int>> LInTri, LFnTri, RInTri, RFnTri;
+	vector<vector<vector<float>>> LInPoints, LFnPoints, RInPoints, RFnPoints;
 
 	meshAndBundlesIntersection(Lvertex, n_Lvertex, Lpolygons, n_Lpolygons, nLBundles, nLFibers,
 							   nLPoints, LPoints, nPtsLine, LInTri, LFnTri, LInPoints, LFnPoints, Lfib_index);
@@ -38,8 +40,6 @@ int main(int argc, char const *argv[])
 	write_intersection(argv[5], argv[3], LInTri, LFnTri, LInPoints, LFnPoints, Lfib_index);
 	write_intersection(argv[6], argv[4], RInTri, RFnTri, RInPoints, RFnPoints, Rfib_index);
 
-	Delete(Lvertex, Lpolygons, n_Lvertex, n_Lpolygons);
-	Delete(Rvertex, Rpolygons, n_Rvertex, n_Rpolygons);
 
 	return 0;
 }
