@@ -14,9 +14,10 @@ const float dotProduct(const float a[], float *&b);
 float* crossProduct(const float a[], const float b[]);
 bool ray_triangle_intersection(const float ray_near[], const float ray_dir[], const float Points[][3], float &t);
 
-float** multiple_vertices(float **&triangle);
-float*** multiple_triangles(float ***&triangles, int &len, const int polys[][3]);
-float** triangle_interpolation(float ***&triangles, const int &N);
+vector<vector<float>> multiple_vertices(float *triangle[3]);
+vector<vector<vector<float>>> multiple_triangles(float *triangles[1][3], int &len, const int polys[][3]);
+vector<vector<vector<float>>> segment_triangles(float *triangles[1][3]);
+vector<vector<float>> get_triangle_centroid(vector<vector<vector<float>>> triangles, const int &N);
 
 const bool getMeshAndFiberEndIntersection(vector<float> &fiberP0, vector<float> &fiberP1, const int &nPoints, const int &nPtsLine, const int &N, const int &npbp,
 	vector<vector<float>> &index, const float &step, vector<vector<vector<bool>>> &cubeNotEmpty, const vector<vector<vector<vector<int>>>> &centroidIndex,

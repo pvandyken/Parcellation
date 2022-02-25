@@ -78,7 +78,7 @@ bool ray_triangle_intersection(const float ray_near[], const float ray_dir[], co
 	return true;
 }
 
-vector<vector<float>> multiple_vertices(vector<vector<float>> &triangle) {
+vector<vector<float>> multiple_vertices(float* triangle[3]) {
 
 	vector<vector<float>> pt(6,vector<float>(3));
 	//float **pt = new float*[6];
@@ -98,7 +98,7 @@ vector<vector<float>> multiple_vertices(vector<vector<float>> &triangle) {
     return pt;
 }
 
-vector<vector<vector<float>>> multiple_triangles(vector<vector<vector<float>>> &triangles, int &len, const int polys[][3]) {
+vector<vector<vector<float>>> multiple_triangles(float* triangles[1][3], int &len, const int polys[][3]) {
 	vector<vector<vector<float>>> new_triangles(len*4,vector<vector<float>>(3,vector<float>(3))); 
 
 	for(int i=0; i<len; i++) {
@@ -120,16 +120,26 @@ vector<vector<vector<float>>> multiple_triangles(vector<vector<vector<float>>> &
 	return new_triangles;
 }
 
-vector<vector<float>> triangle_interpolation(vector<vector<vector<float>>> &triangles, const int &N) {
-	vector<vector<float>> centroid(int(pow(4,N)),vector<float>(3));
+vector<vector<vector<float>>> segment_triangles(float* triangles[1][3]) {
+	/*
+	Split each triangle into four sub triangles
+	and finds the centroid of each sub-triangle
+	     ^           ^
+	    / \         /.\
+	   /   \  -->  /---\
+	  /     \     /.\•/.\
+	 <_______>   <___|___>
+	*/	
 	int len = 1;
 	int polys[4][3] = {{0,1,5},{1,2,3},{5,3,4},{1,3,5}};
 
-	for(int i=0; i<N; i++)
-		triangles = multiple_triangles(triangles, len, polys);
+	return multiple_triangles(triangles, len, polys);
+}
 
+vector<vector<float>> get_triangle_centroid(vector<vector<vector<float>>> const triangles, const int &N) {
+	vector<vector<float>> centroid(int(pow(4,N)),vector<float>(3));
+	int len = 1;
 	for(int i=0; i<len; i++) {
-		//centroid[i] = new float[3];
 
 		for(int j=0; j<3; j++) {
 			float sum = 0;
@@ -146,7 +156,7 @@ vector<vector<float>> triangle_interpolation(vector<vector<vector<float>>> &tria
 
 const bool getMeshAndFiberEndIntersection(vector<float> &fiberP0, vector<float> &fiberP1, const int &nPoints, const int &nPtsLine, const int &N, const int &npbp,
 	vector<vector<float>> &index, const float &step, vector<vector<vector<bool>>> &cubeNotEmpty, const vector<vector<vector<vector<int>>>> &centroidIndex,
-	const vector<vector<vector<vector<vector<float>>>>> &almacen, vector<vector<float>> &vertex, vector<vector<int>> &polygons, int &Ind, vector<float>&ptInt) {
+	const vector<vector<vector<vector<vector<float>>>>> &almacen, float** vertex, int** polygons, int &Ind, vector<float>&ptInt) {
 	
     float dd[3];
 
@@ -223,7 +233,7 @@ const bool getMeshAndFiberEndIntersection(vector<float> &fiberP0, vector<float> 
 			ray_near[i] = fiberP1[i];
 		}
         
-        vector<int> Triangle = polygons[(int)ind[1]];
+        int* Triangle = polygons[(int)ind[1]];
         float Pts[3][3];
 
         #pragma omp simd collapse(2)
@@ -268,7 +278,7 @@ const bool getMeshAndFiberEndIntersection(vector<float> &fiberP0, vector<float> 
 
 const bool getMeshAndFiberIntersection(vector<vector<float>> &fiber, const int &nPoints, const int &nPtsLine, const int &N, const int &npbp, vector<vector<float>> &index,
 	const float &step, vector<vector<vector<bool>>> &cubeNotEmpty, const vector<vector<vector<vector<int>>>> &centroidIndex,
-	const vector<vector<vector<vector<vector<float>>>>> &almacen, vector<vector<float>> &vertex, vector<vector<int>>&polygons,
+	const vector<vector<vector<vector<vector<float>>>>> &almacen, float** vertex, int** polygons,
 	int &InInd, int &FnInd, vector<float> &InPtInt, vector<float> &FnPtInt) {
 
 	bool findInt;
@@ -288,7 +298,7 @@ const bool getMeshAndFiberIntersection(vector<vector<float>> &fiber, const int &
 	return true;
 }
 
-void meshAndBundlesIntersection(vector<vector<float>> &vertex, const int &n_vertex, vector<vector<int>>&polygons, const int &n_polygons,
+void meshAndBundlesIntersection(float** vertex, const int &n_vertex, int** polygons, const int &n_polygons,
 	const int &nBundles, vector<int> &nFibers, vector<vector<int>> &nPoints, vector<vector<vector<vector<float>>>> &Points, const int& nPtsLine,
 	vector<vector<int>> &InTri, vector<vector<int>> &FnTri, vector<vector<vector<float>>> &InPoints,
 	vector<vector<vector<float>>> &FnPoints, vector<vector<int>> &fib_index) {
@@ -298,10 +308,11 @@ void meshAndBundlesIntersection(vector<vector<float>> &vertex, const int &n_vert
 	vector<float> mdbvs(n_polygons);
 	#pragma omp parallel for schedule(dynamic)
 	for(int i=0; i<n_polygons; i++) {
-		vector<vector<float>> pts(3,vector<float>(3));
-		pts[0] = vertex[polygons[i][0]];
-		pts[1] = vertex[polygons[i][1]];
-		pts[2] = vertex[polygons[i][2]];
+		float* const pts[3] = {
+			vertex[polygons[i][0]],
+			vertex[polygons[i][1]],
+                        vertex[polygons[i][2]]
+		};
 
 		float dists[3] = {0,0,0};
 		for(int k=0; k<3; k++) dists[0] += pow(pts[0][k] - pts[1][k], 2);
@@ -365,6 +376,8 @@ void meshAndBundlesIntersection(vector<vector<float>> &vertex, const int &n_vert
 	vector<vector<vector<vector<float>>>> Bundles;
 	vector<vector<int>> new_nBundles;
 
+	// Filter bundles to get only fibres who's first and last points are within
+	// the bounding box of the surface
 	for(int i=0; i<nBundles; i++) {
 		vector<vector<vector<float>>> new_Points;
 		vector<int> new_nPoints;
@@ -388,6 +401,7 @@ void meshAndBundlesIntersection(vector<vector<float>> &vertex, const int &n_vert
 		new_nBundles.emplace_back(new_nPoints);
 	}
 
+	// Overwrite filtered data back into Points
 	for(int i=0; i<nBundles; i++) {
 		nFibers[i] = Bundles[i].size();
 
@@ -405,6 +419,7 @@ void meshAndBundlesIntersection(vector<vector<float>> &vertex, const int &n_vert
 	}
 
 	// ================ Obtiene la cantidad de intervalos por eje ==================
+	// Get the number of intervals per axix
 	const float mins[3] = {minx, miny, minz};
 	const float maxs[3] = {maxx, maxy, maxz};
 	int counts[3] = {0, 0, 0};
@@ -418,6 +433,7 @@ void meshAndBundlesIntersection(vector<vector<float>> &vertex, const int &n_vert
 	}
 
 	// ====== Generacion de intervalos (coordenadas de los vertices de cada cubo) ===================
+	// Interval Generation (coordinates of the vertices of each cube)
 	vector<vector<float>> index(3,vector<float>()); 
 
 	for(int i=0; i<3; i++) {
@@ -435,13 +451,14 @@ void meshAndBundlesIntersection(vector<vector<float>> &vertex, const int &n_vert
 
 	#pragma omp parallel for schedule(dynamic)
 	for(int i=0; i<n_polygons; i++) {
-		vector<vector<vector<float>>> triangles(1,vector<vector<float>>(3,vector<float>()));
+		float* triangles[1][3];
 		//triangles[0] = new float*[3];
 
 		for(int j=0; j<3; j++)
 			triangles[0][j] = vertex[polygons[i][j]];
 
-		vector<vector<float>> centroid = triangle_interpolation(triangles, N);
+		vector<vector<vector<float>>> subTriangles = segment_triangles(triangles);
+		vector<vector<float>> centroid = get_triangle_centroid(subTriangles, N);
 
 		for(int j=0; j<pow(4,N); j++) {
 			for(int k=0; k<3; k++)
@@ -449,7 +466,13 @@ void meshAndBundlesIntersection(vector<vector<float>> &vertex, const int &n_vert
 		}
 	}
 
+	// Characterize the space as a 3 dimensional field composed of cubes with edge
+	// length of step. Then assign each centroid to this field according to the cube
+	// they are in
+	//
+	//   x[     y[     z[centroid[coord[x,y,z]]]]]
 	vector<vector<vector<vector<vector<float>>>>> almacen;
+	//   x[     y[     z[centroid[index]]]]
 	vector<vector<vector<vector<int>>>> centroidIndex;
 	vector<vector<vector<bool>>> cubeNotEmpty(counts[0],vector<vector<bool>>(counts[1],vector<bool>(counts[2])));
 
@@ -475,6 +498,7 @@ void meshAndBundlesIntersection(vector<vector<float>> &vertex, const int &n_vert
 	}
 
 	// =========================== En cada cubo almacena una lista de centroides y su indice ======================
+	// Each cube stores a list of centroids and their index
 
 	for(int i=0; i<n_polygons*pow(4,N); i++) {
 
@@ -485,6 +509,8 @@ void meshAndBundlesIntersection(vector<vector<float>> &vertex, const int &n_vert
 			I[j] = (centroids[i][j] - index[j][0]) / step;
 
 		almacen[I[0]][I[1]][I[2]].emplace_back(centroids[i]);
+		// centroidIndex links the centroid back to its original polygon (so 
+		// four centroids per polygon)
 		centroidIndex[I[0]][I[1]][I[2]].emplace_back(int(i / pow(4,N)));
 		cubeNotEmpty[I[0]][I[1]][I[2]] = true;
 	}

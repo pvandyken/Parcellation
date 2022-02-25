@@ -8,7 +8,6 @@ Last update 08/01/2019 Narciso
 
 """
 import os
-import numpy as np
 import subprocess as sp
 import shutil
 import sys

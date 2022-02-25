@@ -1,4 +1,4 @@
-CC = g++ -std=c++11 -fopenmp
+CC = g++ -g -std=c++11 -fopenmp
 
 CFLAGS = -c -Wall -O3
 

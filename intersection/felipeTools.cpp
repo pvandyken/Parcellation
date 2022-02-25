@@ -18,9 +18,16 @@ void read_mesh(const string &filename, vector<vector<float>>&vertex, vector<vect
 
 		file.read ((char *) & len_vertex, sizeof(int)); // largo de vértices
 
+		std::cout << "Made it here!\n" << len_vertex << std::endl;
 		vector<vector<float>> vertex(len_vertex,vector<float>(3));
 
+		
+		std::cout << "before" << std::endl;
+		std::cout << len_vertex << std::endl;
+		std::cout << "after" << std::endl;
 		for(int i=0; i<len_vertex; i++) {
+			std::cout << "made it here!" << std::endl;
+
 			//vertex[i] = new float[3];
 
 			for(int j=0; j<3; j++)
