@@ -3,6 +3,9 @@
 #include "intersection.h"
 #include "io.h"
 
+int test_func(string var) {
+  return 1;
+}
 
 int cortical_intersections(Ndarray<float> vertices,
                            Ndarray<int> polygons,

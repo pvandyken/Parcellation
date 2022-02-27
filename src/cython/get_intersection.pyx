@@ -1,22 +1,17 @@
 # distutils: language = c++
 import numpy as np
 from libcpp.vector cimport vector
+from libcpp.string cimport string
 
-# cdef extern from '<array>' namespace "std":
-#     cdef cppclass array4 "std:array<int, 4>":
-#         array4() except+
-
-cdef extern from "ndarray.h":
+cdef extern from "../ndarray.h":
     cdef cppclass Ndarray[T]:
         Ndarray() except+
         Ndarray(T*, vector[int], vector[int]) except+
         void pprint()
 
-cdef extern from 'entry.h':
-    int cortical_intersections(Ndarray[float], Ndarray[int])
-# cdef extern from '<vector>' namespace "std":
-#     cdef cppclass vector[T]:
-#         vector()
+cdef extern from '../entry.h':
+    # int cortical_intersections(Ndarray[float], Ndarray[int], string, string)
+    int test_func(string)
 
 def to_vector(items):
     cdef vector[int] vec
@@ -64,7 +59,7 @@ def intersections(vertices, triangles):
 
 
     cdef int ptsline = 2
-    cortical_intersections(vertix_arr, triangle_arr)
+    # cortical_intersections(vertix_arr, triangle_arr)
 
     # for fiber in FnPoints:
     #     for point in fiber:
@@ -73,6 +68,10 @@ def intersections(vertices, triangles):
     #         print("")
     #     print("")
 
+def call_test_func():
+    res = test_func(b"some string")
+    print(res)
+
 vertices = np.asarray([
     [0, 0, 0],
     [50, 0, 0],
@@ -80,4 +79,3 @@ vertices = np.asarray([
 ], dtype=np.single)
 triangles = np.asarray([[0, 1, 2]], dtype=np.intc)
 
-intersections(vertices, triangles)

@@ -1,4 +1,4 @@
-#include "felipeTools.h"
+#include "io.h"
 #include <iostream>
 
 // función que lee el mallado (vértices y polígonos de los triángulos)
