@@ -3,6 +3,7 @@ name = "intersection"
 version = "0.1.0"
 description = ""
 authors = ["Peter Van Dyken <pvandyk2@uwo.ca>"]
+build = 'build.py'
 
 [tool.poetry.dependencies]
 python = "^3.10"
