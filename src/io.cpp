@@ -57,17 +57,17 @@ void read_mesh(const string &filename, vector<vector<float>> &vertex,
 void read_bundles(const string &path, int &nBundles, vector<int> &nFibers,
                   vector<vector<int>> &nPoints,
                   vector<vector<vector<vector<float>>>> &Points) {
-
   vector<string> bundlesDir;
 
   DIR *dir;
   struct dirent *ent;
+  const string dir_name = (path.back() == '/') ? path : path + "/";
   if ((dir = opendir(path.c_str())) != NULL) {
     /* get all the file names and directories within directory */
     while ((ent = readdir(dir)) != NULL) {
       const string bundle_dir = ent->d_name;
       if (*bundle_dir.rbegin() == 'a')
-        bundlesDir.emplace_back(path + bundle_dir);
+        bundlesDir.emplace_back(dir_name + bundle_dir);
     }
     closedir(dir);
   } else {
@@ -87,6 +87,7 @@ void read_bundles(const string &path, int &nBundles, vector<int> &nFibers,
 
     string filename = bundlesDir[i];
     ifstream file(filename, ios::in | ios::binary);
+    cout << "Reading file: " << filename << endl;
 
     if (file.is_open()) {
 

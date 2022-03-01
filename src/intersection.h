@@ -42,7 +42,7 @@ const bool getMeshAndFiberIntersection(
     int &FnInd, vector<float> &InPtInt, vector<float> &FnPtInt);
 
 void meshAndBundlesIntersection(
-    Ndarray<float> &vertex, Ndarray<int> &polygons,
+    Ndarray<float> vertex, Ndarray<int> polygons,
     vector<vector<vector<vector<float>>>> &Points,
     const int &nPtsLine, vector<vector<int>> &InTri, vector<vector<int>> &FnTri,
     vector<vector<vector<float>>> &InPoints,
