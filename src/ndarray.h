@@ -25,6 +25,8 @@ public:
 private:
   T *data;
   vector<int> strides;
+  uint64_t data_length();
+  int get_index(initializer_list<int> indices);
   void print_3rd();
   void print_2d(T* start);
   void print_1st(T* start);
@@ -37,21 +39,7 @@ template <class T> T Ndarray<T>::operator()(initializer_list<int> indices) {
         "Got " +
         to_string(indices.size()) + " but expected " + to_string(shape.size()));
   }
-  int index = 0;
-  unsigned i = 0;
-  for (auto dim_index : indices) {
-    const int dim_length = shape[i];
-    const int stride = strides[i];
-
-    if (dim_index >= dim_length || dim_index < 0) {
-      throw invalid_argument(
-          "Index out of range.\nGot " + to_string(dim_index) +
-          ". Expected index between 0 and " + to_string(dim_length));
-    }
-    index += stride * dim_index;
-    i++;
-  }
-  return data[index];
+  return data[get_index(indices)];
 }
 
 template <class T> T* Ndarray<T>::slice(initializer_list<int> indices) {
@@ -61,25 +49,33 @@ template <class T> T* Ndarray<T>::slice(initializer_list<int> indices) {
   if (indices.size() == 0) {
     throw invalid_argument("Must have at least one index");
   }
+  return &data[get_index(indices)];
+}
 
-  vector<int> new_shape, new_strides;
+template <class T> int get_index(initializer_list<int> indices) {
   int index = 0;
-  unsigned i = 0;
-  new_shape = shape;
-  new_strides = strides;
+  int i = 0;
   for (auto dim_index : indices) {
     const int dim_length = shape[i];
     const int stride = strides[i];
 
     if (dim_index >= dim_length || dim_index < 0) {
-      throw invalid_argument("Index out of range");
+      throw out_of_range(
+          "Invalid Slice operation: Index '" + to_string(i) + "' out of range.\n\tGot " +
+          to_string(indices) + ". Expected index between 0 and " +
+          to_string(dim_length));
     }
-    new_shape.erase(new_shape.begin());
-    new_strides.erase(new_strides.begin());
-    index += stride * dim_index;
+    index += stride * indices;
     i++;
   }
-  return &data[index];
+  if (index > data_length()) {
+    throw out_of_range("Access index went too high!");
+  }
+  return index;
+}
+
+template <class T> uint64_t Ndarray<T>::data_length() {
+  return strides[0] * shape[0];
 }
 
 template <class T> void Ndarray<T>::pprint() {
