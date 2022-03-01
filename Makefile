@@ -1,21 +1,19 @@
 CC = g++ -g -std=c++11 #-fopenmp
 
 CFLAGS = -c -Wall -O0
+SRC = ${wildcard src/*.cpp}
+OBJS = ${patsubst src/%.cpp,build/tmp/%.o,${SRC}} main.cpp
 
 all: main
 
-main: main.o intersection.o felipeTools.o 
-	$(CC) main.o intersection.o felipeTools.o  -o main
+main:${OBJS}
+	$(CC) ${OBJS}  -o main
 
-main.o: main.cpp
-	$(CC) $(CFLAGS) main.cpp
 
-intersection.o: intersection.cpp
-	$(CC) $(CFLAGS) intersection.cpp
 
-felipeTools.o: felipeTools.cpp
-	$(CC) $(CFLAGS) felipeTools.cpp
-
+build/tmp/%.o : src/%.cpp main.cpp
+	mkdir -p ${dir $@}
+	${CC} -o $@ $< -c ${CFLAGS}
 
 clean:
-	rm -rf *o main intersection felipeTools
+	rm -rf main build/tmp
