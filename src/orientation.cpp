@@ -33,20 +33,12 @@ void Orientation::alignOrientation(vector<vector<Vector3f>> &fibers) {
 
     cout << "Base direction: " << (baseDirection ? "True" : "False") << endl;
 
-    vector<int> flippedFibers;
     for (int i=0; i<directions.size(); i++) {
         // If the fiber direction is different than the base direction, flip it
         if (baseDirection ^ directions[i]) {
             reverse(fibers[i].begin(), fibers[i].end());
-            flippedFibers.push_back(i);
         }
     }
-
-    cout << "Flipped fibers: \n";
-    for (auto fiber : flippedFibers) {
-        cout << fiber << " ";
-    }
-    cout << endl;
 }
 
 
