@@ -11,7 +11,7 @@ cdef extern from "../ndarray.h":
         void pprint()
 
 cdef extern from '../entry.h':
-    int cortical_intersections(Ndarray[float], Ndarray[int], string, string)
+    int cortical_intersections(Ndarray[float], Ndarray[int], string, string, int)
 
 cdef vector[int] to_vector(items):
     cdef vector[int] vec
@@ -49,7 +49,7 @@ cdef Ndarray[float] float_ndarray(arr):
     cdef Ndarray[float] narr = Ndarray[float](&memview[0], shape, strides)
     return narr
 
-def intersections(vertices, triangles, bundles_dir, out_path):
+def intersections(vertices, triangles, bundles_dir, out_path, ray_len = 5):
     if len(vertices.shape) != 2 or vertices.shape[1] != 3:
         raise Exception("Vertex array must have 2 dimensions with shape (x, 3)")
 
@@ -62,5 +62,5 @@ def intersections(vertices, triangles, bundles_dir, out_path):
 
     cdef int ptsline = 2
     cortical_intersections(
-        vertix_arr, triangle_arr, bundles_dir.encode(), out_path.encode()
+        vertix_arr, triangle_arr, bundles_dir.encode(), out_path.encode(), ray_len
     )

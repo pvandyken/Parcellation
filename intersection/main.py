@@ -15,6 +15,7 @@ def main(
     left_bundles: Path,
     # right_bundles: Path,
     out_path: Path,
+    ray_length: int = 5
 ):
     return get_intersection(left_surf, left_bundles, out_path)
 
