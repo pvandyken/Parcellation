@@ -52,7 +52,7 @@ template <class T> T* Ndarray<T>::slice(initializer_list<int> indices) {
   return &data[get_index(indices)];
 }
 
-template <class T> int get_index(initializer_list<int> indices) {
+template <class T> int Ndarray<T>::get_index(initializer_list<int> indices) {
   int index = 0;
   int i = 0;
   for (auto dim_index : indices) {
@@ -62,10 +62,10 @@ template <class T> int get_index(initializer_list<int> indices) {
     if (dim_index >= dim_length || dim_index < 0) {
       throw out_of_range(
           "Invalid Slice operation: Index '" + to_string(i) + "' out of range.\n\tGot " +
-          to_string(indices) + ". Expected index between 0 and " +
+          to_string(dim_index) + ". Expected index between 0 and " +
           to_string(dim_length));
     }
-    index += stride * indices;
+    index += stride * dim_index;
     i++;
   }
   if (index > data_length()) {
