@@ -9,8 +9,6 @@ cdef extern from "../ndarray.h":
         Ndarray() except+
         Ndarray(T*, vector[int], vector[int]) except+
         void pprint()
-    
-    void print_pointer(int*)
 
 cdef extern from '../entry.h':
     int cortical_intersections(Ndarray[float], Ndarray[int], string, string)
