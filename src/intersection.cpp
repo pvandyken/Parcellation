@@ -1,7 +1,8 @@
 #include "intersection.h"
+#include <unordered_set>
 
 // ============ Producto Punto =============
-const float dotProduct(const float a[], float *&b)
+const float Intersection::dotProduct(const float a[], float *&b)
 {
   float c = 0;
 
@@ -14,7 +15,7 @@ const float dotProduct(const float a[], float *&b)
 }
 
 // ============ Producto Cruz ==============
-float *crossProduct(const float a[], const float b[])
+float *Intersection::crossProduct(const float a[], const float b[])
 {
   float *c = new float[3];
   int i = 1, j = 2;
@@ -33,7 +34,7 @@ float *crossProduct(const float a[], const float b[])
 
 // =========== Función que calcula la intersección entre un rayo con un
 // triángulo ====================
-bool ray_triangle_intersection(const float ray_near[], const float ray_dir[],
+bool Intersection::ray_triangle_intersection(const float ray_near[], const float ray_dir[],
                                const float Points[][3], float &t)
 {
 
@@ -89,7 +90,7 @@ bool ray_triangle_intersection(const float ray_near[], const float ray_dir[],
   return true;
 }
 
-vector<vector<float>> multiple_vertices(float *triangle[3])
+vector<vector<float>> Intersection::multiple_vertices(float *triangle[3])
 {
 
   vector<vector<float>> pt(6, vector<float>(3));
@@ -112,7 +113,7 @@ vector<vector<float>> multiple_vertices(float *triangle[3])
 }
 
 vector<vector<vector<float>>>
-multiple_triangles(float *triangles[1][3], int &len, const int polys[][3])
+Intersection::multiple_triangles(float *triangles[1][3], int &len, const int polys[][3])
 {
   vector<vector<vector<float>>> new_triangles(
       len * 4, vector<vector<float>>(3, vector<float>(3)));
@@ -138,7 +139,7 @@ multiple_triangles(float *triangles[1][3], int &len, const int polys[][3])
   return new_triangles;
 }
 
-vector<vector<vector<float>>> segment_triangles(float *triangles[1][3])
+vector<vector<vector<float>>> Intersection::segment_triangles(float *triangles[1][3])
 {
   /*
   Split each triangle into four sub triangles
@@ -156,7 +157,7 @@ vector<vector<vector<float>>> segment_triangles(float *triangles[1][3])
 }
 
 vector<vector<float>>
-get_triangle_centroid(vector<vector<vector<float>>> const triangles,
+Intersection::get_triangle_centroid(vector<vector<vector<float>>> const triangles,
                       const int &N)
 {
   vector<vector<float>> centroid(int(pow(4, N)), vector<float>(3));
@@ -179,8 +180,8 @@ get_triangle_centroid(vector<vector<vector<float>>> const triangles,
   return centroid;
 }
 
-const bool getMeshAndFiberEndIntersection(
-    vector<float> &fiberP0, vector<float> &fiberP1, const int &nPoints,
+const bool Intersection::getMeshAndFiberEndIntersection(
+    Vector3f &fiberP0, Vector3f &fiberP1, const int &nPoints,
     const int &nPtsLine, const int &N, const int &npbp,
     vector<vector<float>> &index, const float &step,
     vector<vector<vector<bool>>> &cubeNotEmpty,
@@ -189,23 +190,19 @@ const bool getMeshAndFiberEndIntersection(
     Ndarray<float> &vertex, Ndarray<int> &polygons, int &Ind, vector<float> &ptInt)
 {
 
-  float dd[3];
+  Vector3f dd = (fiberP0 - fiberP1) / (npbp + 1);
 
-#pragma omp simd
-  for (int i = 0; i < 3; i++)
-    dd[i] = (fiberP0[i] - fiberP1[i]) / float(npbp + 1);
 
-  vector<vector<int>> indexes;
+  vector<Vector3i> indexes;
+  Vector3f gridStart(index[0][0], index[1][0], index[2][0]);
 
   for (int i = 0; i <= nPtsLine + (nPtsLine - 1) * npbp; i++)
   {
 
-    int I[3];
+    Vector3i I = ((fiberP1 + i*dd - gridStart) / step).cast<int>();
 
-#pragma omp simd
-    for (int j = 0; j < 3; j++)
-      I[j] = ((fiberP1[j] + i * dd[j]) - index[j][0]) / step;
 
+    // Check all neighboring cubes
 #pragma omp simd collapse(3)
     for (int a = -1; a < 2; a++)
     {
@@ -213,17 +210,10 @@ const bool getMeshAndFiberEndIntersection(
       {
         for (int c = -1; c < 2; c++)
         {
-
           if (cubeNotEmpty[I[0] + a][I[1] + b][I[2] + c])
           {
-            vector<int> INDEX(3);
-
-            int abc[3] = {a, b, c};
-
-            for (int k = 0; k < 3; k++)
-              INDEX[k] = I[k] + abc[k];
-
-            indexes.emplace_back(INDEX);
+            Vector3i abc(a, b, c);
+            indexes.emplace_back(I + abc);
           }
         }
       }
@@ -233,11 +223,11 @@ const bool getMeshAndFiberEndIntersection(
   if (indexes.empty())
     return false;
 
-  sort(indexes.begin(), indexes.end());
+  sort(indexes.begin(), indexes.end(), &Utils::compareVec<Vector3i>);
   indexes.erase(unique(indexes.begin(), indexes.end()), indexes.end());
   vector<vector<double>> listDist;
 
-  for (const vector<int> &I : indexes)
+  for (const auto &I : indexes)
   {
     for (int u = 0; u < (int)centroidIndex[I[0]][I[1]][I[2]].size(); u++)
     {
@@ -326,8 +316,8 @@ const bool getMeshAndFiberEndIntersection(
   return false;
 }
 
-const bool getMeshAndFiberIntersection(
-    vector<vector<float>> &fiber, const int &nPoints, const int &nPtsLine,
+const bool Intersection::getMeshAndFiberIntersection(
+    vector<Vector3f> &fiber, const int &nPoints, const int &nPtsLine,
     const int &N, const int &npbp, vector<vector<float>> &index,
     const float &step, vector<vector<vector<bool>>> &cubeNotEmpty,
     const vector<vector<vector<vector<int>>>> &centroidIndex,
@@ -358,9 +348,9 @@ const bool getMeshAndFiberIntersection(
   return true;
 }
 
-void meshAndBundlesIntersection(
+void Intersection::meshAndBundlesIntersection(
     Ndarray<float> vertex, Ndarray<int> polygons,
-    vector<vector<vector<vector<float>>>> &Points, const int &nPtsLine,
+    vector<vector<vector<Vector3f>>> &Points, const int &nPtsLine,
     vector<vector<int>> &InTri, vector<vector<int>> &FnTri,
     vector<vector<vector<float>>> &InPoints,
     vector<vector<vector<float>>> &FnPoints, vector<vector<int>> &fib_index)
@@ -448,83 +438,51 @@ void meshAndBundlesIntersection(
   const float maxz =
       *vz.rbegin() + (nPtsLine + 1) * mdbp + 4 * step; // coordenada z maxima
 
-  vector<vector<vector<vector<float>>>> Bundles;
-  vector<vector<int>> new_nBundles;
+  const Vector3f minCoord = Vector3f(minx, miny, minz);
+  const Vector3f maxCoord = Vector3f(maxx, maxy, maxz);
 
   // Filter bundles to get only fibres who's first and last points are within
   // the bounding box of the surface
   cout << "Filter bundles..." << endl;
-  for (int i = 0; i < (int)Points.size(); i++)
+
+  const Array3f minFiberBound = (
+    Vector3f(vx.front(), vy.front(), vz.front()).array() - mdbp - (2*step)
+  );
+  const Array3f maxFiberBound = (
+    Vector3f(vx.back(), vy.back(), vz.back()).array() + mdbp + (2*step)
+  );
+
+  for (auto &bundle : Points)
   {
-    vector<vector<vector<float>>> new_Points;
-    vector<int> new_nPoints;
-
-    for (int j = 0; j < (int)Points[i].size(); j++)
+    // Loop through bundle, erasing fibres that don't fit
+    for (auto fibre = bundle.begin(); fibre != bundle.end(); )
     {
+      const auto init_pt = fibre->front().array();
+      const auto final_pt = fibre->back().array();
+      const auto initial_within = (
+        (minFiberBound <= init_pt).all() && (maxFiberBound >= init_pt).all()
+      );
+      const auto final_within = (
+        (minFiberBound <= final_pt).all() && (maxFiberBound >= final_pt).all()
+      );
 
-      const bool exi =
-          ((*vx.begin() - mdbp - 2 * step) <= Points[i][j][0][0]) &&
-          (Points[i][j][0][0] <= (*vx.rbegin() + mdbp + 2 * step));
-      const bool eyi =
-          ((*vy.begin() - mdbp - 2 * step) <= Points[i][j][0][1]) &&
-          (Points[i][j][0][1] <= (*vy.rbegin() + mdbp + 2 * step));
-      const bool ezi =
-          ((*vz.begin() - mdbp - 2 * step) <= Points[i][j][0][2]) &&
-          (Points[i][j][0][2] <= (*vz.rbegin() + mdbp + 2 * step));
-
-      const bool exf = ((*vx.begin() - mdbp - 2 * step) <=
-                        Points[i][j][Points[i][j].size() - 1][0]) &&
-                       (Points[i][j][Points[i][j].size() - 1][0] <=
-                        (*vx.rbegin() + mdbp + 2 * step));
-      const bool eyf = ((*vy.begin() - mdbp - 2 * step) <=
-                        Points[i][j][Points[i][j].size() - 1][1]) &&
-                       (Points[i][j][Points[i][j].size() - 1][1] <=
-                        (*vy.rbegin() + mdbp + 2 * step));
-      const bool ezf = ((*vz.begin() - mdbp - 2 * step) <=
-                        Points[i][j][Points[i][j].size() - 1][2]) &&
-                       (Points[i][j][Points[i][j].size() - 1][2] <=
-                        (*vz.rbegin() + mdbp + 2 * step));
-
-      if (exi && eyi && ezi && exf && eyf && ezf)
+      if (!initial_within || !final_within)
       {
-        new_Points.emplace_back(Points[i][j]);
-        new_nPoints.emplace_back(Points[i][j].size());
+        bundle.erase(fibre);
+      } else
+      {
+        fibre++;
       }
-    }
-    Bundles.emplace_back(new_Points);
-    new_nBundles.emplace_back(new_nPoints);
-  }
-
-  // Overwrite filtered data back into Points
-  for (int i = 0; i < (int)Points.size(); i++)
-  {
-    vector<vector<vector<float>>> pointsi(Points[i].size());
-    Points[i] = pointsi;
-    // Points[i] = new float**[nFibers[i]];
-    // nPoints[i] = new int[nFibers[i]];
-
-    for (int j = 0; j < (int)Points[i].size(); j++)
-    {
-      Points[i][j] = Bundles[i][j];
     }
   }
 
   cout << "Get number of intervals per axis..." << endl;
   // ================ Obtiene la cantidad de intervalos por eje
   //  Get the number of intervals per axix
-  const float mins[3] = {minx, miny, minz};
-  const float maxs[3] = {maxx, maxy, maxz};
-  int counts[3] = {0, 0, 0};
+  const Vector3f mins = Vector3f(minx, miny, minz);
+  const Vector3f maxs = Vector3f(maxx, maxy, maxz);
+  const Vector3i counts = ((maxs - mins) / step).cast<int>();
 
-  for (int i = 0; i < 3; i++)
-  {
-    float ini = mins[i];
-    while (ini < maxs[i])
-    {
-      counts[i]++;
-      ini += step;
-    }
-  }
 
   // ====== Generacion de intervalos (coordenadas de los vertices de cada cubo)
   //  Interval Generation (coordinates of the vertices of each cube)
