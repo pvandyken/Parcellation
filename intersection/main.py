@@ -16,7 +16,7 @@ def main(
     # right_bundles: Path,
     out_path: Path,
 ):
-    return src.get_intersection(left_surf, left_bundles, out_path)
+    return get_intersection(left_surf, left_bundles, out_path)
 
 
 def get_intersection(surf_path: Path, bundles_path: Path, out_path: Path) -> int:
