@@ -28,7 +28,7 @@ int cortical_intersections(Ndarray<float> vertices,
 
   IO::read_bundles(bundle_dir, nLBundles, nFibers, nPoints, bundles);
   orientBundles(bundles);
-  const int nPtsLine = 2;
+  const int nPtsLine = 4;
   cout << "Example fibre\nFront: " << bundles[0][0].front().transpose() << "\nBack: " << bundles[0][0].back().transpose() << endl;
 
   cout << "Number of bundles: " << nLBundles << "\nNumber of fibres: "
