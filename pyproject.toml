@@ -12,6 +12,7 @@ nibabel = "^3.2.2"
 typer = "^0.4.0"
 attrs = "^21.4.0"
 fury = "^0.8.0"
+more-itertools = "^8.12.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
