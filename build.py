@@ -5,7 +5,8 @@ extensions = [
     Extension("intersection.src", sources=[
         "src/cython/get_intersection.pyx",
         "src/intersection.cpp",
-        "src/io.cpp"
+        "src/io.cpp",
+        "src/orientation.cpp",
         ],  extra_compile_args=["-O0"])
 ]
 
