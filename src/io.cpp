@@ -2,7 +2,7 @@
 #include <iostream>
 
 // función que lee el mallado (vértices y polígonos de los triángulos)
-void read_mesh(const string &filename, vector<vector<float>> &vertex,
+void IO::read_mesh(const string &filename, vector<vector<float>> &vertex,
                vector<vector<int>> &polygons, int &len_vertex,
                int &len_polygons) {
 
@@ -54,9 +54,9 @@ void read_mesh(const string &filename, vector<vector<float>> &vertex,
 }
 
 // función que lee un archivo .bundles
-void read_bundles(const string &path, int &nBundles, vector<int> &nFibers,
+void IO::read_bundles(const string &path, int &nBundles, vector<int> &nFibers,
                   vector<vector<int>> &nPoints,
-                  vector<vector<vector<vector<float>>>> &Points) {
+                  vector<vector<vector<Vector3f>>> &Points) {
   vector<string> bundlesDir;
 
   DIR *dir;
@@ -81,7 +81,7 @@ void read_bundles(const string &path, int &nBundles, vector<int> &nFibers,
   nBundles = bundlesDir.size();
   nFibers = vector<int>(nBundles);
   nPoints = vector<vector<int>>(nBundles, vector<int>());
-  Points = vector<vector<vector<vector<float>>>>(nBundles);
+  Points = vector<vector<vector<Vector3f>>>(nBundles);
 
   for (int i = 0; i < nBundles; i++) {
 
@@ -99,14 +99,14 @@ void read_bundles(const string &path, int &nBundles, vector<int> &nFibers,
       int num_count = 0;
 
       vector<int> nPointsList;
-      vector<vector<vector<float>>> PointsList;
+      vector<vector<Vector3f>> PointsList;
 
       while (num_count < num) {
 
         int total_points; // number of points of each fiber
         file.read((char *)&total_points, sizeof(int));
 
-        vector<vector<float>> Fiber(total_points, vector<float>(3));
+        vector<Vector3f> Fiber(total_points, Vector3f());
 
         for (int k = 0; k < total_points; k++) {
           // Fiber[k] = new float[3];
@@ -122,7 +122,7 @@ void read_bundles(const string &path, int &nBundles, vector<int> &nFibers,
 
       nFibers[i] = nPointsList.size();
       nPoints[i] = vector<int>(nPointsList.size());
-      Points[i] = vector<vector<vector<float>>>(nPointsList.size());
+      Points[i] = vector<vector<Vector3f>>(nPointsList.size());
       // nPoints[i] = new int[nPointsList.size()];
       // Points[i] = new float**[nPointsList.size()];
 
@@ -135,7 +135,7 @@ void read_bundles(const string &path, int &nBundles, vector<int> &nFibers,
   }
 }
 
-void write_intersection(const string &path, const string &pathBundles,
+void IO::write_intersection(const string &path, const string &pathBundles,
                         const vector<vector<int>> &InTri,
                         const vector<vector<int>> &FnTri,
                         const vector<vector<vector<float>>> &InPoints,
