@@ -5,6 +5,7 @@ from typing import Type, TypeVar
 import attrs
 import nibabel as nib
 import numpy as np
+from nibabel.freesurfer.io import read_annot
 from fury.io import save_polydata
 from fury.utils import PolyData, set_polydata_triangles, set_polydata_vertices
 from numpy.typing import NDArray
@@ -68,9 +69,34 @@ class Mesh:
         set_polydata_vertices(pd, self.points)
         save_polydata(pd, str(name), binary=True)
 
+    def get_labels(self, annotations: "Annotations", triangles: list[int]):
+        for i in triangles:
+            triangle = self.triangles[i]
+            labels = [annotations.get_label(coord) for coord in triangle]
+            yield labels
+
     @classmethod
     def from_file(cls, name: Path):
         data = nib.load(name)
         return cls(
             points=data.agg_data("pointset"), triangles=data.agg_data("triangle")
+        )
+
+
+@attrs.frozen()
+class Annotations:
+    labels: NDArray[np.int32]
+    ctab: NDArray[np.int32]
+    names: list[str]
+
+    def get_label(self, coord: int):
+        return self.names[self.labels[coord]]
+
+    @classmethod
+    def load(cls, path: Path):
+        labels, ctab, names = read_annot(path)
+        return cls(
+            labels,
+            ctab,
+            [s.decode() for s in names]
         )
