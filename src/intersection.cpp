@@ -379,7 +379,7 @@ void Intersection::meshAndBundlesIntersection(
     mdbvs[i] = *max_element(begin(dists), end(dists));
   }
   float mdbv = *max_element(begin(mdbvs), end(mdbvs));
-  const float step = mdbv / pow(2, N + 1);
+  const float step = mdbv*1.5 / pow(2, N + 1);
 
   cout << "Calculate maximal size between points..." << endl;
   float mdbp = 0; // maximum distance between points
