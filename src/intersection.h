@@ -5,6 +5,7 @@
 #include "mesh.h"
 #include "types.h"
 #include "bundles.h"
+#include "bundleIntersection.h"
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -38,17 +39,16 @@ public:
         const Mesh &mesh,
         vector<Bundle> &bundles, const int &nPtsLine);
 
-    CorticalIntersection(const Mesh &mesh, vector<vector<int>> &interceptions)
-        : mesh{mesh}, inTri{interceptions} {};
+    CorticalIntersection(const Mesh &mesh, vector<BundleIntersection> &interceptions)
+        : mesh{mesh}, frontIntersections{interceptions} {};
 
     const Mesh &mesh;
-    vector<vector<int>> inTri;
-    vector<vector<int>> fnTri;
-    vector<vector<vector<float>>> inPoints;
-    vector<vector<vector<float>>> fnPoints;
+    vector<BundleIntersection> frontIntersections;
+    vector<BundleIntersection> backIntersections;
     vector<vector<int>> fibIndex;
 
-    map<int, int> &getTrianglesIntersected(const int index);
+    const map<int, int> &getTrianglesIntersected(const int index);
+    map<int, int> getTriangleProbabilities(const int bundleIndex);
 
 private:
     vector<map<int, int>> trianglesIntersected;

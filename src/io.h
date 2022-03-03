@@ -9,6 +9,7 @@
 #include <vector>
 #include <Eigen/Dense>
 #include "bundles.h"
+#include "bundleIntersection.h"
 
 
 using namespace std;
@@ -21,10 +22,8 @@ namespace IO {
     void read_bundles(const string &path, vector<Bundle> &bundles);
 
     void write_intersection(const string &path, const string &pathBundles,
-                            const vector<vector<int>> &InTri,
-                            const vector<vector<int>> &FnTri,
-                            const vector<vector<vector<float>>> &InPoints,
-                            const vector<vector<vector<float>>> &FnPoints,
+                            const vector<BundleIntersection> &frontIntersections,
+                            const vector<BundleIntersection> &backIntersections,
                             const vector<vector<int>> &fib_index);
 
     void Delete(float **&vertex, const int &len_vertex, const int &len_polygons);

@@ -11,4 +11,5 @@ class Bundle {
 public:
     Bundle(const string &path);
     vector<vector<Vector3f>> fibers;
+    
 };

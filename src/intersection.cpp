@@ -34,7 +34,7 @@ float *Intersection::crossProduct(const float a[], const float b[])
 // =========== Función que calcula la intersección entre un rayo con un
 // triángulo ====================
 bool Intersection::ray_triangle_intersection(const float ray_near[], const float ray_dir[],
-                               const float Points[][3], float &t)
+                                             const float Points[][3], float &t)
 {
 
   const float eps = 0.000001;
@@ -157,7 +157,7 @@ vector<vector<vector<float>>> Intersection::segment_triangles(const float *trian
 
 vector<vector<float>>
 Intersection::get_triangle_centroid(vector<vector<vector<float>>> const triangles,
-                      const int &N)
+                                    const int &N)
 {
   vector<vector<float>> centroid(int(pow(4, N)), vector<float>(3));
   int len = 1;
@@ -192,15 +192,13 @@ const bool CorticalIntersection::getMeshAndFiberEndIntersection(
 
   Vector3f dd = (fiberP0 - fiberP1) / (npbp + 1);
 
-
   vector<Vector3i> indexes;
   Vector3f gridStart(index[0][0], index[1][0], index[2][0]);
 
   for (int i = 0; i <= nPtsLine + (nPtsLine - 1) * npbp; i++)
   {
 
-    Vector3i I = ((fiberP1 + i*dd - gridStart) / step).cast<int>();
-
+    Vector3i I = ((fiberP1 + i * dd - gridStart) / step).cast<int>();
 
     // Check all neighboring cubes
 #pragma omp simd collapse(3)
@@ -350,10 +348,14 @@ const bool CorticalIntersection::getMeshAndFiberIntersection(
 
 CorticalIntersection::CorticalIntersection(
     const Mesh &mesh,
-    vector<Bundle> &bundles, const int &nPtsLine) : mesh{mesh}
+    vector<Bundle> &bundles, const int &nPtsLine)
+    : mesh{mesh},
+      frontIntersections{vector<BundleIntersection>(bundles.size())},
+      backIntersections{vector<BundleIntersection>(bundles.size())},
+      fibIndex{vector<vector<int>>(bundles.size())}
 {
-    const EigenDRef<const MatrixX3f> &vertex = mesh.vertices;
-    const EigenDRef<const MatrixX3i> &polygons = mesh.polygons;
+  const EigenDRef<const MatrixX3f> &vertex = mesh.vertices;
+  const EigenDRef<const MatrixX3i> &polygons = mesh.polygons;
 
   cout << "Calculate mesh and bundles intersection" << endl;
   int N = 1;
@@ -363,21 +365,19 @@ CorticalIntersection::CorticalIntersection(
   for (int i = 0; i < polygons.rows(); i++)
   {
     const Vector3f pts[3] = {
-      vertex(polygons(i, 0), all),
-      vertex(polygons(i, 1), all),
-      vertex(polygons(i, 2), all)
-    };
+        vertex(polygons(i, 0), all),
+        vertex(polygons(i, 1), all),
+        vertex(polygons(i, 2), all)};
 
     const float dists[3] = {
-      (pts[0] - pts[1]).norm(),
-      (pts[1] - pts[2]).norm(),
-      (pts[2] - pts[0]).norm()
-    };
+        (pts[0] - pts[1]).norm(),
+        (pts[1] - pts[2]).norm(),
+        (pts[2] - pts[0]).norm()};
 
     mdbvs[i] = *max_element(begin(dists), end(dists));
   }
   float mdbv = *max_element(begin(mdbvs), end(mdbvs));
-  const float step = mdbv*1.5 / pow(2, N + 1);
+  const float step = mdbv * 1.5 / pow(2, N + 1);
 
   cout << "Calculate maximal size between points..." << endl;
   float mdbp = 0; // maximum distance between points
@@ -443,31 +443,24 @@ CorticalIntersection::CorticalIntersection(
   // the bounding box of the surface
   cout << "Filter bundles..." << endl;
 
-  const Array3f minFiberBound = (
-    Vector3f(vx.front(), vy.front(), vz.front()).array() - mdbp - (2*step)
-  );
-  const Array3f maxFiberBound = (
-    Vector3f(vx.back(), vy.back(), vz.back()).array() + mdbp + (2*step)
-  );
+  const Array3f minFiberBound = (Vector3f(vx.front(), vy.front(), vz.front()).array() - mdbp - (2 * step));
+  const Array3f maxFiberBound = (Vector3f(vx.back(), vy.back(), vz.back()).array() + mdbp + (2 * step));
 
   for (auto &bundle : bundles)
   {
     // Loop through bundle, erasing fibres that don't fit
-    for (auto fibre = bundle.fibers.begin(); fibre != bundle.fibers.end(); )
+    for (auto fibre = bundle.fibers.begin(); fibre != bundle.fibers.end();)
     {
       const auto init_pt = fibre->front().array();
       const auto final_pt = fibre->back().array();
-      const auto initial_within = (
-        (minFiberBound <= init_pt).all() && (maxFiberBound >= init_pt).all()
-      );
-      const auto final_within = (
-        (minFiberBound <= final_pt).all() && (maxFiberBound >= final_pt).all()
-      );
+      const auto initial_within = ((minFiberBound <= init_pt).all() && (maxFiberBound >= init_pt).all());
+      const auto final_within = ((minFiberBound <= final_pt).all() && (maxFiberBound >= final_pt).all());
 
       if (!initial_within || !final_within)
       {
         bundle.fibers.erase(fibre);
-      } else
+      }
+      else
       {
         fibre++;
       }
@@ -480,7 +473,6 @@ CorticalIntersection::CorticalIntersection(
   const Vector3f mins = Vector3f(minx, miny, minz);
   const Vector3f maxs = Vector3f(maxx, maxy, maxz);
   const Vector3i counts = ((maxs - mins) / step).cast<int>();
-
 
   // ====== Generacion de intervalos (coordenadas de los vertices de cada cubo)
   //  Interval Generation (coordinates of the vertices of each cube)
@@ -506,7 +498,7 @@ CorticalIntersection::CorticalIntersection(
 #pragma omp parallel for schedule(dynamic)
   for (int i = 0; i < polygons.rows(); i++)
   {
-    const float* triangles[1][3];
+    const float *triangles[1][3];
     // triangles[0] = new float*[3];
 
     for (int j = 0; j < 3; j++)
@@ -578,12 +570,6 @@ CorticalIntersection::CorticalIntersection(
 
   // ============================================================
 
-  this->inTri = vector<vector<int>>(bundles.size(), vector<int>());
-  this->fnTri = vector<vector<int>>(bundles.size(), vector<int>());
-  this->inPoints = vector<vector<vector<float>>>(bundles.size(), vector<vector<float>>());
-  this->fnPoints = vector<vector<vector<float>>>(bundles.size(), vector<vector<float>>());
-  this->fibIndex = vector<vector<int>>(bundles.size(), vector<int>());
-
   for (int i = 0; i < (int)bundles.size(); i++)
   {
 
@@ -622,10 +608,10 @@ CorticalIntersection::CorticalIntersection(
     {
       if (listFibInd[j] != -1)
       {
-        this->inTri[i].push_back(listTri[j][0]);
-        this->fnTri[i].push_back(listTri[j][1]);
-        this->inPoints[i].push_back(listPtInt[j][0]);
-        this->fnPoints[i].push_back(listPtInt[j][1]);
+        this->frontIntersections[i].triangles.push_back(listTri[j][0]);
+        this->frontIntersections[i].points.push_back(listPtInt[j][0]);
+        this->backIntersections[i].triangles.push_back(listTri[j][1]);
+        this->backIntersections[i].points.push_back(listPtInt[j][1]);
       }
     }
     listFibInd.erase(remove_if(listFibInd.begin(), listFibInd.end(),
@@ -636,20 +622,26 @@ CorticalIntersection::CorticalIntersection(
   }
 }
 
-map<int, int> &CorticalIntersection::getTrianglesIntersected(const int index) {
-  if (this->trianglesIntersected.size() == 0) {
+const map<int, int> &CorticalIntersection::getTrianglesIntersected(const int index)
+{
+  if (this->trianglesIntersected.size() == 0)
+  {
     // Loop through triangle indices
-    for (uint32_t i = 0; i<this->mesh.polygons.size(); i++) {
+    for (uint32_t i = 0; i < this->mesh.polygons.size(); i++)
+    {
       // For each triangle, find each bundle that intersects it, getting a count of
       // the number of intersections
       map<int, int> intersections;
-      VecProxy<vector<int>> allTriangles(inTri, fnTri);
-      for (uint32_t j = 0; j<allTriangles.size(); j++) {
-        const vector<int> &bundle = allTriangles[j];
+      VecProxy<BundleIntersection> allIntersections(frontIntersections, backIntersections);
+      for (uint32_t j = 0; j < allIntersections.size(); j++)
+      {
+        const vector<int> &triangles = allIntersections[j].triangles;
 
         uint32_t count = 0;
-        for (const auto &triangle : bundle) {
-          if (triangle == i) {
+        for (const auto &triangle : triangles)
+        {
+          if (triangle == i)
+          {
             count++;
           }
         }
