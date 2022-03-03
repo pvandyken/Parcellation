@@ -581,11 +581,6 @@ CorticalIntersection::CorticalIntersection(
 
   // ============================================================
 
-  this->inTri = vector<vector<int>>(bundles.size(), vector<int>());
-  this->fnTri = vector<vector<int>>(bundles.size(), vector<int>());
-  this->inPoints = vector<vector<vector<float>>>(bundles.size(), vector<vector<float>>());
-  this->fnPoints = vector<vector<vector<float>>>(bundles.size(), vector<vector<float>>());
-  this->fibIndex = vector<vector<int>>(bundles.size(), vector<int>());
 
   for (int i = 0; i < (int)bundles.size(); i++)
   {
@@ -625,16 +620,16 @@ CorticalIntersection::CorticalIntersection(
     {
       if (listFibInd[j] != -1)
       {
-        this->inTri[i].push_back(listTri[j][0]);
-        this->fnTri[i].push_back(listTri[j][1]);
-        this->inPoints[i].push_back(listPtInt[j][0]);
-        this->fnPoints[i].push_back(listPtInt[j][1]);
+        bundles[i].inTri.push_back(listTri[j][0]);
+        bundles[i].fnTri.push_back(listTri[j][1]);
+        bundles[i].inPoints.push_back(listPtInt[j][0]);
+        bundles[i].fnPoints.push_back(listPtInt[j][1]);
       }
     }
     listFibInd.erase(remove_if(listFibInd.begin(), listFibInd.end(),
                                [](int i)
                                { return i == -1; }),
                      listFibInd.end());
-    this->fibIndex[i] = listFibInd;
+    bundles[i].fibIndex = listFibInd;
   }
 }
