@@ -1,4 +1,6 @@
-#include "src/orientation.h"
+#define CATCH_CONFIG_MAIN
+#include "catch.hpp"
+#include "src/mesh.h"
 #include <array>
 #include <iostream>
 #include <vector>
@@ -6,37 +8,32 @@
 
 using namespace std;
 
-template <class T> bool comp_v3(T a, T b) {
-  for (int i = 0; i<3; i++) {
-    if (a(i) != b(i)) {
-      return a(i) < b(i);
-    }
-  }
-  return false;
-}
 
-int main() {
+TEST_CASE( "Triangles formed by each point are calculated", "[mesh]") {
+  MatrixX3f points(11, 3);
+  // 11 Points
+  points << 0, 0, 0, // 0
+            1, 1, 1, // 1
+            3, 3, 2, // 2
+            4, 2, 3, // 3
+            82352,134, 253, // 4
+            15, 2352, 235, // 5
+            25, 3253, 13, // 6
+            262, 2351, 32, // 7
+            523524, 24523, 1, // 8
+            1612, 1423, 7523, // 9
+            135, 6426, 152; // 10
+  MatrixX3i triangles(7, 3);
+  triangles << 0, 1, 2, // 0
+               1, 2, 3, // 1
+               3, 2, 6, // 2
+               1, 0, 3, // 3
+               10, 3, 2, // 4
+               7, 8, 2, // 5
+               9, 0, 5; // 6
 
-  Vector3f a(1.2,1.6,2.3);
-  Vector3f aa(1342,21,-23);
-  Vector3f b(1.2, 1.6,2.3);
-  Vector3f c(3,5,2);
-  Vector3f d(1342, 234, -234);
-  Vector3f e(1342, 21, -23);
+  Mesh mesh(points, triangles);
 
-  
-  vector<Vector3f> all = {a, aa, b, c, d,e };
-
-  sort(all.begin(), all.end(), &comp_v3<Vector3f>);
-  all.erase(unique(all.begin(), all.end()), all.end());
-  
-  for (auto vec : all) {
-    cout << vec.transpose() << endl;
-  }
-
-  // unordered_set<Vector3f> s = {a,b,c};
-  // for (auto x : s) {
-  //   cout << x.transpose() << endl;
-  // }
-
+  REQUIRE( mesh.getTrianglesOfPoint(0) == vector<int> {0, 3, 6});
+  REQUIRE( mesh.getTrianglesOfPoint(3) == vector<int> {1, 2, 3, 4});
 }
