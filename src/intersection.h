@@ -47,8 +47,7 @@ public:
     vector<BundleIntersection> backIntersections;
     vector<vector<int>> fibIndex;
 
-    const map<int, int> &getTrianglesIntersected(const int index);
-    map<int, int> getTriangleProbabilities(const int bundleIndex);
+    const vector<map<int, int>> &getTrianglesIntersected();
 
 private:
     vector<map<int, int>> trianglesIntersected;

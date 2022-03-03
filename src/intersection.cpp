@@ -622,7 +622,7 @@ CorticalIntersection::CorticalIntersection(
   }
 }
 
-const map<int, int> &CorticalIntersection::getTrianglesIntersected(const int index)
+const vector<map<int, int>> &CorticalIntersection::getTrianglesIntersected()
 {
   if (this->trianglesIntersected.size() == 0)
   {
@@ -653,5 +653,5 @@ const map<int, int> &CorticalIntersection::getTrianglesIntersected(const int ind
       this->trianglesIntersected.push_back(intersections);
     }
   }
-  return this->trianglesIntersected[index];
+  return this->trianglesIntersected;
 }
