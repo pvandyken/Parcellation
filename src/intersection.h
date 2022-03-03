@@ -10,6 +10,7 @@
 #include <Eigen/Dense>
 #include <pybind11/eigen.h>
 
+
 using namespace std;
 using namespace Eigen;
 namespace py = pybind11;
@@ -26,7 +27,22 @@ namespace Intersection {
     vector<vector<vector<float>>> segment_triangles(const float *triangles[1][3]);
     vector<vector<float>>
     get_triangle_centroid(vector<vector<vector<float>>> triangles, const int &N);
+}
 
+
+class CorticalIntersection {
+public:
+    CorticalIntersection(
+        py::EigenDRef<const MatrixX3f> vertex, py::EigenDRef<const MatrixX3i> polygons,
+        vector<vector<vector<Vector3f>>> &Points, const int &nPtsLine);
+
+    vector<vector<int>> inTri;
+    vector<vector<int>> fnTri;
+    vector<vector<vector<float>>> inPoints;
+    vector<vector<vector<float>>> fnPoints;
+    vector<vector<int>> fibIndex;
+
+private:
     const bool getMeshAndFiberEndIntersection(
         Vector3f &fiberP0, Vector3f &fiberP1, const int &nPoints,
         const int &nPtsLine, const int &N, const int &npbp,
@@ -46,10 +62,4 @@ namespace Intersection {
         py::EigenDRef<const MatrixX3f> &vertex, py::EigenDRef<const MatrixX3i> &polygons, int &InInd,
         int &FnInd, vector<float> &InPtInt, vector<float> &FnPtInt);
 
-    void meshAndBundlesIntersection(
-        py::EigenDRef<const MatrixX3f> vertex, py::EigenDRef<const MatrixX3i> polygons,
-        vector<vector<vector<Vector3f>>> &Points,
-        const int &nPtsLine, vector<vector<int>> &InTri, vector<vector<int>> &FnTri,
-        vector<vector<vector<float>>> &InPoints,
-        vector<vector<vector<float>>> &FnPoints, vector<vector<int>> &fib_index);
-}
+};

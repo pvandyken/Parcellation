@@ -22,19 +22,15 @@ int cortical_intersections(py::EigenDRef<const MatrixX3f> vertices,
 
   IO::read_bundles(bundle_dir, nLBundles, nFibers, nPoints, bundles);
   orientBundles(bundles);
-  cout << "Example fibre\nFront: " << bundles[0][0].front().transpose() << "\nBack: " << bundles[0][0].back().transpose() << endl;
 
   cout << "Number of bundles: " << nLBundles << "\nNumber of fibres: "
        << nFibers[0] << endl;
-  vector<vector<int>> Lfib_index, Rfib_index;
-  vector<vector<int>> InitTriangles, FinalTriangles;
-  vector<vector<vector<float>>> InPoints, FnPoints;
-  Intersection::meshAndBundlesIntersection(vertices, polygons,
-                                           bundles, nPtsLine,
-                                           InitTriangles, FinalTriangles, InPoints, FnPoints, Lfib_index);
+  CorticalIntersection intersections(vertices, polygons,
+                                           bundles, nPtsLine);
 
-  IO::write_intersection(out, bundle_dir, InitTriangles, FinalTriangles, InPoints, FnPoints,
-                     Lfib_index);
+  IO::write_intersection(out, bundle_dir, intersections.inTri, intersections.fnTri, 
+                         intersections.inPoints, intersections.fnPoints,
+                         intersections.fibIndex);
 
   return 0;
 }
