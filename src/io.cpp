@@ -54,9 +54,7 @@ void IO::read_mesh(const string &filename, vector<vector<float>> &vertex,
 }
 
 // función que lee un archivo .bundles
-void IO::read_bundles(const string &path, int &nBundles, vector<int> &nFibers,
-                  vector<vector<int>> &nPoints,
-                  vector<vector<vector<Vector3f>>> &Points) {
+void IO::read_bundles(const string &path, vector<Bundle> &bundles) {
   vector<string> bundlesDir;
 
   DIR *dir;
@@ -78,60 +76,9 @@ void IO::read_bundles(const string &path, int &nBundles, vector<int> &nFibers,
 
   sort(bundlesDir.begin(), bundlesDir.end());
 
-  nBundles = bundlesDir.size();
-  nFibers = vector<int>(nBundles);
-  nPoints = vector<vector<int>>(nBundles, vector<int>());
-  Points = vector<vector<vector<Vector3f>>>(nBundles);
-
-  for (int i = 0; i < nBundles; i++) {
-
+  for (int i = 0; i < bundlesDir.size(); i++) {
     string filename = bundlesDir[i];
-    ifstream file(filename, ios::in | ios::binary);
-    cout << "Reading file: " << filename << endl;
-
-    if (file.is_open()) {
-
-      streampos fsize = 0;
-      file.seekg(0, ios::end);
-      int num = (file.tellg() - fsize) / 4;
-      file.seekg(0);
-
-      int num_count = 0;
-
-      vector<int> nPointsList;
-      vector<vector<Vector3f>> PointsList;
-
-      while (num_count < num) {
-
-        int total_points; // number of points of each fiber
-        file.read((char *)&total_points, sizeof(int));
-
-        vector<Vector3f> Fiber(total_points, Vector3f());
-
-        for (int k = 0; k < total_points; k++) {
-          // Fiber[k] = new float[3];
-
-          for (int m = 0; m < 3; m++)
-            file.read((char *)&Fiber[k][m], sizeof(float));
-        }
-
-        num_count = num_count + 1 + (total_points * 3);
-        nPointsList.emplace_back(total_points);
-        PointsList.emplace_back(Fiber);
-      }
-
-      nFibers[i] = nPointsList.size();
-      nPoints[i] = vector<int>(nPointsList.size());
-      Points[i] = vector<vector<Vector3f>>(nPointsList.size());
-      // nPoints[i] = new int[nPointsList.size()];
-      // Points[i] = new float**[nPointsList.size()];
-
-      for (int j = 0; j < (int)nPointsList.size(); j++) {
-        nPoints[i][j] = nPointsList[j];
-        Points[i][j] = PointsList[j];
-      }
-    }
-    file.close();
+    bundles.push_back(Bundle(filename));
   }
 }
 

@@ -4,6 +4,7 @@
 #include "utils.h"
 #include "mesh.h"
 #include "types.h"
+#include "bundles.h"
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -34,7 +35,7 @@ class CorticalIntersection {
 public:
     CorticalIntersection(
         const Mesh &mesh,
-        vector<vector<vector<Vector3f>>> &Points, const int &nPtsLine);
+        vector<Bundle> &bundles, const int &nPtsLine);
 
     vector<vector<int>> inTri;
     vector<vector<int>> fnTri;

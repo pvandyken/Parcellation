@@ -8,6 +8,8 @@ extensions = [
             "src/intersection.cpp",
             "src/io.cpp",
             "src/orientation.cpp",
+            "src/bundles.cpp",
+            "src/mesh.cpp",
             "bindings/entry.cpp"
         ],
         include_dirs = [

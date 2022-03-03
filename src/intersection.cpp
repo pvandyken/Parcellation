@@ -350,7 +350,7 @@ const bool CorticalIntersection::getMeshAndFiberIntersection(
 
 CorticalIntersection::CorticalIntersection(
     const Mesh &mesh,
-    vector<vector<vector<Vector3f>>> &bundles, const int &nPtsLine)
+    vector<Bundle> &bundles, const int &nPtsLine)
 {
   trianglesFromPoints = vector<vector<int>>();
 
@@ -386,13 +386,13 @@ CorticalIntersection::CorticalIntersection(
   float mdbp = 0; // maximum distance between points
   for (int i = 0; i < (int)bundles.size(); i++)
   {
-    for (int j = 0; j < (int)bundles[i].size(); j++)
+    for (int j = 0; j < (int)bundles[i].fibers.size(); j++)
     {
 
       float dist = 0;
 
       for (int k = 0; k < 3; k++)
-        dist += pow(bundles[i][j][0][k] - bundles[i][j][1][k], 2);
+        dist += pow(bundles[i].fibers[j][0][k] - bundles[i].fibers[j][1][k], 2);
 
       dist = sqrt(dist);
       if (dist > mdbp)
@@ -400,7 +400,7 @@ CorticalIntersection::CorticalIntersection(
 
       dist = 0;
       for (int k = 0; k < 3; k++)
-        dist += pow(bundles[i][j][0][k] - bundles[i][j][1][k], 2);
+        dist += pow(bundles[i].fibers[j][0][k] - bundles[i].fibers[j][1][k], 2);
 
       dist = sqrt(dist);
       if (dist > mdbp)
@@ -456,7 +456,7 @@ CorticalIntersection::CorticalIntersection(
   for (auto &bundle : bundles)
   {
     // Loop through bundle, erasing fibres that don't fit
-    for (auto fibre = bundle.begin(); fibre != bundle.end(); )
+    for (auto fibre = bundle.fibers.begin(); fibre != bundle.fibers.end(); )
     {
       const auto init_pt = fibre->front().array();
       const auto final_pt = fibre->back().array();
@@ -469,7 +469,7 @@ CorticalIntersection::CorticalIntersection(
 
       if (!initial_within || !final_within)
       {
-        bundle.erase(fibre);
+        bundle.fibers.erase(fibre);
       } else
       {
         fibre++;
@@ -591,23 +591,23 @@ CorticalIntersection::CorticalIntersection(
   {
 
     cout << "Bundle: " << i << "/" << bundles.size();
-    cout << ", Num. Fibers: " << bundles[i].size() << endl;
+    cout << ", Num. Fibers: " << bundles[i].fibers.size() << endl;
 
-    vector<int> listFibInd(bundles[i].size());
-    vector<vector<int>> listTri(bundles[i].size(), vector<int>(2));
-    vector<vector<vector<float>>> listPtInt(bundles[i].size(),
+    vector<int> listFibInd(bundles[i].fibers.size());
+    vector<vector<int>> listTri(bundles[i].fibers.size(), vector<int>(2));
+    vector<vector<vector<float>>> listPtInt(bundles[i].fibers.size(),
                                             vector<vector<float>>(2));
 
     cout << "Find intersections for bundle " << i << endl;
 #pragma omp parallel for schedule(auto)
-    for (int j = 0; j < (int)bundles[i].size(); j++)
+    for (int j = 0; j < (int)bundles[i].fibers.size(); j++)
     {
       bool findInt;                   // find intersection
       int InT, FnT;                   // initial and final triangle
       vector<float> InPtInt, FnPtInt; // Initial and Final point intersection
 
       findInt = getMeshAndFiberIntersection(
-          bundles[i][j], bundles[i][j].size(), nPtsLine, N, npbp, index, step,
+          bundles[i].fibers[j], bundles[i].fibers[j].size(), nPtsLine, N, npbp, index, step,
           cubeNotEmpty, centroidIndex, almacen, vertex, polygons, InT, FnT,
           InPtInt, FnPtInt);
       if (!findInt)

@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <vector>
 #include <Eigen/Dense>
+#include "bundles.h"
 
 
 using namespace std;
@@ -17,9 +18,7 @@ namespace IO {
     void read_mesh(const string &filename, vector<vector<float>> &vertex,
                 vector<vector<int>> &polygons, int &len_vertex,
                 int &len_polygons);
-    void read_bundles(const string &path, int &nBundles, vector<int> &nFibers,
-                    vector<vector<int>> &nPoints,
-                    vector<vector<vector<Vector3f>>> &Points);
+    void read_bundles(const string &path, vector<Bundle> &bundles);
 
     void write_intersection(const string &path, const string &pathBundles,
                             const vector<vector<int>> &InTri,
