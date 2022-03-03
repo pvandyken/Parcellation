@@ -1,16 +1,23 @@
 from setuptools import Extension
-from Cython.Build import cythonize
+from pybind11.setup_helpers import Pybind11Extension
 
 extensions = [
-    Extension("intersection.src", sources=[
-        "src/cython/get_intersection.pyx",
-        "src/intersection.cpp",
-        "src/io.cpp",
-        "src/orientation.cpp",
-        ],  extra_compile_args=["-O0"])
+    Pybind11Extension(
+        "intersection.intersection",
+        sources=[
+            "src/intersection.cpp",
+            "src/io.cpp",
+            "src/orientation.cpp",
+            "bindings/entry.cpp"
+        ],
+        include_dirs = [
+            "extern/pybind11/include"
+        ],
+        extra_compile_args=["-O0"]
+    )
 ]
 
 def build(setup_kwargs):
     setup_kwargs.update({
-        'ext_modules': cythonize(extensions, language_level=3)
+        'ext_modules': extensions
     })

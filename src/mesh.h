@@ -1,17 +1,25 @@
 #pragma once
-#include <pybind11/eigen.h>
 #include <Eigen/Dense>
+#include "types.h"
+#include <vector>
 
-namespace py = pybind11;
+using namespace std;
 using namespace Eigen;
 
 class Mesh {
 public:
     Mesh(
-        const py::EigenDRef<const MatrixX3f> &vertex,
-        const py::EigenDRef<const MatrixX3i> &polygons
-    ) : vertex{vertex}, polygons{polygons} {};
+        const EigenDRef<const MatrixX3f> vertices,
+        const EigenDRef<const MatrixX3i> polygons
+    ) : vertices{vertices}, polygons{polygons} {
+        trianglesOfPointsIndex = vector<vector<int>>();
+    };
 
-    const py::EigenDRef<const MatrixX3f> &vertex;
-    const py::EigenDRef<const MatrixX3i> &polygons;
+    const EigenDRef<const MatrixX3f> vertices;
+    const EigenDRef<const MatrixX3i> polygons;
+
+    vector<int>& getTrianglesOfPoint(int point);
+
+private:
+    vector<vector<int>> trianglesOfPointsIndex;
 };

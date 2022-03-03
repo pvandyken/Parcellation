@@ -1,8 +1,8 @@
 #pragma once
-#include "intersection.h"
-#include "orientation.h"
-#include "io.h"
-#include "mesh.h"
+#include "../src/intersection.h"
+#include "../src/orientation.h"
+#include "../src/io.h"
+#include "../src/mesh.h"
 #include <Eigen/Dense>
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>

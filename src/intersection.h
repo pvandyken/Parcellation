@@ -3,18 +3,17 @@
 #include "math.h"
 #include "utils.h"
 #include "mesh.h"
+#include "types.h"
 #include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <Eigen/Dense>
-#include <pybind11/eigen.h>
 
 
 using namespace std;
 using namespace Eigen;
-namespace py = pybind11;
 
 namespace Intersection {
     const float dotProduct(const float a[], float *&b);
@@ -54,7 +53,7 @@ private:
         vector<vector<vector<bool>>> &cubeNotEmpty,
         const vector<vector<vector<vector<int>>>> &centroidIndex,
         const vector<vector<vector<vector<vector<float>>>>> &almacen,
-        const py::EigenDRef<const MatrixX3f> &vertex, const py::EigenDRef<const MatrixX3i> &polygons, int &Ind,
+        const EigenDRef<const MatrixX3f> &vertex, const EigenDRef<const MatrixX3i> &polygons, int &Ind,
         vector<float> &ptInt);
 
     const bool getMeshAndFiberIntersection(
@@ -63,7 +62,7 @@ private:
         const float &step, vector<vector<vector<bool>>> &cubeNotEmpty,
         const vector<vector<vector<vector<int>>>> &centroidIndex,
         const vector<vector<vector<vector<vector<float>>>>> &almacen,
-        const py::EigenDRef<const MatrixX3f> &vertex, const py::EigenDRef<const MatrixX3i> &polygons, int &InInd,
+        const EigenDRef<const MatrixX3f> &vertex, const EigenDRef<const MatrixX3i> &polygons, int &InInd,
         int &FnInd, vector<float> &InPtInt, vector<float> &FnPtInt);
 
 };

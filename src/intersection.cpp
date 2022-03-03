@@ -186,7 +186,7 @@ const bool CorticalIntersection::getMeshAndFiberEndIntersection(
     vector<vector<vector<bool>>> &cubeNotEmpty,
     const vector<vector<vector<vector<int>>>> &centroidIndex,
     const vector<vector<vector<vector<vector<float>>>>> &almacen,
-    const py::EigenDRef<const MatrixX3f> &vertex, const py::EigenDRef<const MatrixX3i> &polygons,
+    const EigenDRef<const MatrixX3f> &vertex, const EigenDRef<const MatrixX3i> &polygons,
     int &Ind, vector<float> &ptInt)
 {
 
@@ -322,7 +322,7 @@ const bool CorticalIntersection::getMeshAndFiberIntersection(
     const float &step, vector<vector<vector<bool>>> &cubeNotEmpty,
     const vector<vector<vector<vector<int>>>> &centroidIndex,
     const vector<vector<vector<vector<vector<float>>>>> &almacen,
-    const py::EigenDRef<const MatrixX3f> &vertex, const py::EigenDRef<const MatrixX3i> &polygons, int &InInd, int &FnInd,
+    const EigenDRef<const MatrixX3f> &vertex, const EigenDRef<const MatrixX3i> &polygons, int &InInd, int &FnInd,
     vector<float> &InPtInt, vector<float> &FnPtInt)
 {
 
@@ -355,8 +355,8 @@ CorticalIntersection::CorticalIntersection(
   trianglesFromPoints = vector<vector<int>>();
 
 
-    const py::EigenDRef<const MatrixX3f> &vertex = mesh.vertex;
-    const py::EigenDRef<const MatrixX3i> &polygons = mesh.polygons;
+    const EigenDRef<const MatrixX3f> &vertex = mesh.vertices;
+    const EigenDRef<const MatrixX3i> &polygons = mesh.polygons;
 
   cout << "Calculate mesh and bundles intersection" << endl;
   int N = 1;
