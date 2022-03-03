@@ -186,7 +186,8 @@ const bool CorticalIntersection::getMeshAndFiberEndIntersection(
     vector<vector<vector<bool>>> &cubeNotEmpty,
     const vector<vector<vector<vector<int>>>> &centroidIndex,
     const vector<vector<vector<vector<vector<float>>>>> &almacen,
-    py::EigenDRef<const MatrixX3f> &vertex, py::EigenDRef<const MatrixX3i> &polygons, int &Ind, vector<float> &ptInt)
+    const py::EigenDRef<const MatrixX3f> &vertex, const py::EigenDRef<const MatrixX3i> &polygons,
+    int &Ind, vector<float> &ptInt)
 {
 
   Vector3f dd = (fiberP0 - fiberP1) / (npbp + 1);
@@ -321,7 +322,7 @@ const bool CorticalIntersection::getMeshAndFiberIntersection(
     const float &step, vector<vector<vector<bool>>> &cubeNotEmpty,
     const vector<vector<vector<vector<int>>>> &centroidIndex,
     const vector<vector<vector<vector<vector<float>>>>> &almacen,
-    py::EigenDRef<const MatrixX3f> &vertex, py::EigenDRef<const MatrixX3i> &polygons, int &InInd, int &FnInd,
+    const py::EigenDRef<const MatrixX3f> &vertex, const py::EigenDRef<const MatrixX3i> &polygons, int &InInd, int &FnInd,
     vector<float> &InPtInt, vector<float> &FnPtInt)
 {
 
@@ -348,9 +349,14 @@ const bool CorticalIntersection::getMeshAndFiberIntersection(
 }
 
 CorticalIntersection::CorticalIntersection(
-    py::EigenDRef<const MatrixX3f> vertex, py::EigenDRef<const MatrixX3i> polygons,
+    const Mesh &mesh,
     vector<vector<vector<Vector3f>>> &bundles, const int &nPtsLine)
 {
+  trianglesFromPoints = vector<vector<int>>();
+
+
+    const py::EigenDRef<const MatrixX3f> &vertex = mesh.vertex;
+    const py::EigenDRef<const MatrixX3i> &polygons = mesh.polygons;
 
   cout << "Calculate mesh and bundles intersection" << endl;
   int N = 1;

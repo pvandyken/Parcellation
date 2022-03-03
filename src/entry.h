@@ -2,6 +2,7 @@
 #include "intersection.h"
 #include "orientation.h"
 #include "io.h"
+#include "mesh.h"
 #include <Eigen/Dense>
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>

@@ -2,6 +2,7 @@
 
 #include "math.h"
 #include "utils.h"
+#include "mesh.h"
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -33,7 +34,7 @@ namespace Intersection {
 class CorticalIntersection {
 public:
     CorticalIntersection(
-        py::EigenDRef<const MatrixX3f> vertex, py::EigenDRef<const MatrixX3i> polygons,
+        const Mesh &mesh,
         vector<vector<vector<Vector3f>>> &Points, const int &nPtsLine);
 
     vector<vector<int>> inTri;
@@ -42,7 +43,10 @@ public:
     vector<vector<vector<float>>> fnPoints;
     vector<vector<int>> fibIndex;
 
+    // vector<vector<int>> &getTrianglesFromPoints();
+
 private:
+    vector<vector<int>> trianglesFromPoints;
     const bool getMeshAndFiberEndIntersection(
         Vector3f &fiberP0, Vector3f &fiberP1, const int &nPoints,
         const int &nPtsLine, const int &N, const int &npbp,
@@ -50,7 +54,7 @@ private:
         vector<vector<vector<bool>>> &cubeNotEmpty,
         const vector<vector<vector<vector<int>>>> &centroidIndex,
         const vector<vector<vector<vector<vector<float>>>>> &almacen,
-        py::EigenDRef<const MatrixX3f> &vertex, py::EigenDRef<const MatrixX3i> &polygons, int &Ind,
+        const py::EigenDRef<const MatrixX3f> &vertex, const py::EigenDRef<const MatrixX3i> &polygons, int &Ind,
         vector<float> &ptInt);
 
     const bool getMeshAndFiberIntersection(
@@ -59,7 +63,7 @@ private:
         const float &step, vector<vector<vector<bool>>> &cubeNotEmpty,
         const vector<vector<vector<vector<int>>>> &centroidIndex,
         const vector<vector<vector<vector<vector<float>>>>> &almacen,
-        py::EigenDRef<const MatrixX3f> &vertex, py::EigenDRef<const MatrixX3i> &polygons, int &InInd,
+        const py::EigenDRef<const MatrixX3f> &vertex, const py::EigenDRef<const MatrixX3i> &polygons, int &InInd,
         int &FnInd, vector<float> &InPtInt, vector<float> &FnPtInt);
 
 };
