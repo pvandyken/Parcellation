@@ -90,7 +90,7 @@ bool Intersection::ray_triangle_intersection(const float ray_near[], const float
   return true;
 }
 
-vector<vector<float>> Intersection::multiple_vertices(float *triangle[3])
+vector<vector<float>> Intersection::multiple_vertices(const float *triangle[3])
 {
 
   vector<vector<float>> pt(6, vector<float>(3));
@@ -113,7 +113,7 @@ vector<vector<float>> Intersection::multiple_vertices(float *triangle[3])
 }
 
 vector<vector<vector<float>>>
-Intersection::multiple_triangles(float *triangles[1][3], int &len, const int polys[][3])
+Intersection::multiple_triangles(const float *triangles[1][3], int &len, const int polys[][3])
 {
   vector<vector<vector<float>>> new_triangles(
       len * 4, vector<vector<float>>(3, vector<float>(3)));
@@ -139,7 +139,7 @@ Intersection::multiple_triangles(float *triangles[1][3], int &len, const int pol
   return new_triangles;
 }
 
-vector<vector<vector<float>>> Intersection::segment_triangles(float *triangles[1][3])
+vector<vector<vector<float>>> Intersection::segment_triangles(const float *triangles[1][3])
 {
   /*
   Split each triangle into four sub triangles
@@ -187,7 +187,7 @@ const bool Intersection::getMeshAndFiberEndIntersection(
     vector<vector<vector<bool>>> &cubeNotEmpty,
     const vector<vector<vector<vector<int>>>> &centroidIndex,
     const vector<vector<vector<vector<vector<float>>>>> &almacen,
-    Ndarray<float> &vertex, Ndarray<int> &polygons, int &Ind, vector<float> &ptInt)
+    py::EigenDRef<const MatrixX3f> &vertex, py::EigenDRef<const MatrixX3i> &polygons, int &Ind, vector<float> &ptInt)
 {
 
   Vector3f dd = (fiberP0 - fiberP1) / (npbp + 1);
@@ -266,7 +266,7 @@ const bool Intersection::getMeshAndFiberEndIntersection(
       ray_near[i] = fiberP1[i];
     }
 
-    int *Triangle = polygons.slice({(int)ind[1]});
+    const int *Triangle = polygons((int)ind[1], all).data();
     float Pts[3][3];
 
 #pragma omp simd collapse(2)
@@ -274,7 +274,7 @@ const bool Intersection::getMeshAndFiberEndIntersection(
     {
       for (int j = 0; j < 3; j++)
       {
-        Pts[i][j] = vertex({Triangle[i], j});
+        Pts[i][j] = vertex(Triangle[i], j);
       }
     }
 
@@ -322,7 +322,7 @@ const bool Intersection::getMeshAndFiberIntersection(
     const float &step, vector<vector<vector<bool>>> &cubeNotEmpty,
     const vector<vector<vector<vector<int>>>> &centroidIndex,
     const vector<vector<vector<vector<vector<float>>>>> &almacen,
-    Ndarray<float> &vertex, Ndarray<int> &polygons, int &InInd, int &FnInd,
+    py::EigenDRef<const MatrixX3f> &vertex, py::EigenDRef<const MatrixX3i> &polygons, int &InInd, int &FnInd,
     vector<float> &InPtInt, vector<float> &FnPtInt)
 {
 
@@ -349,7 +349,7 @@ const bool Intersection::getMeshAndFiberIntersection(
 }
 
 void Intersection::meshAndBundlesIntersection(
-    Ndarray<float> vertex, Ndarray<int> polygons,
+    py::EigenDRef<const MatrixX3f> vertex, py::EigenDRef<const MatrixX3i> polygons,
     vector<vector<vector<Vector3f>>> &Points, const int &nPtsLine,
     vector<vector<int>> &InTri, vector<vector<int>> &FnTri,
     vector<vector<vector<float>>> &InPoints,
@@ -359,22 +359,29 @@ void Intersection::meshAndBundlesIntersection(
   cout << "Calculate mesh and bundles intersection" << endl;
   int N = 1;
 
-  vector<float> mdbvs(polygons.shape[0]);
+  vector<float> mdbvs(polygons.rows());
 #pragma omp parallel for schedule(dynamic)
-  for (int i = 0; i < polygons.shape[0]; i++)
+  for (int i = 0; i < polygons.rows(); i++)
   {
-    float *const pts[3] = {vertex.slice({polygons({i, 0})}), vertex.slice({polygons({i, 1})}),
-                           vertex.slice({polygons({i, 2})})};
+    const Vector3f pts[3] = {
+      vertex(polygons(i, 0), all),
+      vertex(polygons(i, 1), all),
+      vertex(polygons(i, 2), all)
+    };
 
-    float dists[3] = {0, 0, 0};
-    for (int k = 0; k < 3; k++)
-      dists[0] += pow(pts[0][k] - pts[1][k], 2);
-    for (int k = 0; k < 3; k++)
-      dists[1] += pow(pts[1][k] - pts[2][k], 2);
-    for (int k = 0; k < 3; k++)
-      dists[2] += pow(pts[2][k] - pts[0][k], 2);
-    for (int k = 0; k < 3; k++)
-      dists[k] = sqrt(dists[k]);
+    const float dists[3] = {
+      (pts[0] - pts[1]).norm(),
+      (pts[1] - pts[2]).norm(),
+      (pts[2] - pts[0]).norm()
+    };
+    // for (int k = 0; k < 3; k++)
+    //   dists[0] += pow(pts[0][k] - pts[1][k], 2);
+    // for (int k = 0; k < 3; k++)
+    //   dists[1] += pow(pts[1][k] - pts[2][k], 2);
+    // for (int k = 0; k < 3; k++)
+    //   dists[2] += pow(pts[2][k] - pts[0][k], 2);
+    // for (int k = 0; k < 3; k++)
+    //   dists[k] = sqrt(dists[k]);
 
     mdbvs[i] = *max_element(begin(dists), end(dists));
   }
@@ -409,16 +416,16 @@ void Intersection::meshAndBundlesIntersection(
 
   int npbp = mdbp / step; // number of points between points
 
-  vector<float> vx(vertex.shape[0]);
-  vector<float> vy(vertex.shape[0]);
-  vector<float> vz(vertex.shape[0]);
+  vector<float> vx(vertex.rows());
+  vector<float> vy(vertex.rows());
+  vector<float> vz(vertex.rows());
 // ===== Find outermost vertex ===========
 #pragma omp parallel for schedule(dynamic)
-  for (int i = 0; i < vertex.shape[0]; i++)
+  for (int i = 0; i < vertex.rows(); i++)
   {
-    vx[i] = vertex({i, 0});
-    vy[i] = vertex({i, 1});
-    vz[i] = vertex({i, 2});
+    vx[i] = vertex(i, 0);
+    vy[i] = vertex(i, 1);
+    vz[i] = vertex(i, 2);
   }
 
   sort(vx.begin(), vx.end());
@@ -502,17 +509,17 @@ void Intersection::meshAndBundlesIntersection(
     }
   }
 
-  vector<vector<float>> centroids(polygons.shape[0] * pow(4, N), vector<float>(3));
+  vector<vector<float>> centroids(polygons.rows() * pow(4, N), vector<float>(3));
 
   cout << "Segmenting polygons..." << endl;
 #pragma omp parallel for schedule(dynamic)
-  for (int i = 0; i < polygons.shape[0]; i++)
+  for (int i = 0; i < polygons.rows(); i++)
   {
-    float *triangles[1][3];
+    const float* triangles[1][3];
     // triangles[0] = new float*[3];
 
     for (int j = 0; j < 3; j++)
-      triangles[0][j] = vertex.slice({polygons({i, j})});
+      triangles[0][j] = vertex(polygons(i, j), all).data();
 
     vector<vector<vector<float>>> subTriangles = segment_triangles(triangles);
     vector<vector<float>> centroid = get_triangle_centroid(subTriangles, N);
@@ -562,7 +569,7 @@ void Intersection::meshAndBundlesIntersection(
   //  En cada cubo almacena una lista de centroides y su indice
   // Each cube stores a list of centroids and their index
 
-  for (int i = 0; i < polygons.shape[0] * pow(4, N); i++)
+  for (int i = 0; i < polygons.rows() * pow(4, N); i++)
   {
 
     int I[3];

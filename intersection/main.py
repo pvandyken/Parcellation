@@ -2,7 +2,7 @@ from pathlib import Path
 
 import typer
 
-from intersection import src
+from intersection import intersection
 from intersection.models import Mesh, Results
 
 app = typer.Typer()
@@ -22,8 +22,8 @@ def main(
 
 def get_intersection(surf_path: Path, bundles_path: Path, out_path: Path) -> int:
     surf = Mesh.from_file(surf_path)
-    return src.intersections(
-        surf.points, surf.triangles, str(bundles_path), str(out_path)
+    return intersection.cortical_intersections(
+        surf.points, surf.triangles, str(bundles_path), str(out_path), 6
     )
 
 

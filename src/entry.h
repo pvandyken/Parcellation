@@ -1,47 +1,18 @@
 #pragma once
-#include "ndarray.h"
 #include "intersection.h"
 #include "orientation.h"
 #include "io.h"
 #include <Eigen/Dense>
+#include <pybind11/pybind11.h>
+#include <pybind11/eigen.h>
 
 using namespace Eigen;
+namespace py = pybind11;
 
-void orientBundles(vector<vector<vector<Vector3f>>> &bundles)
-{
-  for (auto &bundle : bundles)
-  {
-    Orientation::alignOrientation(bundle);
-  }
-}
+void orientBundles(vector<vector<vector<Vector3f>>> &bundles);
 
-int cortical_intersections(Ndarray<float> vertices,
-                           Ndarray<int> polygons,
+int cortical_intersections(py::EigenDRef<const MatrixX3f> vertices,
+                           py::EigenDRef<const MatrixX3i> polygons,
                            string bundle_dir,
                            string out,
-                           const int nPtsLine)
-{
-
-  int nLBundles, nRBundles;
-  vector<int> nFibers;
-  vector<vector<int>> nPoints;
-  vector<vector<vector<Vector3f>>> bundles;
-
-  IO::read_bundles(bundle_dir, nLBundles, nFibers, nPoints, bundles);
-  orientBundles(bundles);
-  cout << "Example fibre\nFront: " << bundles[0][0].front().transpose() << "\nBack: " << bundles[0][0].back().transpose() << endl;
-
-  cout << "Number of bundles: " << nLBundles << "\nNumber of fibres: "
-       << nFibers[0] << endl;
-  vector<vector<int>> Lfib_index, Rfib_index;
-  vector<vector<int>> InitTriangles, FinalTriangles;
-  vector<vector<vector<float>>> InPoints, FnPoints;
-  Intersection::meshAndBundlesIntersection(vertices, polygons,
-                                           bundles, nPtsLine,
-                                           InitTriangles, FinalTriangles, InPoints, FnPoints, Lfib_index);
-
-  IO::write_intersection(out, bundle_dir, InitTriangles, FinalTriangles, InPoints, FnPoints,
-                     Lfib_index);
-
-  return 0;
-}
+                           const int nPtsLine);
