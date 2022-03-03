@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 #include <Eigen/Dense>
 
 
@@ -37,16 +38,20 @@ public:
         const Mesh &mesh,
         vector<Bundle> &bundles, const int &nPtsLine);
 
+    CorticalIntersection(const Mesh &mesh, vector<vector<int>> &interceptions)
+        : mesh{mesh}, inTri{interceptions} {};
+
+    const Mesh &mesh;
     vector<vector<int>> inTri;
     vector<vector<int>> fnTri;
     vector<vector<vector<float>>> inPoints;
     vector<vector<vector<float>>> fnPoints;
     vector<vector<int>> fibIndex;
 
-    // vector<vector<int>> &getTrianglesFromPoints();
+    map<int, int> &getTrianglesIntersected(const int index);
 
 private:
-    vector<vector<int>> trianglesFromPoints;
+    vector<map<int, int>> trianglesIntersected;
     const bool getMeshAndFiberEndIntersection(
         Vector3f &fiberP0, Vector3f &fiberP1, const int &nPoints,
         const int &nPtsLine, const int &N, const int &npbp,

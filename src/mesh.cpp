@@ -1,7 +1,7 @@
 #include "mesh.h"
 #include <iostream>
 
-vector<int>& Mesh::getTrianglesOfPoint(int point) {
+const vector<int>& Mesh::getTrianglesOfPoint(int point) {
     if (this->trianglesOfPointsIndex.size() == 0) {
         // Loop through every vertex; vertices are labelled by their position in the
         // matrix

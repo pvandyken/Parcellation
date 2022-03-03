@@ -350,11 +350,8 @@ const bool CorticalIntersection::getMeshAndFiberIntersection(
 
 CorticalIntersection::CorticalIntersection(
     const Mesh &mesh,
-    vector<Bundle> &bundles, const int &nPtsLine)
+    vector<Bundle> &bundles, const int &nPtsLine) : mesh{mesh}
 {
-  trianglesFromPoints = vector<vector<int>>();
-
-
     const EigenDRef<const MatrixX3f> &vertex = mesh.vertices;
     const EigenDRef<const MatrixX3i> &polygons = mesh.polygons;
 
@@ -637,4 +634,32 @@ CorticalIntersection::CorticalIntersection(
                      listFibInd.end());
     this->fibIndex[i] = listFibInd;
   }
+}
+
+map<int, int> &CorticalIntersection::getTrianglesIntersected(const int index) {
+  if (this->trianglesIntersected.size() == 0) {
+    // Loop through triangle indices
+    for (uint32_t i = 0; i<this->mesh.polygons.size(); i++) {
+      // For each triangle, find each bundle that intersects it, getting a count of
+      // the number of intersections
+      map<int, int> intersections;
+      VecProxy<vector<int>> allTriangles(inTri, fnTri);
+      for (uint32_t j = 0; j<allTriangles.size(); j++) {
+        const vector<int> &bundle = allTriangles[j];
+
+        uint32_t count = 0;
+        for (const auto &triangle : bundle) {
+          if (triangle == i) {
+            count++;
+          }
+        }
+        if (count)
+        {
+          intersections.insert({j, count});
+        }
+      }
+      this->trianglesIntersected.push_back(intersections);
+    }
+  }
+  return this->trianglesIntersected[index];
 }

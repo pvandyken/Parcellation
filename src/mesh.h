@@ -18,7 +18,8 @@ public:
     const EigenDRef<const MatrixX3f> vertices;
     const EigenDRef<const MatrixX3i> polygons;
 
-    vector<int>& getTrianglesOfPoint(int point);
+    const vector<int>& getTrianglesOfPoint(int point);
+    vector<int> getTriangleNeighbors(int triangle);
 
 private:
     vector<vector<int>> trianglesOfPointsIndex;
