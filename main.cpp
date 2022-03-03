@@ -29,8 +29,8 @@ TEST_CASE( "Triangles formed by each point are calculated", "[mesh]") {
                1, 2, 3, // 1
                3, 2, 6, // 2
                1, 0, 3, // 3
-               10, 3, 2, // 4
-               7, 8, 2, // 5
+               10, 4, 5, // 4
+               7, 8, 6, // 5
                9, 0, 5; // 6
 
   vector<vector<int>> interceptions {
@@ -46,7 +46,10 @@ TEST_CASE( "Triangles formed by each point are calculated", "[mesh]") {
   CorticalIntersection intersection(mesh, interceptions);
 
   REQUIRE( mesh.getTrianglesOfPoint(0) == vector<int> {0, 3, 6});
-  REQUIRE( mesh.getTrianglesOfPoint(3) == vector<int> {1, 2, 3, 4});
+  REQUIRE( mesh.getTrianglesOfPoint(3) == vector<int> {1, 2, 3});
+
+  REQUIRE( mesh.getTriangleNeighbors(1) == vector<int> {0, 1, 2, 3});
+  REQUIRE( mesh.getTriangleNeighbors(5) == vector<int> {2, 5});
 
   REQUIRE( intersection.getTrianglesIntersected(0) == map<int, int>{ {0, 5}, {1, 2}, {2, 1}, {3, 1}});
   REQUIRE( intersection.getTrianglesIntersected(2) == map<int, int>{ {0, 1}, {1, 3}, {2, 2}, {3, 2}});

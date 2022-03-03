@@ -1,7 +1,8 @@
 #pragma once
 #include <Eigen/Dense>
-#include <initializer_list>
+#include <vector>
 
+using namespace std;
 
 namespace Utils {
     template <class T> bool compareVec(T a, T b) {

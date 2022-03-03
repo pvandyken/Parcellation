@@ -2,6 +2,7 @@
 #include <Eigen/Dense>
 #include "types.h"
 #include <vector>
+#include <set>
 
 using namespace std;
 using namespace Eigen;
@@ -19,7 +20,7 @@ public:
     const EigenDRef<const MatrixX3i> polygons;
 
     const vector<int>& getTrianglesOfPoint(int point);
-    vector<int> getTriangleNeighbors(int triangle);
+    const vector<int> getTriangleNeighbors(int triangle);
 
 private:
     vector<vector<int>> trianglesOfPointsIndex;

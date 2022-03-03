@@ -1,5 +1,4 @@
 #include "mesh.h"
-#include <iostream>
 
 const vector<int>& Mesh::getTrianglesOfPoint(int point) {
     if (this->trianglesOfPointsIndex.size() == 0) {
@@ -22,4 +21,13 @@ const vector<int>& Mesh::getTrianglesOfPoint(int point) {
     }
 
     return this->trianglesOfPointsIndex[point];
+}
+
+const vector<int> Mesh::getTriangleNeighbors(int triangle) {
+    set<int> neighbors;
+    for (auto point : polygons(triangle, all)) {
+        const vector<int> &trianglesOfPoint = getTrianglesOfPoint(point);
+        neighbors.insert(trianglesOfPoint.begin(), trianglesOfPoint.end());
+    }
+    return vector<int>(neighbors.begin(), neighbors.end());
 }
