@@ -82,8 +82,12 @@ void IO::read_bundles(const string &path, vector<Bundle> &bundles) {
   }
 }
 
-void IO::write_intersection(const string &path, const string &pathBundles, const vector<Bundle> &bundles)
-{
+void IO::write_intersection(const string &path, const string &pathBundles,
+                        const vector<vector<int>> &InTri,
+                        const vector<vector<int>> &FnTri,
+                        const vector<vector<vector<float>>> &InPoints,
+                        const vector<vector<vector<float>>> &FnPoints,
+                        const vector<vector<int>> &fib_index) {
 
   vector<string> bundlesDir;
 
@@ -120,33 +124,36 @@ void IO::write_intersection(const string &path, const string &pathBundles, const
   }
   closedir(dir);
 
-  for (uint16_t i = 0; i < bundles.size(); i++) { // 50
-    const Bundle &bundle = bundles[i];
+  for (uint16_t i = 0; i < fib_index.size(); i++) { // 50
     ofstream file(path + "/" + bundlesDir[i] + ".txt", ios::out);
     if (file.is_open()) {
 
-      const uint32_t len_fibInd = bundle.fibIndex.size();
+      const uint32_t len_fibInd = fib_index[i].size();
       file << len_fibInd;
       file << "\n";
-      for (auto triangle : bundle.inTri) // writes index of each initial triangle
-        file << triangle << " ";
+      for (uint32_t j = 0; j < InTri[i].size();
+           j++) // writes index of each initial triangle
+        file << InTri[i][j] << " ";
       file << "\n";
-      for (auto triangle : bundle.fnTri) // writes index of each final triangle
-        file << triangle << " ";
+      for (uint32_t j = 0; j < FnTri[i].size();
+           j++) // writes index of each final triangle
+        file << (FnTri[i][j]) << " ";
       file << "\n";
-      for (auto point : bundle.inPoints) { // writes the initial intersection point (x,y,z)
-        for (auto coord : point)
-          file << coord << " ";
+      for (uint32_t j = 0; j < InPoints[i].size();
+           j++) { // writes the initial intersection point (x,y,z)
+        for (uint8_t k = 0; k < 3; k++)
+          file << (InPoints[i][j][k]) << " ";
       }
       file << "\n";
 
-      for (auto point : bundle.fnPoints) { // writes the final intersection point (x,y,z)
-        for (auto coord : point)
-          file << coord << " ";
+      for (uint32_t j = 0; j < FnPoints[i].size();
+           j++) { // writes the final intersection point (x,y,z)
+        for (uint8_t k = 0; k < 3; k++)
+          file << (FnPoints[i][j][k]) << " ";
       }
       file << "\n";
-      for (auto fibre : bundle.fibIndex) // writes index of each fiber
-        file << fibre << " ";
+      for (uint32_t j = 0; j < len_fibInd; j++) // writes index of each fiber
+        file << (fib_index[i][j]) << " ";
       file << "\n";
     }
     file.close();

@@ -1,13 +1,6 @@
 #include "bundles.h"
 
 Bundle::Bundle(const string& path) {
-    vector<int> inTri();
-    vector<int> fnTri();
-    vector<vector<float>> inPoints();
-    vector<vector<float>> fnPoints();
-    vector<int> fibIndex();
-
-
     ifstream file(path, ios::in | ios::binary);
     cout << "Reading file: " << path << endl;
 

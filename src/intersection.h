@@ -37,6 +37,11 @@ public:
         const Mesh &mesh,
         vector<Bundle> &bundles, const int &nPtsLine);
 
+    vector<vector<int>> inTri;
+    vector<vector<int>> fnTri;
+    vector<vector<vector<float>>> inPoints;
+    vector<vector<vector<float>>> fnPoints;
+    vector<vector<int>> fibIndex;
 
     // vector<vector<int>> &getTrianglesFromPoints();
 
