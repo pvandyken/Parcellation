@@ -10,7 +10,7 @@
 using namespace Eigen;
 namespace py = pybind11;
 
-void orientBundles(vector<vector<vector<Vector3f>>> &bundles);
+void orientBundles(vector<Bundle> &bundles);
 
 int cortical_intersections(py::EigenDRef<const MatrixX3f> vertices,
                            py::EigenDRef<const MatrixX3i> polygons,

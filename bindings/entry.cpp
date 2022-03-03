@@ -1,10 +1,10 @@
 #include "entry.h"
 
-void orientBundles(vector<vector<vector<Vector3f>>> &bundles)
+void orientBundles(vector<Bundle> &bundles)
 {
   for (auto &bundle : bundles)
   {
-    Orientation::alignOrientation(bundle);
+    Orientation::alignOrientation(bundle.fibers);
   }
 }
 
@@ -18,9 +18,9 @@ int cortical_intersections(const py::EigenDRef<const MatrixX3f> vertices,
   int nLBundles, nRBundles;
   vector<int> nFibers;
   vector<vector<int>> nPoints;
-  vector<vector<vector<Vector3f>>> bundles;
+  vector<Bundle> bundles;
 
-  IO::read_bundles(bundle_dir, nLBundles, nFibers, nPoints, bundles);
+  IO::read_bundles(bundle_dir, bundles);
   orientBundles(bundles);
 
   Mesh mesh(vertices, polygons);
