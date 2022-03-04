@@ -83,8 +83,8 @@ void IO::read_bundles(const string &path, vector<Bundle> &bundles) {
 }
 
 void IO::write_intersection(const string &path, const string &pathBundles,
-                        const vector<BundleIntersection> &frontIntersections,
-                        const vector<BundleIntersection> &backIntersections,
+                        const BundleIntersections &frontIntersections,
+                        const BundleIntersections &backIntersections,
                         const vector<vector<int>> &fib_index) {
 
   vector<string> bundlesDir;
@@ -129,19 +129,19 @@ void IO::write_intersection(const string &path, const string &pathBundles,
       const uint32_t len_fibInd = fib_index[i].size();
       file << len_fibInd;
       file << "\n";
-      for (auto triangle : frontIntersections[i].triangles) // writes index of each initial triangle
+      for (auto triangle : frontIntersections.triangles[i]) // writes index of each initial triangle
         file << triangle << " ";
       file << "\n";
-      for (auto triangle : backIntersections[i].triangles) // writes index of each final triangle
+      for (auto triangle : backIntersections.triangles[i]) // writes index of each final triangle
         file << triangle << " ";
       file << "\n";
-      for (auto point : frontIntersections[i].points) { // writes the initial intersection point (x,y,z)
+      for (auto point : frontIntersections.points[i]) { // writes the initial intersection point (x,y,z)
         for (auto coord : point)
           file << coord << " ";
       }
       file << "\n";
 
-      for (auto point : backIntersections[i].points) { // writes the final intersection point (x,y,z)
+      for (auto point : backIntersections.points[i]) { // writes the final intersection point (x,y,z)
         for (auto coord : point)
           file << coord << " ";
       }

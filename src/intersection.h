@@ -39,12 +39,12 @@ public:
         const Mesh &mesh,
         vector<Bundle> &bundles, const int &nPtsLine);
 
-    CorticalIntersection(const Mesh &mesh, vector<BundleIntersection> &interceptions)
+    CorticalIntersection(const Mesh &mesh, BundleIntersections &interceptions)
         : mesh{mesh}, frontIntersections{interceptions} {};
 
     const Mesh &mesh;
-    vector<BundleIntersection> frontIntersections;
-    vector<BundleIntersection> backIntersections;
+    BundleIntersections frontIntersections;
+    BundleIntersections backIntersections;
     vector<vector<int>> fibIndex;
 
     const vector<map<int, int>> &getTrianglesIntersected();

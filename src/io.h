@@ -22,8 +22,8 @@ namespace IO {
     void read_bundles(const string &path, vector<Bundle> &bundles);
 
     void write_intersection(const string &path, const string &pathBundles,
-                            const vector<BundleIntersection> &frontIntersections,
-                            const vector<BundleIntersection> &backIntersections,
+                            const BundleIntersections &frontIntersections,
+                            const BundleIntersections &backIntersections,
                             const vector<vector<int>> &fib_index);
 
     void Delete(float **&vertex, const int &len_vertex, const int &len_polygons);
