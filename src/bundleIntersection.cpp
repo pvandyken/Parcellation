@@ -37,3 +37,13 @@ void BundleIntersections::fromRange(size_t size, vector<BundleIntersections> &ar
         arr.push_back(BundleIntersections(i));
     }
 }
+
+vector<int> BundleIntersections::getIntersectionCore(float const& threshold, map<int, float> const& probabilities) {
+    vector<int> result;
+    for (auto const& [key, value] : probabilities) {
+        if (value >= threshold) {
+            result.push_back(key);
+        }
+    }
+    return result;
+}

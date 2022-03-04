@@ -2,6 +2,7 @@
 #include "catch.hpp"
 #include "src/mesh.h"
 #include "src/intersection.h"
+#include "src/bundleIntersection.h"
 #include <array>
 #include <iostream>
 #include <vector>
@@ -78,4 +79,10 @@ TEST_CASE( "Triangles formed by each point are calculated", "[mesh]") {
   // });
 
 
+}
+
+TEST_CASE( "getIntersectionCore filters out triangles", "[triangles]" ) {
+  map<int, float> probabilities { {0, 0.13}, {1, 0.9231}, {2, 0.032}};
+
+  REQUIRE( BundleIntersections::getIntersectionCore(0.24, probabilities) == vector<int>{1});
 }

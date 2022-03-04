@@ -23,6 +23,7 @@ public:
     vector<vector<float>> points;
 
     map<int, float> getTriangleProbabilities(Mesh &mesh, const vector<map<int, int>> &triangleIntersections);
+    static vector<int> getIntersectionCore(float const& threshold, map<int, float> const& probabilities);
 
     static void fromRange(size_t size, vector<BundleIntersections> &arr);
 };
