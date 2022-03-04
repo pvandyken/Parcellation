@@ -10,17 +10,19 @@ using namespace std;
 class BundleIntersections {
 public:
     BundleIntersections()
-        : triangles{vector<vector<int>>()},
-          points{vector<vector<vector<float>>>()} {};
+        : triangles{vector<int>()},
+          points{vector<vector<float>>()} {};
     BundleIntersections(const int size)
-        : triangles{vector<vector<int>>(size)},
-          points{vector<vector<vector<float>>>(size)} {};
-    BundleIntersections(vector<vector<int>> triangles, vector<vector<vector<float>>> points)
+        : triangles{vector<int>(size)},
+          points{vector<vector<float>>(size)} {};
+    BundleIntersections(vector<int> triangles, vector<vector<float>> points)
         : triangles{triangles}, points{points} {};
 
     uint16_t id;
-    vector<vector<int>> triangles;
-    vector<vector<vector<float>>> points;
+    vector<int> triangles;
+    vector<vector<float>> points;
 
-    map<int, float> getTriangleProbabilities(int bundleId, Mesh &mesh, const vector<map<int, int>> &triangleIntersections);
+    map<int, float> getTriangleProbabilities(Mesh &mesh, const vector<map<int, int>> &triangleIntersections);
+
+    static void fromRange(size_t size, vector<BundleIntersections> &arr);
 };

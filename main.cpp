@@ -45,16 +45,13 @@ TEST_CASE( "Triangles formed by each point are calculated", "[mesh]") {
                7, 8, 6, // 5
                9, 0, 5; // 6
 
-  BundleIntersections interceptions(
-    {
-      {0, 0, 1, 1, 0, 2, 0, 1, 0},
-      {2, 2, 1, 0, 2, 0, 3, 1},
-      {5, 2, 1, 6, 2, 0, 3},
-      {1, 2, 1, 1, 4, 0, 1, 2, 1},
-      {6, 5, 4, 5, 5, 6, 4, 3, 5},
-    },
-    {{}, {}, {}, {}, {}}
-  );
+  vector<BundleIntersections> interceptions{
+    BundleIntersections({0, 0, 1, 1, 0, 2, 0, 1, 0}, {}),
+    BundleIntersections({2, 2, 1, 0, 2, 0, 3, 1}, {}),
+    BundleIntersections({5, 2, 1, 6, 2, 0, 3}, {}),
+    BundleIntersections({1, 2, 1, 1, 4, 0, 1, 2, 1}, {}),
+    BundleIntersections({6, 5, 4, 5, 5, 6, 4, 3, 5}, {}),
+  };
 
   Mesh mesh(points, triangles);
 
@@ -76,7 +73,7 @@ TEST_CASE( "Triangles formed by each point are calculated", "[mesh]") {
 
 
   // Test deactivated because I don't know how to get the floats precision correct
-  // REQUIRE( interceptions.getTriangleProbabilities(0, mesh, trianglesIntersected) == map<int, float>{
+  // REQUIRE( interceptions[0].getTriangleProbabilities(mesh, trianglesIntersected) == map<int, float>{
   //   { {0, 0.264706}, {1, 0.290323}, {2, 0.25} }
   // });
 
