@@ -629,32 +629,45 @@ CorticalIntersection::CorticalIntersection(
 
 const vector<map<int, int>> &CorticalIntersection::getTrianglesIntersected(fn<void> const& sigintHandler)
 {
-  if (this->trianglesIntersected.size() == 0)
+  if (trianglesIntersected.size() == 0)
   {
-    // Loop through triangle indices
-    for (int i = 0; i < this->mesh.polygons.size(); i++)
-    {
-      sigintHandler();
-      // For each triangle, find each bundle that intersects it, getting a count of
-      // the number of intersections
-      map<int, int> intersections;
-      VecProxy<BundleIntersections> allIntersections(front, back);
-      for (uint32_t j = 0; j < allIntersections.size(); j++)
-      {
-        uint32_t count = 0;
-        for (const auto &triangle : allIntersections[j].triangles)
-        {
-          if (triangle == i)
-          {
-            count++;
-          }
+    // Initialize trianglesIntersected
+    trianglesIntersected.resize(mesh.polygons.size());
+    // Loop through the intersection list
+    VecProxy<BundleIntersections> allIntersections(front, back);
+    size_t maxIndex = front.size();
+    for (size_t i = 0; i < allIntersections.size(); i++) {
+      // The front and back intersections are being looped through together, so the
+      // index i will eventually reach 2 times the size of front (the number of bundles)
+      // We want the index to loop back to 0 when it reaches the "back" portion of the
+      // loop
+      const size_t bundleId = i % maxIndex;
+
+      set<int> visited;
+      for (auto triangle : allIntersections[i].triangles) {
+        // If we've seen this triangle before, we know the current bundle already are
+        // recorded in trianglesIntersected, so we add increment immediately
+        if (visited.find(triangle) != visited.end()) {
+          trianglesIntersected[triangle].at(bundleId)++;
+          continue;
         }
-        if (count)
-        {
-          intersections.insert({j, count});
+
+        // Otherwise, check if the current bundle was recorded. This is important for
+        // the rare case in which a bundle intersects the same triangle on the front and
+        // back sides.
+        // If we don't find the bundle, add a record
+        map<int, int> &record = trianglesIntersected[triangle];
+        if (record.find(bundleId) == record.end()) {
+          record.emplace(bundleId, 1);
+          visited.insert(triangle);
+          continue;
         }
+
+        // If the bundle does exist, increment
+        record.at(bundleId)++;
+
+        visited.insert(triangle);
       }
-      this->trianglesIntersected.push_back(intersections);
     }
   }
   return this->trianglesIntersected;
