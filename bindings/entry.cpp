@@ -3,6 +3,8 @@
 #include "../src/io.h"
 #include "../src/mesh.h"
 #include <Eigen/Dense>
+#include <tuple>
+#include <vector>
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>
 #include <pybind11/stl.h>
@@ -11,6 +13,11 @@
 using namespace Eigen;
 namespace py = pybind11;
 
+void sigintHandler()
+{
+  if (PyErr_CheckSignals() != 0)
+    throw py::error_already_set();
+}
 
 void orientBundles(vector<Bundle> &bundles)
 {
@@ -20,16 +27,28 @@ void orientBundles(vector<Bundle> &bundles)
   }
 }
 
-void sigintHandler() {
-  if (PyErr_CheckSignals() != 0)
-    throw py::error_already_set();
+void getDensityGroups(
+    vector<BundleIntersections> &intersections,
+    vector<map<int, int>> const& trianglesIntersected,
+    Mesh &mesh,
+    vector<vector<int>> &result)
+{
+  for (auto & intersection : intersections)
+  {
+    map<int, float> const& probabilities = intersection.getTriangleProbabilities(
+        mesh, trianglesIntersected, sigintHandler);
+    result.push_back(intersection.getIntersectionCore(0.15, probabilities));
+  }
 }
-vector<vector<int>> intersectionCore(const py::EigenDRef<const MatrixX3f> vertices,
-                           const py::EigenDRef<const MatrixX3i> polygons,
-                           string bundle_dir,
-                           string out,
-                           const int nPtsLine,
-                           const float probThreshold)
+
+
+tuple<vector<vector<int>>, vector<vector<int>>>
+intersectionCore(const py::EigenDRef<const MatrixX3f> vertices,
+                const py::EigenDRef<const MatrixX3i> polygons,
+                string bundle_dir,
+                string out,
+                const int nPtsLine,
+                const float probThreshold)
 {
   vector<Bundle> bundles;
 
@@ -44,23 +63,16 @@ vector<vector<int>> intersectionCore(const py::EigenDRef<const MatrixX3f> vertic
                          intersections.front, intersections.back,
                          intersections.fibIndex);
 
-  vector<vector<int>> frontDensityGroups;
-  cout << "Calculate intersections per triangle" << endl;
-  vector<map<int, int>> const& trianglesIntersected = intersections.getTrianglesIntersected(sigintHandler);
-  cout << "Getting triangle intersection probabilities..." << endl;
-  for (auto intersection : intersections.front) {
-    cout << intersection.id << " " << endl;
-    map<int, float> probabilities = intersection.getTriangleProbabilities(
-      mesh, trianglesIntersected, sigintHandler
-    );
-    frontDensityGroups.push_back(intersection.getIntersectionCore(0.15, probabilities));
-  }
-  cout << endl;
-  cout << "Returning answer" << endl;
-  return frontDensityGroups;
+  tuple<vector<vector<int>>, vector<vector<int>>> densityGroups {vector<vector<int>>(), vector<vector<int>>()};
+  auto trianglesIntersected = intersections.getTrianglesIntersected(sigintHandler);
+  getDensityGroups(intersections.front, trianglesIntersected, mesh, get<0>(densityGroups));
+  getDensityGroups(intersections.back, trianglesIntersected, mesh, get<1>(densityGroups));
+
+  return densityGroups;
 }
 
-PYBIND11_MODULE(intersection, m) {
+PYBIND11_MODULE(intersection, m)
+{
   m.doc() = "Module for finding the intersection of white matter bundles with the cortex";
   m.def("intersection_core", &intersectionCore, "Find the intersections!");
 }
