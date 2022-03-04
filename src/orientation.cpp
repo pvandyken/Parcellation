@@ -14,7 +14,7 @@ void Orientation::alignOrientation(vector<vector<Vector3f>> &fibers) {
     // and misaligned fibers
     int alignments = 0;
     int misalignments = 0;
-    for (int i=1; i<fibers.size(); i++) {
+    for (size_t i=1; i<fibers.size(); i++) {
         bool aligned = isAligned(fibers[i], refFiber);
         directions.push_back(aligned);
         if (aligned) {
@@ -33,7 +33,7 @@ void Orientation::alignOrientation(vector<vector<Vector3f>> &fibers) {
 
     cout << "Base direction: " << (baseDirection ? "True" : "False") << endl;
 
-    for (int i=0; i<directions.size(); i++) {
+    for (size_t i=0; i<directions.size(); i++) {
         // If the fiber direction is different than the base direction, flip it
         if (baseDirection ^ directions[i]) {
             reverse(fibers[i].begin(), fibers[i].end());

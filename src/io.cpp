@@ -76,8 +76,7 @@ void IO::read_bundles(const string &path, vector<Bundle> &bundles) {
 
   sort(bundlesDir.begin(), bundlesDir.end());
 
-  for (int i = 0; i < bundlesDir.size(); i++) {
-    string filename = bundlesDir[i];
+  for (auto filename : bundlesDir) {
     bundles.push_back(Bundle(filename));
   }
 }

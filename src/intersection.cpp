@@ -632,7 +632,7 @@ const vector<map<int, int>> &CorticalIntersection::getTrianglesIntersected()
   if (this->trianglesIntersected.size() == 0)
   {
     // Loop through triangle indices
-    for (uint32_t i = 0; i < this->mesh.polygons.size(); i++)
+    for (int i = 0; i < this->mesh.polygons.size(); i++)
     {
       // For each triangle, find each bundle that intersects it, getting a count of
       // the number of intersections
