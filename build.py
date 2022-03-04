@@ -6,6 +6,7 @@ extensions = [
         "intersection.intersection",
         sources=[
             "src/intersection.cpp",
+            "src/bundleIntersection.cpp",
             "src/io.cpp",
             "src/orientation.cpp",
             "src/bundles.cpp",
@@ -15,7 +16,7 @@ extensions = [
         include_dirs = [
             "extern/pybind11/include"
         ],
-        extra_compile_args=["-O0"]
+        extra_compile_args=["-O0"],
     )
 ]
 

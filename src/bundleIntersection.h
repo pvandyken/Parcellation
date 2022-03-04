@@ -22,5 +22,5 @@ public:
     vector<vector<int>> triangles;
     vector<vector<vector<float>>> points;
 
-    map<int, int> getTriangleProbabilities(Mesh &mesh, const vector<map<int, int>> &triangleIntersections);
+    map<int, float> getTriangleProbabilities(int bundleId, Mesh &mesh, const vector<map<int, int>> &triangleIntersections);
 };
