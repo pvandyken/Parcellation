@@ -24,8 +24,13 @@ int cortical_intersections(const py::EigenDRef<const MatrixX3f> vertices,
   CorticalIntersection intersections(mesh, bundles, nPtsLine);
 
   IO::write_intersection(out, bundle_dir,
-                         intersections.frontIntersections, intersections.backIntersections,
+                         intersections.front, intersections.back,
                          intersections.fibIndex);
+
+  vector<vector<int>> frontDensityGroups;
+  for (auto intersection : intersections.front) {
+
+  }
 
   return 0;
 }

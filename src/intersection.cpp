@@ -350,13 +350,13 @@ CorticalIntersection::CorticalIntersection(
     const Mesh &mesh,
     vector<Bundle> &bundles, const int &nPtsLine)
     : mesh{mesh},
-      frontIntersections{vector<BundleIntersections>(bundles.size())},
-      backIntersections{vector<BundleIntersections>(bundles.size())},
+      front{vector<BundleIntersections>(bundles.size())},
+      back{vector<BundleIntersections>(bundles.size())},
       fibIndex{vector<vector<int>>(bundles.size())}
 {
   // Initialize intersection vectors
-  BundleIntersections::fromRange(bundles.size(), frontIntersections);
-  BundleIntersections::fromRange(bundles.size(), backIntersections);
+  BundleIntersections::fromRange(bundles.size(), front);
+  BundleIntersections::fromRange(bundles.size(), back);
 
 
   const EigenDRef<const MatrixX3f> &vertex = mesh.vertices;
@@ -613,10 +613,10 @@ CorticalIntersection::CorticalIntersection(
     {
       if (listFibInd[j] != -1)
       {
-        this->frontIntersections[i].triangles.push_back(listTri[j][0]);
-        this->frontIntersections[i].points.push_back(listPtInt[j][0]);
-        this->backIntersections[i].triangles.push_back(listTri[j][1]);
-        this->backIntersections[i].points.push_back(listPtInt[j][1]);
+        this->front[i].triangles.push_back(listTri[j][0]);
+        this->front[i].points.push_back(listPtInt[j][0]);
+        this->back[i].triangles.push_back(listTri[j][1]);
+        this->back[i].points.push_back(listPtInt[j][1]);
       }
     }
     listFibInd.erase(remove_if(listFibInd.begin(), listFibInd.end(),
@@ -637,7 +637,7 @@ const vector<map<int, int>> &CorticalIntersection::getTrianglesIntersected()
       // For each triangle, find each bundle that intersects it, getting a count of
       // the number of intersections
       map<int, int> intersections;
-      VecProxy<BundleIntersections> allIntersections(frontIntersections, backIntersections);
+      VecProxy<BundleIntersections> allIntersections(front, back);
       for (uint32_t j = 0; j < allIntersections.size(); j++)
       {
         const vector<int> &triangles = allIntersections[j].triangles;
