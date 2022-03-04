@@ -350,8 +350,8 @@ CorticalIntersection::CorticalIntersection(
     const Mesh &mesh,
     vector<Bundle> &bundles, const int &nPtsLine)
     : mesh{mesh},
-      front{vector<BundleIntersections>(bundles.size())},
-      back{vector<BundleIntersections>(bundles.size())},
+      front{vector<BundleIntersections>()},
+      back{vector<BundleIntersections>()},
       fibIndex{vector<vector<int>>(bundles.size())}
 {
   // Initialize intersection vectors
@@ -627,23 +627,22 @@ CorticalIntersection::CorticalIntersection(
   }
 }
 
-const vector<map<int, int>> &CorticalIntersection::getTrianglesIntersected()
+const vector<map<int, int>> &CorticalIntersection::getTrianglesIntersected(fn<void> const& sigintHandler)
 {
   if (this->trianglesIntersected.size() == 0)
   {
     // Loop through triangle indices
     for (int i = 0; i < this->mesh.polygons.size(); i++)
     {
+      sigintHandler();
       // For each triangle, find each bundle that intersects it, getting a count of
       // the number of intersections
       map<int, int> intersections;
       VecProxy<BundleIntersections> allIntersections(front, back);
       for (uint32_t j = 0; j < allIntersections.size(); j++)
       {
-        const vector<int> &triangles = allIntersections[j].triangles;
-
         uint32_t count = 0;
-        for (const auto &triangle : triangles)
+        for (const auto &triangle : allIntersections[j].triangles)
         {
           if (triangle == i)
           {

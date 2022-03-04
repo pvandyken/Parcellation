@@ -1,4 +1,16 @@
-#include "entry.h"
+#include "../src/intersection.h"
+#include "../src/orientation.h"
+#include "../src/io.h"
+#include "../src/mesh.h"
+#include <Eigen/Dense>
+#include <pybind11/pybind11.h>
+#include <pybind11/eigen.h>
+#include <pybind11/stl.h>
+#include <Python.h>
+
+using namespace Eigen;
+namespace py = pybind11;
+
 
 void orientBundles(vector<Bundle> &bundles)
 {
@@ -8,11 +20,16 @@ void orientBundles(vector<Bundle> &bundles)
   }
 }
 
-int cortical_intersections(const py::EigenDRef<const MatrixX3f> vertices,
+void sigintHandler() {
+  if (PyErr_CheckSignals() != 0)
+    throw py::error_already_set();
+}
+vector<vector<int>> intersectionCore(const py::EigenDRef<const MatrixX3f> vertices,
                            const py::EigenDRef<const MatrixX3i> polygons,
                            string bundle_dir,
                            string out,
-                           const int nPtsLine)
+                           const int nPtsLine,
+                           const float probThreshold)
 {
   vector<Bundle> bundles;
 
@@ -28,14 +45,22 @@ int cortical_intersections(const py::EigenDRef<const MatrixX3f> vertices,
                          intersections.fibIndex);
 
   vector<vector<int>> frontDensityGroups;
+  cout << "Calculate intersections per triangle" << endl;
+  vector<map<int, int>> const& trianglesIntersected = intersections.getTrianglesIntersected(sigintHandler);
+  cout << "Getting triangle intersection probabilities..." << endl;
   for (auto intersection : intersections.front) {
-
+    cout << intersection.id << " " << endl;
+    map<int, float> probabilities = intersection.getTriangleProbabilities(
+      mesh, trianglesIntersected, sigintHandler
+    );
+    frontDensityGroups.push_back(intersection.getIntersectionCore(0.15, probabilities));
   }
-
-  return 0;
+  cout << endl;
+  cout << "Returning answer" << endl;
+  return frontDensityGroups;
 }
 
 PYBIND11_MODULE(intersection, m) {
   m.doc() = "Module for finding the intersection of white matter bundles with the cortex";
-  m.def("cortical_intersections", &cortical_intersections, "Find the intersections!");
+  m.def("intersection_core", &intersectionCore, "Find the intersections!");
 }

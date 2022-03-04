@@ -20,10 +20,10 @@ def main(
     return get_intersection(left_surf, left_bundles, out_path)
 
 
-def get_intersection(surf_path: Path, bundles_path: Path, out_path: Path) -> int:
+def get_intersection(surf_path: Path, bundles_path: Path, out_path: Path):
     surf = Mesh.from_file(surf_path)
-    return intersection.cortical_intersections(
-        surf.points, surf.triangles, str(bundles_path), str(out_path), 6
+    return intersection.intersection_core(
+        surf.points, surf.triangles, str(bundles_path), str(out_path), 6, 0.15
     )
 
 

@@ -6,6 +6,7 @@
 #include "types.h"
 #include "bundles.h"
 #include "bundleIntersection.h"
+#include <functional>
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -17,6 +18,8 @@
 
 using namespace std;
 using namespace Eigen;
+
+
 
 namespace Intersection {
     const float dotProduct(const float a[], float *&b);
@@ -47,7 +50,7 @@ public:
     vector<BundleIntersections> back;
     vector<vector<int>> fibIndex;
 
-    const vector<map<int, int>> &getTrianglesIntersected();
+    const vector<map<int, int>> &getTrianglesIntersected(fn<void> const& sigintHander = [](){});
 
 private:
     vector<map<int, int>> trianglesIntersected;

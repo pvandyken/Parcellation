@@ -1,11 +1,17 @@
 #include "bundleIntersection.h"
 
 map<int, float> BundleIntersections::getTriangleProbabilities(
-    Mesh &mesh, const vector<map<int, int>> &triangleIntersections
+    Mesh & mesh,
+    vector<map<int, int>> const& triangleIntersections,
+    fn<void> const& sigintHandler
 ) {
     map<int, float> probabilities;
+    cout << "Getting core of bundle " << this->id << endl;
+    cout << this->triangles.size() << " triangles" << endl;
     for (auto const& triangle : this->triangles) {
+        sigintHandler();
         const vector<int> neighbors = mesh.getTriangleNeighbors(triangle);
+        cout.flush();
         uint16_t grandTotal = 0;
         uint16_t bundleGrandTotal = 0;
         for (auto const& neighbor : neighbors) {
@@ -32,7 +38,6 @@ map<int, float> BundleIntersections::getTriangleProbabilities(
 
 
 void BundleIntersections::fromRange(size_t size, vector<BundleIntersections> &arr) {
-    arr.resize(size);
     for (size_t i = 0; i<size; i++) {
         arr.push_back(BundleIntersections(i));
     }
