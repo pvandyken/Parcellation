@@ -1,5 +1,6 @@
 import itertools as it
 from pathlib import Path
+import functools as ft
 from typing import Type, TypeVar
 
 import attrs
@@ -48,10 +49,11 @@ class Mesh:
     triangles: NDArray[np.int32]
 
     def filter_triangles(self, whitelist: list[int]):
-        triangles = np.asarray(
-            [tri for i, tri in enumerate(self.triangles) if i in set(whitelist)],
-            self.triangles.dtype
-        )
+        whitelist_unique = list(set(whitelist))
+        triangles = np.ndarray((len(whitelist_unique), 3), self.triangles.dtype)
+        for i in range(len(triangles)):
+            triangles[i] = self.triangles[whitelist_unique[i]]
+
         needed_points = sorted(set(it.chain.from_iterable(triangles)))
         indexed_points = dict(zip(needed_points, range(len(needed_points))))
         for triangle in triangles:
@@ -62,6 +64,17 @@ class Mesh:
             points,
             triangles
         )
+
+    @ft.cached_property
+    def points_to_triangles(self) -> list[list[int]]:
+        """Index of the triangles each point participates in.
+
+        For example, if triangles 6, 7, 8, 10, 12, and 16 all have point 6 as a vertex,
+        the 6th entry in the index will be [6, 7, 8, 10, 12]
+        """
+        # Make as many rows as there are points. Each vertex is adjacent to 6 triangles,
+        # so we have 6 columns
+        return [[*self._find_triangles_from_point(point)] for point in self.points]
 
     def save_vtk(self, name: Path):
         pd = PolyData()
@@ -81,6 +94,20 @@ class Mesh:
         return cls(
             points=data.agg_data("pointset"), triangles=data.agg_data("triangle")
         )
+
+    def _find_triangles_from_point(self, point: int):
+        """Search the list of triangles for the index of a single point
+
+        Returns a generator yielding triangles containing the point.
+
+        Parameters
+        ----------
+        point : int
+        """
+        # Search for this point in every triangle
+        for triangle in self.triangles:
+            if point in triangle:
+                yield triangle
 
 
 @attrs.frozen()

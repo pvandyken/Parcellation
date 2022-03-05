@@ -20,21 +20,6 @@
 using namespace std;
 using namespace Eigen;
 
-namespace Intersection {
-const float dotProduct(const float a[], float *&b);
-float *crossProduct(const float a[], const float b[]);
-bool ray_triangle_intersection(const float ray_near[], const float ray_dir[],
-                               const float Points[][3], float &t);
-
-vector<vector<float>> multiple_vertices(const float *triangle[3]);
-vector<vector<vector<float>>> multiple_triangles(const float *triangles[1][3],
-                                                 int &len,
-                                                 const int polys[][3]);
-vector<vector<vector<float>>> segment_triangles(const float *triangles[1][3]);
-vector<vector<float>> get_triangle_centroid(
-    vector<vector<vector<float>>> triangles, const int &N);
-}  // namespace Intersection
-
 class CorticalIntersection {
  public:
   CorticalIntersection(const Mesh &mesh, vector<Bundle> &bundles,
@@ -44,18 +29,19 @@ class CorticalIntersection {
                        vector<BundleIntersections> &interceptions)
       : mesh{mesh}, front{interceptions} {};
 
-  const Mesh &mesh;
   vector<BundleIntersections> front;
   vector<BundleIntersections> back;
   vector<vector<int>> fibIndex;
+  const Mesh &mesh;
 
   const vector<map<int, int>> &getTrianglesIntersected(
       fn<void> const &sigintHander = []() {});
 
+
  private:
   vector<map<int, int>> trianglesIntersected;
   const bool getMeshAndFiberEndIntersection(
-      Vector3f &fiberP0, Vector3f &fiberP1, const int &nPoints,
+      Vector3f &fiberP0, Vector3f &fiberP1, const int &distanceFactor,
       const int &nPtsLine, const int &N, const int &npbp,
       vector<vector<float>> &index, const float &step,
       vector<vector<vector<bool>>> &cubeNotEmpty,

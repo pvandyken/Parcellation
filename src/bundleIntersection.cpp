@@ -4,8 +4,6 @@ map<int, float> BundleIntersections::getTriangleProbabilities(
     Mesh &mesh, vector<map<int, int>> const &triangleIntersections,
     fn<void> const &sigintHandler) {
   map<int, float> probabilities;
-  cout << "Getting core of bundle " << this->id << endl;
-  cout << this->triangles.size() << " triangles" << endl;
   for (auto const &triangle : this->triangles) {
     sigintHandler();
     const vector<int> neighbors = mesh.getTriangleNeighbors(triangle);

@@ -1,7 +1,8 @@
 #include "intersection.h"
 
+namespace {
 // ============ Producto Punto =============
-const float Intersection::dotProduct(const float a[], float *&b) {
+const float dotProduct(const float a[], float *&b) {
   float c = 0;
 
 #pragma omp simd reduction(+ : c)
@@ -11,7 +12,7 @@ const float Intersection::dotProduct(const float a[], float *&b) {
 }
 
 // ============ Producto Cruz ==============
-float *Intersection::crossProduct(const float a[], const float b[]) {
+float *crossProduct(const float a[], const float b[]) {
   float *c = new float[3];
   int i = 1, j = 2;
 
@@ -28,10 +29,8 @@ float *Intersection::crossProduct(const float a[], const float b[]) {
 
 // =========== Función que calcula la intersección entre un rayo con un
 // triángulo ====================
-bool Intersection::ray_triangle_intersection(const float ray_near[],
-                                             const float ray_dir[],
-                                             const float Points[][3],
-                                             float &t) {
+bool ray_triangle_intersection(const float ray_near[], const float ray_dir[],
+                               const float Points[][3], float &t) {
   const float eps = 0.000001;
   float edges[2][3];
 
@@ -77,8 +76,7 @@ bool Intersection::ray_triangle_intersection(const float ray_near[],
   return true;
 }
 
-vector<vector<float>> Intersection::multiple_vertices(
-    const float *triangle[3]) {
+vector<vector<float>> multiple_vertices(const float *triangle[3]) {
   vector<vector<float>> pt(6, vector<float>(3));
   // float **pt = new float*[6];
   // for(int i=0; i<6; i++)
@@ -97,8 +95,9 @@ vector<vector<float>> Intersection::multiple_vertices(
   return pt;
 }
 
-vector<vector<vector<float>>> Intersection::multiple_triangles(
-    const float *triangles[1][3], int &len, const int polys[][3]) {
+vector<vector<vector<float>>> multiple_triangles(const float *triangles[1][3],
+                                                 int &len,
+                                                 const int polys[][3]) {
   vector<vector<vector<float>>> new_triangles(
       len * 4, vector<vector<float>>(3, vector<float>(3)));
 
@@ -120,8 +119,7 @@ vector<vector<vector<float>>> Intersection::multiple_triangles(
   return new_triangles;
 }
 
-vector<vector<vector<float>>> Intersection::segment_triangles(
-    const float *triangles[1][3]) {
+vector<vector<vector<float>>> segment_triangles(const float *triangles[1][3]) {
   /*
   Split each triangle into four sub triangles
   and finds the centroid of each sub-triangle
@@ -137,7 +135,7 @@ vector<vector<vector<float>>> Intersection::segment_triangles(
   return multiple_triangles(triangles, len, polys);
 }
 
-vector<vector<float>> Intersection::get_triangle_centroid(
+vector<vector<float>> get_triangle_centroid(
     vector<vector<vector<float>>> const triangles, const int &N) {
   vector<vector<float>> centroid(int(pow(4, N)), vector<float>(3));
   int len = 1;
@@ -154,8 +152,10 @@ vector<vector<float>> Intersection::get_triangle_centroid(
   return centroid;
 }
 
+}  // namespace
+
 const bool CorticalIntersection::getMeshAndFiberEndIntersection(
-    Vector3f &fiberP0, Vector3f &fiberP1, const int &nPoints,
+    Vector3f &fiberP0, Vector3f &fiberP1, const int &distanceFactor,
     const int &nPtsLine, const int &N, const int &npbp,
     vector<vector<float>> &index, const float &step,
     vector<vector<vector<bool>>> &cubeNotEmpty,
@@ -164,22 +164,24 @@ const bool CorticalIntersection::getMeshAndFiberEndIntersection(
     const EigenDRef<const MatrixX3f> &vertex,
     const EigenDRef<const MatrixX3i> &polygons, int &Ind,
     vector<float> &ptInt) {
-  Vector3f dd = (fiberP0 - fiberP1) / (npbp + 1);
+  Vector3f dd = (fiberP0 - fiberP1) / (npbp + 1) / distanceFactor;
 
   vector<Vector3i> indexes;
-  Vector3f gridStart(index[0][0], index[1][0], index[2][0]);
+  Vector3f gridOrigin(index[0][0], index[1][0], index[2][0]);
 
-  for (int i = 0; i <= nPtsLine + (nPtsLine - 1) * npbp; i++) {
-    Vector3i I = ((fiberP1 + i * dd - gridStart) / step).cast<int>();
+  int numSteps = nPtsLine + (nPtsLine - 1) * npbp;
+  for (int i = 0; i <= numSteps; i++) {
+    Vector3i stepIndex = ((fiberP1 + i * dd - gridOrigin) / step).cast<int>();
 
     // Check all neighboring cubes
 #pragma omp simd collapse(3)
     for (int a = -1; a < 2; a++) {
       for (int b = -1; b < 2; b++) {
         for (int c = -1; c < 2; c++) {
-          if (cubeNotEmpty[I[0] + a][I[1] + b][I[2] + c]) {
+          if (cubeNotEmpty.at(stepIndex[0] + a).at(stepIndex[1] + b)
+                          .at(stepIndex[2] + c)) {
             Vector3i abc(a, b, c);
-            indexes.emplace_back(I + abc);
+            indexes.emplace_back(stepIndex + abc);
           }
         }
       }
@@ -192,14 +194,15 @@ const bool CorticalIntersection::getMeshAndFiberEndIntersection(
   indexes.erase(unique(indexes.begin(), indexes.end()), indexes.end());
   vector<vector<double>> listDist;
 
+
   for (const auto &I : indexes) {
     for (int u = 0; u < (int)centroidIndex[I[0]][I[1]][I[2]].size(); u++) {
-      double cen[3], dist = 0;
+      double dist = 0;
 
 #pragma omp simd reduction(+ : dist)
       for (int i = 0; i < 3; i++) {
-        cen[i] = almacen[I[0]][I[1]][I[2]][u][i];
-        dist += fabs(cen[i] - fiberP0[i]);
+        double coord = almacen[I[0]][I[1]][I[2]][u][i];
+        dist += fabs(coord - fiberP0[i]);
       }
 
       const int &c_index = centroidIndex[I[0]][I[1]][I[2]][u];
@@ -209,6 +212,7 @@ const bool CorticalIntersection::getMeshAndFiberEndIntersection(
   sort(listDist.begin(), listDist.end());
   vector<int> listIndex;
   ptInt = vector<float>(3);
+
 
   for (const vector<double> &ind : listDist) {
     if (find(listIndex.begin(), listIndex.end(), (int)ind[1]) ==
@@ -238,7 +242,7 @@ const bool CorticalIntersection::getMeshAndFiberEndIntersection(
     float t;
     // ========== Verifica la intersección entre el rayo y el triángulo
     // =============
-    if (Intersection::ray_triangle_intersection(ray_near, ray_dir, Pts, t)) {
+    if (ray_triangle_intersection(ray_near, ray_dir, Pts, t)) {
 #pragma omp simd
       for (int i = 0; i < 3; i++)
         ptInt[i] = fiberP1[i] + (fiberP1[i] - fiberP0[i]) * t;
@@ -253,8 +257,7 @@ const bool CorticalIntersection::getMeshAndFiberEndIntersection(
 #pragma omp simd
       for (int i = 0; i < 3; i++) ray_invert[i] = -ray_dir[i];
 
-      if (Intersection::ray_triangle_intersection(ray_near, ray_invert, Pts,
-                                                  t)) {
+      if (ray_triangle_intersection(ray_near, ray_invert, Pts, t)) {
 #pragma omp simd
         for (int i = 0; i < 3; i++)
           ptInt[i] = fiberP1[i] - (fiberP1[i] - fiberP0[i]) * t;
@@ -277,17 +280,31 @@ const bool CorticalIntersection::getMeshAndFiberIntersection(
     const EigenDRef<const MatrixX3i> &polygons, int &InInd, int &FnInd,
     vector<float> &InPtInt, vector<float> &FnPtInt) {
   bool findInt;
+  for (int i = 1; i < 10; i++) {
+    if (i >= fiber.size()) {
+      return false;
+    }
+    findInt = getMeshAndFiberEndIntersection(
+        fiber[0], fiber[i], i, nPtsLine, N, npbp, index, step,
+        cubeNotEmpty, centroidIndex, almacen, vertex, polygons, InInd, InPtInt);
 
-  findInt = getMeshAndFiberEndIntersection(
-      fiber[0], fiber[1], nPoints, nPtsLine, N, npbp, index, step, cubeNotEmpty,
-      centroidIndex, almacen, vertex, polygons, InInd, InPtInt);
+    if (findInt) {
+      break;
+    }
+  }
 
   if (!findInt) return false;
 
-  findInt = getMeshAndFiberEndIntersection(
-      fiber[nPoints - 1], fiber[nPoints - 2], nPoints, nPtsLine, N, npbp, index,
-      step, cubeNotEmpty, centroidIndex, almacen, vertex, polygons, FnInd,
-      FnPtInt);
+  for (int i = 1; i < 10; i++) {
+    if (i >= fiber.size()) {
+      return false;
+    }
+    findInt = getMeshAndFiberEndIntersection(
+        fiber[nPoints - 1], fiber[nPoints - 1 - i], nPoints, nPtsLine, N, npbp,
+        index, step, cubeNotEmpty, centroidIndex, almacen, vertex, polygons,
+        FnInd, FnPtInt);
+    if (findInt) break;
+  }
 
   if (!findInt) {
     return false;
@@ -301,8 +318,8 @@ CorticalIntersection::CorticalIntersection(const Mesh &mesh,
                                            const int &nPtsLine)
     : front{BundleIntersections::fromRange(bundles.size())},
       back{BundleIntersections::fromRange(bundles.size())},
-      mesh{mesh},
-      fibIndex{vector<vector<int>>(bundles.size())} {
+      fibIndex{vector<vector<int>>(bundles.size())},
+      mesh{mesh} {
   const EigenDRef<const MatrixX3f> &vertex = mesh.vertices;
   const EigenDRef<const MatrixX3i> &polygons = mesh.polygons;
 
@@ -441,10 +458,8 @@ CorticalIntersection::CorticalIntersection(const Mesh &mesh,
     for (int j = 0; j < 3; j++)
       triangles[0][j] = vertex(polygons(i, j), all).data();
 
-    vector<vector<vector<float>>> subTriangles =
-        Intersection::segment_triangles(triangles);
-    vector<vector<float>> centroid =
-        Intersection::get_triangle_centroid(subTriangles, N);
+    vector<vector<vector<float>>> subTriangles = segment_triangles(triangles);
+    vector<vector<float>> centroid = get_triangle_centroid(subTriangles, N);
 
     for (int j = 0; j < pow(4, N); j++) {
       for (int k = 0; k < 3; k++)
@@ -509,7 +524,6 @@ CorticalIntersection::CorticalIntersection(const Mesh &mesh,
     vector<vector<vector<float>>> listPtInt(bundles[i].fibers.size(),
                                             vector<vector<float>>(2));
 
-    cout << "Find intersections for bundle " << i << endl;
 #pragma omp parallel for schedule(auto)
     for (int j = 0; j < (int)bundles[i].fibers.size(); j++) {
       bool findInt;                    // find intersection
