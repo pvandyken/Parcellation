@@ -178,8 +178,9 @@ const bool CorticalIntersection::getMeshAndFiberEndIntersection(
     for (int a = -1; a < 2; a++) {
       for (int b = -1; b < 2; b++) {
         for (int c = -1; c < 2; c++) {
-          if (cubeNotEmpty.at(stepIndex[0] + a).at(stepIndex[1] + b)
-                          .at(stepIndex[2] + c)) {
+          if (cubeNotEmpty.at(stepIndex[0] + a)
+                  .at(stepIndex[1] + b)
+                  .at(stepIndex[2] + c)) {
             Vector3i abc(a, b, c);
             indexes.emplace_back(stepIndex + abc);
           }
@@ -190,10 +191,9 @@ const bool CorticalIntersection::getMeshAndFiberEndIntersection(
 
   if (indexes.empty()) return false;
 
-  sort(indexes.begin(), indexes.end(), &Utils::compareVec<Vector3i>);
+  std::sort(indexes.begin(), indexes.end(), &Utils::compareVec<Vector3i>);
   indexes.erase(unique(indexes.begin(), indexes.end()), indexes.end());
   vector<vector<double>> listDist;
-
 
   for (const auto &I : indexes) {
     for (int u = 0; u < (int)centroidIndex[I[0]][I[1]][I[2]].size(); u++) {
@@ -212,7 +212,6 @@ const bool CorticalIntersection::getMeshAndFiberEndIntersection(
   sort(listDist.begin(), listDist.end());
   vector<int> listIndex;
   ptInt = vector<float>(3);
-
 
   for (const vector<double> &ind : listDist) {
     if (find(listIndex.begin(), listIndex.end(), (int)ind[1]) ==
@@ -252,7 +251,6 @@ const bool CorticalIntersection::getMeshAndFiberEndIntersection(
     } else {
       // ============= Ídem, pero con el rayo apuntando hacia el sentido
       // contrario =============
-
       float ray_invert[3];
 #pragma omp simd
       for (int i = 0; i < 3; i++) ray_invert[i] = -ray_dir[i];
@@ -285,8 +283,8 @@ const bool CorticalIntersection::getMeshAndFiberIntersection(
       return false;
     }
     findInt = getMeshAndFiberEndIntersection(
-        fiber[0], fiber[i], i, nPtsLine, N, npbp, index, step,
-        cubeNotEmpty, centroidIndex, almacen, vertex, polygons, InInd, InPtInt);
+        fiber[0], fiber[i], i, nPtsLine, N, npbp, index, step, cubeNotEmpty,
+        centroidIndex, almacen, vertex, polygons, InInd, InPtInt);
 
     if (findInt) {
       break;
@@ -300,7 +298,7 @@ const bool CorticalIntersection::getMeshAndFiberIntersection(
       return false;
     }
     findInt = getMeshAndFiberEndIntersection(
-        fiber[nPoints - 1], fiber[nPoints - 1 - i], nPoints, nPtsLine, N, npbp,
+        fiber[nPoints - 1], fiber[nPoints - 1 - i], i, nPtsLine, N, npbp,
         index, step, cubeNotEmpty, centroidIndex, almacen, vertex, polygons,
         FnInd, FnPtInt);
     if (findInt) break;
@@ -323,7 +321,6 @@ CorticalIntersection::CorticalIntersection(const Mesh &mesh,
   const EigenDRef<const MatrixX3f> &vertex = mesh.vertices;
   const EigenDRef<const MatrixX3i> &polygons = mesh.polygons;
 
-  cout << "Calculate mesh and bundles intersection" << endl;
   int N = 1;
 
   vector<float> mdbvs(polygons.rows());
@@ -341,7 +338,6 @@ CorticalIntersection::CorticalIntersection(const Mesh &mesh,
   float mdbv = *max_element(begin(mdbvs), end(mdbvs));
   const float step = mdbv * 1.5 / pow(2, N + 1);
 
-  cout << "Calculate maximal size between points..." << endl;
   float mdbp = 0;  // maximum distance between points
   for (int i = 0; i < (int)bundles.size(); i++) {
     for (int j = 0; j < (int)bundles[i].fibers.size(); j++) {
@@ -397,7 +393,6 @@ CorticalIntersection::CorticalIntersection(const Mesh &mesh,
 
   // Filter bundles to get only fibres who's first and last points are within
   // the bounding box of the surface
-  cout << "Filter bundles..." << endl;
 
   const Array3f minFiberBound =
       (Vector3f(vx.front(), vy.front(), vz.front()).array() - mdbp -
@@ -423,7 +418,6 @@ CorticalIntersection::CorticalIntersection(const Mesh &mesh,
     }
   }
 
-  cout << "Get number of intervals per axis..." << endl;
   // ================ Obtiene la cantidad de intervalos por eje
   //  Get the number of intervals per axix
   const Vector3f mins = Vector3f(minx, miny, minz);
@@ -603,4 +597,39 @@ const vector<map<int, int>> &CorticalIntersection::getTrianglesIntersected(
     }
   }
   return this->trianglesIntersected;
+}
+
+const vector<vector<int>> CorticalIntersection::getTriangles(
+    vector<BundleIntersections> const &intersections) {
+  vector<vector<int>> result;
+  for (auto const& intersection : intersections) {
+    result.push_back(intersection.triangles);
+  }
+  return result;
+}
+
+const vector<vector<int>> CorticalIntersection::getTrianglesFront() {
+  return getTriangles(front);
+}
+
+const vector<vector<int>> CorticalIntersection::getTrianglesBack() {
+  return getTriangles(back);
+}
+
+CorticalIntersection CorticalIntersection::fromBundles(
+    const EigenDRef<const MatrixX3f> vertices,
+    const EigenDRef<const MatrixX3i> polygons, string bundle_dir,
+    const int nPtsLine) {
+  // omp_set_num_threads(4);
+  vector<Bundle> bundles;
+
+  IO::read_bundles(bundle_dir, bundles);
+  for (auto &bundle : bundles) {
+    Orientation::alignOrientation(bundle.fibers);
+  }
+
+  Mesh mesh(vertices, polygons);
+
+  CorticalIntersection intersection(mesh, bundles, nPtsLine);
+  return intersection;
 }

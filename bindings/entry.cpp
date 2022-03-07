@@ -67,9 +67,14 @@ tuple<vector<vector<int>>, vector<vector<int>>> intersectionCore(
   return densityGroups;
 }
 
-PYBIND11_MODULE(intersection, m) {
+PYBIND11_MODULE(cortical_intersections, m) {
   m.doc() =
       "Module for finding the intersection of white matter bundles with the "
       "cortex";
   m.def("intersection_core", &intersectionCore, "Find the intersections!");
+  py::class_<CorticalIntersection>(m, "CorticalIntersection")
+    .def(py::init<>())
+    .def_static("from_bundles", &CorticalIntersection::fromBundles, "Construct intersections from bundles")
+    .def("get_triangles_front", &CorticalIntersection::getTrianglesFront, "Get Intersected Triangles")
+    .def("get_triangles_back", &CorticalIntersection::getTrianglesBack, "Get Intersected Triangles");
 }

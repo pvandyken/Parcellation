@@ -12,6 +12,8 @@
 
 #include "bundleIntersection.h"
 #include "bundles.h"
+#include "io.h"
+#include "orientation.h"
 #include "math.h"
 #include "mesh.h"
 #include "types.h"
@@ -22,6 +24,7 @@ using namespace Eigen;
 
 class CorticalIntersection {
  public:
+  CorticalIntersection() : mesh{Mesh()} {};
   CorticalIntersection(const Mesh &mesh, vector<Bundle> &bundles,
                        const int &nPtsLine);
 
@@ -37,9 +40,20 @@ class CorticalIntersection {
   const vector<map<int, int>> &getTrianglesIntersected(
       fn<void> const &sigintHander = []() {});
 
+  const vector<vector<int>> getTrianglesFront();
+  const vector<vector<int>> getTrianglesBack();
+
+  static CorticalIntersection fromBundles(
+    const EigenDRef<const MatrixX3f> vertices,
+    const EigenDRef<const MatrixX3i> polygons, string bundle_dir,
+    const int nPtsLine);
 
  private:
   vector<map<int, int>> trianglesIntersected;
+
+  const vector<vector<int>> getTriangles(
+      vector<BundleIntersections> const &intersections);
+
   const bool getMeshAndFiberEndIntersection(
       Vector3f &fiberP0, Vector3f &fiberP1, const int &distanceFactor,
       const int &nPtsLine, const int &N, const int &npbp,

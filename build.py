@@ -2,7 +2,7 @@ from pybind11.setup_helpers import Pybind11Extension
 
 extensions = [
     Pybind11Extension(
-        "intersection.intersection",
+        "intersection.cortical_intersections",
         sources=[
             "src/intersection.cpp",
             "src/bundleIntersection.cpp",
@@ -16,8 +16,8 @@ extensions = [
             "extern/pybind11/include",
             "/usr/local/include"
         ],
-        extra_compile_args=["-O3", "-fPIC"],
-        # extra_link_args=["-fopenmp"]
+        extra_compile_args=["-O3", "-fopenmp"],
+        extra_link_args=["-fopenmp"]
     )
 ]
 
