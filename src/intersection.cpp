@@ -617,8 +617,7 @@ const vector<vector<int>> CorticalIntersection::getTrianglesBack() {
 }
 
 CorticalIntersection CorticalIntersection::fromBundles(
-    const EigenDRef<const MatrixX3f> vertices,
-    const EigenDRef<const MatrixX3i> polygons, string bundle_dir,
+    Mesh const&mesh, string bundle_dir,
     const int nPtsLine) {
   // omp_set_num_threads(4);
   vector<Bundle> bundles;
@@ -627,9 +626,6 @@ CorticalIntersection CorticalIntersection::fromBundles(
   for (auto &bundle : bundles) {
     Orientation::alignOrientation(bundle.fibers);
   }
-
-  Mesh mesh(vertices, polygons);
-
   CorticalIntersection intersection(mesh, bundles, nPtsLine);
   return intersection;
 }

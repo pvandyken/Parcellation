@@ -72,9 +72,17 @@ PYBIND11_MODULE(cortical_intersections, m) {
       "Module for finding the intersection of white matter bundles with the "
       "cortex";
   m.def("intersection_core", &intersectionCore, "Find the intersections!");
+
+  py::class_<Mesh>(m, "MeshData")
+    .def(py::init<EigenDRef<const MatrixX3f>, EigenDRef<const MatrixX3i>>())
+    .def_readonly("vertices", &Mesh::vertices)
+    .def_readonly("polygons", &Mesh::polygons)
+    .def("get_triangle_neighbors", &Mesh::getTriangleNeighbors, "Get triangle neighbors");
+
   py::class_<CorticalIntersection>(m, "CorticalIntersection")
     .def(py::init<>())
     .def_static("from_bundles", &CorticalIntersection::fromBundles, "Construct intersections from bundles")
     .def("get_triangles_front", &CorticalIntersection::getTrianglesFront, "Get Intersected Triangles")
     .def("get_triangles_back", &CorticalIntersection::getTrianglesBack, "Get Intersected Triangles");
+
 }

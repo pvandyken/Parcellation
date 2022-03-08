@@ -7,7 +7,9 @@ import typer
 import networkx as nx
 
 from intersection.cortical_intersections import CorticalIntersection
-from intersection.models import Mesh, Results
+from intersection.models import Results
+from intersection.mesh import Mesh
+from intersection.triangle_merge import merge_triangles
 
 app = typer.Typer()
 
@@ -22,10 +24,12 @@ def main(
     out_path: Path,
     ray_length: int = 5
 ):
+    surf = Mesh.load_mesh(left_surf)
     intersections = get_intersection(left_surf, left_bundles)
+    # front = merge_triangles(intersections.get_triangles_front()[0], surf)
+    # back = merge_triangles(intersections.get_triangles_back()[0], surf)
     front = intersections.get_triangles_front()
     back = intersections.get_triangles_back()
-    surf = Mesh.from_file(left_surf)
     out_path.mkdir(exist_ok=True)
     for i, path in enumerate(filter(
         lambda x: re.search(r"\.bundles$", str(x)), left_bundles.iterdir()
@@ -39,10 +43,11 @@ def main(
 
 
 def get_intersection(surf_path: Path, bundles_path: Path):
-    surf = Mesh.from_file(surf_path)
-    return CorticalIntersection.from_bundles(
-        surf.points, surf.triangles, str(bundles_path), 6
+    surf = Mesh.load_mesh(surf_path)
+    intersections = CorticalIntersection.from_bundles(
+        surf.data, str(bundles_path), 6
     )
+    return intersections
 
 
 def get_fiber_graph(intersections: CorticalIntersection, threshold: float):
@@ -80,4 +85,4 @@ def test(txt_file: Path, surface: Path, out_dir: Path):
 
 if __name__ == "__main__":
     intersection = get_intersection("data/mnt/smoothwm.surf.gii.gii", "data/mnt/sup-f-L")
-    get_fiber_graph(intersection, 0.1)
+    nx.write_gml(get_fiber_graph(intersection, 0.1), "data/mnt/graph.gml")

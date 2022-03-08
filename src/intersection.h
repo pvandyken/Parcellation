@@ -44,8 +44,7 @@ class CorticalIntersection {
   const vector<vector<int>> getTrianglesBack();
 
   static CorticalIntersection fromBundles(
-    const EigenDRef<const MatrixX3f> vertices,
-    const EigenDRef<const MatrixX3i> polygons, string bundle_dir,
+    Mesh const& mesh, string bundle_dir,
     const int nPtsLine);
 
  private:

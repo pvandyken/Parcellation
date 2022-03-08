@@ -14,11 +14,21 @@ class CorticalIntersection:
 
     @staticmethod
     def from_bundles(
-        vertices: np.ndarray[Any, np.dtype[np.float32]],
-        polygons: np.ndarray[Any, np.dtype[np.int32]],
+        mesh: "MeshData",
         bundle_dir: str,
         ray_length: int,
     ) -> CorticalIntersection: ...
 
     def get_triangles_front(self) -> list[list[int]]: ...
     def get_triangles_back(self) -> list[list[int]]: ...
+
+class MeshData:
+    def __init__(
+        self,
+        vertices: np.ndarray[Any, np.dtype[np.float32]],
+        polygons: np.ndarray[Any, np.dtype[np.int32]],
+    ): ...
+    vertices: np.ndarray[Any, np.dtype[np.float32]]
+    polygons: np.ndarray[Any, np.dtype[np.int32]]
+
+    def get_triangle_neighbors(self, triangle: int) -> list[int]: ...
