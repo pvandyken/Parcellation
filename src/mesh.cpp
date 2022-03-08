@@ -41,10 +41,17 @@ const vector<int> Mesh::getTriangleNeighbors(vector<int> triangles) {
 const vector<int> Mesh::getTriangleNeighbors(vector<int> triangles,
                                              vector<int> exclude) {
   unordered_set<int> included;
-  unordered_set<int> excluded(exclude.begin(), exclude.end());
+  unordered_set<int> excluded;
+  for (auto triangle : exclude) {
+    for (auto point : polygons(triangle, all)) {
+      excluded.insert(point);
+    }
+  }
   for (auto triangle : triangles) {
-    if (excluded.find(triangle) != excluded.end()) {
-      included.insert(triangle);
+    for (auto point : polygons(triangle, all)) {
+      if (excluded.find(point) == excluded.end()) {
+        included.insert(point);
+      }
     }
   }
   vector<int> included_v(included.begin(), included.end());

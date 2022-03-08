@@ -2,21 +2,35 @@ import itertools as it
 import networkx as nx
 from intersection.mesh import Mesh
 
-def merge_triangles(triangles: list[int], mesh: Mesh):
+def merge_triangles(triangles: list[int], mesh: Mesh, radius: int = 2):
     G = nx.Graph()
     G.add_nodes_from(triangles)
+    all_triangles = set(triangles)
+    visited: dict[int, set[int]] = dict()
 
-    for a, b in it.combinations(triangles, 2):
-        neighbors_a = mesh.data.get_triangle_neighbors(a)
-        if b in neighbors_a:
-            G.add_edge(a, b)
-            continue
-        next_neighbors = set()
-        for neighbor in neighbors_a:
-            for sub_neighbor in mesh.data.get_triangle_neighbors(neighbor):
-                next_neighbors.add(sub_neighbor)
-        if b in next_neighbors:
-            G.add_edge(a, b)
+    for triangle in triangles:
+        blob = triangle_blob(triangle, radius, mesh)
+        for neighbor in blob:
+            if neighbor not in all_triangles:
+                continue
 
-    largest_component = G.subgraph(max(nx.connected_components(G)))
-    return [*it.chain(mesh.data.get_triangle_neighbors(x) for x in largest_component)]
+            G.add_edge(neighbor, triangle)
+            if triangle not in visited:
+                visited[triangle] = blob
+
+    largest_component = max(nx.connected_components(G))
+    if len(largest_component) == 1:
+        return mesh.data.get_triangle_neighbors([*largest_component])
+    return [*it.chain.from_iterable(visited[x] for x in largest_component)]
+
+
+def triangle_blob(core: int, iterations: int, mesh: Mesh):
+    result = set()
+    blob = [core]
+    exclusion = []
+    for _ in range(iterations):
+        neighbors = mesh.data.get_triangle_neighbors(blob, exclusion)
+        exclusion = blob
+        blob = neighbors
+        result.update(blob)
+    return result

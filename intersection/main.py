@@ -9,10 +9,9 @@ import networkx as nx
 from intersection.cortical_intersections import CorticalIntersection
 from intersection.models import Results
 from intersection.mesh import Mesh
-from intersection.triangle_merge import merge_triangles
+from intersection.triangle_merge import merge_triangles, triangle_blob
 
 app = typer.Typer()
-
 
 
 @app.command()
@@ -26,16 +25,16 @@ def main(
 ):
     surf = Mesh.load_mesh(left_surf)
     intersections = get_intersection(left_surf, left_bundles)
-    # front = merge_triangles(intersections.get_triangles_front()[0], surf)
-    # back = merge_triangles(intersections.get_triangles_back()[0], surf)
     front = intersections.get_triangles_front()
     back = intersections.get_triangles_back()
     out_path.mkdir(exist_ok=True)
     for i, path in enumerate(filter(
         lambda x: re.search(r"\.bundles$", str(x)), left_bundles.iterdir()
     )):
-        src_triangles = surf.filter_triangles(front[i])
-        dest_triangles = surf.filter_triangles(back[i])
+        bundle_front = merge_triangles(front[i], surf)
+        bundle_back = merge_triangles(back[i], surf)
+        src_triangles = surf.filter_triangles(bundle_front)
+        dest_triangles = surf.filter_triangles(bundle_back)
         src_triangles.save_vtk(out_path/(path.with_suffix(".src.vtk").name))
         dest_triangles.save_vtk(out_path/(path.with_suffix(".dest.vtk").name))
         # print(out_path/(path.with_suffix(".src.vtk").name))
@@ -74,6 +73,15 @@ def get_overlap(x: list[Any], y: list[Any]):
 
 
 @app.command()
+def triangle(surface: Path, out: Path):
+    mesh = Mesh.load_mesh(surface)
+    blob = set()
+    for layer in triangle_blob(455000, 3, mesh):
+        blob = set(layer)
+    mesh.filter_triangles(list(blob)).save_vtk(out)
+
+
+@app.command()
 def test(txt_file: Path, surface: Path, out_dir: Path):
     results = Results.from_out_file(txt_file)
     surf = Mesh.from_file(surface)
@@ -84,5 +92,4 @@ def test(txt_file: Path, surface: Path, out_dir: Path):
     dest_triangles.save_vtk(out_dir/"dest.vtk")
 
 if __name__ == "__main__":
-    intersection = get_intersection("data/mnt/smoothwm.surf.gii.gii", "data/mnt/sup-f-L")
-    nx.write_gml(get_fiber_graph(intersection, 0.1), "data/mnt/graph.gml")
+    triangle("data/mnt/pial.surf.gii", "data/mnt/test.vtk")
