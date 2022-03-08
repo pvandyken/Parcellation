@@ -1,12 +1,14 @@
 #pragma once
 #include <Eigen/Dense>
 #include <set>
+#include <unordered_set>
 #include <vector>
 
 #include "types.h"
 
 using namespace std;
 using namespace Eigen;
+
 
 class Mesh {
  public:
@@ -20,9 +22,13 @@ class Mesh {
   const EigenDRef<const MatrixX3f> vertices;
   const EigenDRef<const MatrixX3i> polygons;
 
-  const vector<int> &getTrianglesOfPoint(int point);
   const vector<int> getTriangleNeighbors(int triangle);
+  const vector<int> getTriangleNeighbors(vector<int> triangles);
+  const vector<int> getTriangleNeighbors(vector<int> triangles,
+                                         vector<int> exclude);
 
  private:
   vector<vector<int>> trianglesOfPointsIndex;
+  const vector<int> &getTrianglesOfPoint(int point);
+  const vector<int> getTrianglesOfPoint(VectorXi points);
 };

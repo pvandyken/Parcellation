@@ -15,11 +15,39 @@ const vector<int> &Mesh::getTrianglesOfPoint(int point) {
   return this->trianglesOfPointsIndex[point];
 }
 
-const vector<int> Mesh::getTriangleNeighbors(int triangle) {
-  set<int> neighbors;
-  for (auto point : polygons(triangle, all)) {
+const vector<int> Mesh::getTrianglesOfPoint(VectorXi points) {
+  set<int> triangles;
+  for (auto point : points) {
     const vector<int> &trianglesOfPoint = getTrianglesOfPoint(point);
-    neighbors.insert(trianglesOfPoint.begin(), trianglesOfPoint.end());
+    triangles.insert(trianglesOfPoint.begin(), trianglesOfPoint.end());
   }
-  return vector<int>(neighbors.begin(), neighbors.end());
+  return vector<int>(triangles.begin(), triangles.end());
+}
+
+const vector<int> Mesh::getTriangleNeighbors(int triangle) {
+  return getTrianglesOfPoint(polygons(triangle, all));
+}
+const vector<int> Mesh::getTriangleNeighbors(vector<int> triangles) {
+  unordered_set<int> points;
+  for (auto triangle : triangles) {
+    for (auto point : polygons(triangle, all)) {
+      points.insert(point);
+    }
+  }
+  vector<int> point_v(points.begin(), points.end());
+  return getTrianglesOfPoint(Map<VectorXi>(point_v.data(), point_v.size()));
+}
+
+const vector<int> Mesh::getTriangleNeighbors(vector<int> triangles,
+                                             vector<int> exclude) {
+  unordered_set<int> included;
+  unordered_set<int> excluded(exclude.begin(), exclude.end());
+  for (auto triangle : triangles) {
+    if (excluded.find(triangle) != excluded.end()) {
+      included.insert(triangle);
+    }
+  }
+  vector<int> included_v(included.begin(), included.end());
+  return getTrianglesOfPoint(
+      Map<VectorXi>(included_v.data(), included_v.size()));
 }
