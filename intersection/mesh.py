@@ -10,6 +10,10 @@ from intersection.cortical_intersections import MeshData
 
 class Mesh:
     def __init__(self, vertices: NDArray[np.float32], polygons: NDArray[np.int32]):
+        # Empty vertex arrays have a one dimensional shape, which will not be accepted
+        # by MeshData, so we reshape it here
+        if not len(vertices):
+            vertices = vertices.reshape((0, 3))
         self.vertices = vertices
         self.polygons = polygons
         self.data = MeshData(vertices, polygons)
