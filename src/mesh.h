@@ -27,8 +27,8 @@ class Mesh {
   const vector<int> getTriangleNeighbors(vector<int> triangles,
                                          vector<int> exclude);
 
+  const vector<int> &getTrianglesOfPoint(int point);
  private:
   vector<vector<int>> trianglesOfPointsIndex;
-  const vector<int> &getTrianglesOfPoint(int point);
   const vector<int> getTrianglesOfPoint(VectorXi points);
 };

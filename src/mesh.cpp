@@ -24,9 +24,14 @@ const vector<int> Mesh::getTrianglesOfPoint(VectorXi points) {
   return vector<int>(triangles.begin(), triangles.end());
 }
 
+const vector<int> Mesh::getTrianglesOfPoint(vector<int> points) {
+  return getTrianglesOfPoint(Map<VectorXi>(points.data(), points.size()));
+}
+
 const vector<int> Mesh::getTriangleNeighbors(int triangle) {
   return getTrianglesOfPoint(polygons(triangle, all));
 }
+
 const vector<int> Mesh::getTriangleNeighbors(vector<int> triangles) {
   unordered_set<int> points;
   for (auto triangle : triangles) {
@@ -34,8 +39,7 @@ const vector<int> Mesh::getTriangleNeighbors(vector<int> triangles) {
       points.insert(point);
     }
   }
-  vector<int> point_v(points.begin(), points.end());
-  return getTrianglesOfPoint(Map<VectorXi>(point_v.data(), point_v.size()));
+  return getTrianglesOfPoint(vector<int>(points.begin(), points.end()));
 }
 
 const vector<int> Mesh::getTriangleNeighbors(vector<int> triangles,
@@ -54,7 +58,5 @@ const vector<int> Mesh::getTriangleNeighbors(vector<int> triangles,
       }
     }
   }
-  vector<int> included_v(included.begin(), included.end());
-  return getTrianglesOfPoint(
-      Map<VectorXi>(included_v.data(), included_v.size()));
+  return getTrianglesOfPoint(vector<int>(included.begin(), included.end()));
 }

@@ -86,7 +86,13 @@ PYBIND11_MODULE(cortical_intersections, m) {
       .def("get_triangle_neighbors",
            py::overload_cast<vector<int>, vector<int>>(
                &Mesh::getTriangleNeighbors),
-           "Get triangle neighbors");
+           "Get triangle neighbors")
+      .def("get_triangles_of_point",
+           py::overload_cast<int>(&Mesh::getTrianglesOfPoint),
+           "Get triangles adjacent to a specific point")
+      .def("get_triangles_of_point",
+           py::overload_cast<vector<int>>(&Mesh::getTrianglesOfPoint),
+           "Get triangles adjacent to a specific point");
 
   py::class_<CorticalIntersection>(m, "CorticalIntersection")
       .def(py::init<>())

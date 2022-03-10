@@ -9,7 +9,7 @@ import networkx as nx
 from intersection.cortical_intersections import CorticalIntersection
 from intersection.models import Results
 from intersection.mesh import Mesh
-from intersection.triangle_merge import merge_triangles, triangle_blob
+from intersection.triangle_merge import merge_triangles, triangle_blob, fill_holes
 
 app = typer.Typer()
 
@@ -21,31 +21,31 @@ def main(
     left_bundles: Path,
     # right_bundles: Path,
     out_path: Path,
-    ray_length: int = 5
+    ray_length: int = 5,
 ):
     surf = Mesh.load_mesh(left_surf)
     intersections = get_intersection(left_surf, left_bundles)
     front = intersections.get_triangles_front()
     back = intersections.get_triangles_back()
     out_path.mkdir(exist_ok=True)
-    for i, path in enumerate(filter(
-        lambda x: re.search(r"\.bundles$", str(x)), left_bundles.iterdir()
-    )):
+    for i, path in enumerate(
+        filter(lambda x: re.search(r"\.bundles$", str(x)), left_bundles.iterdir())
+    ):
         bundle_front = merge_triangles(front[i], surf)
         bundle_back = merge_triangles(back[i], surf)
+        fill_holes(bundle_front, surf)
+        fill_holes(bundle_back, surf)
         src_triangles = surf.filter_triangles(bundle_front)
         dest_triangles = surf.filter_triangles(bundle_back)
-        src_triangles.save_vtk(out_path/(path.with_suffix(".src.vtk").name))
-        dest_triangles.save_vtk(out_path/(path.with_suffix(".dest.vtk").name))
+        src_triangles.save_vtk(out_path / (path.with_suffix(".src.vtk").name))
+        dest_triangles.save_vtk(out_path / (path.with_suffix(".dest.vtk").name))
         # print(out_path/(path.with_suffix(".src.vtk").name))
         # print(out_path/(path.with_suffix(".dest.vtk").name))
 
 
 def get_intersection(surf_path: Path, bundles_path: Path):
     surf = Mesh.load_mesh(surf_path)
-    intersections = CorticalIntersection.from_bundles(
-        surf.data, str(bundles_path), 6
-    )
+    intersections = CorticalIntersection.from_bundles(surf.data, str(bundles_path), 6)
     return intersections
 
 
@@ -65,7 +65,6 @@ def get_fiber_graph(intersections: CorticalIntersection, threshold: float):
                 G.add_edge(a, b)
                 break
     return G
-
 
 
 def get_overlap(x: list[Any], y: list[Any]):
@@ -88,8 +87,13 @@ def test(txt_file: Path, surface: Path, out_dir: Path):
     src_triangles = surf.filter_triangles(results.init_triangles)
     dest_triangles = surf.filter_triangles(results.end_triangles)
     out_dir.mkdir(exist_ok=True)
-    src_triangles.save_vtk(out_dir/"src.vtk")
-    dest_triangles.save_vtk(out_dir/"dest.vtk")
+    src_triangles.save_vtk(out_dir / "src.vtk")
+    dest_triangles.save_vtk(out_dir / "dest.vtk")
+
 
 if __name__ == "__main__":
-    triangle("data/mnt/pial.surf.gii", "data/mnt/test.vtk")
+    main(
+        Path("data/mnt/smoothwm.surf.gii.gii"),
+        Path("data/bundles"),
+        Path("data/mnt/out-filled"),
+    )
