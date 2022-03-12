@@ -67,7 +67,7 @@ def merge_triangles(triangles: list[int], mesh: Mesh, radius: int = 2):
             if triangle not in visited:
                 visited[triangle] = blob
 
-    largest_component = max(nx.connected_components(G))
+    largest_component = max(nx.connected_components(G), key=len)
     if len(largest_component) == 1:
         return mesh.data.get_triangle_neighbors([*largest_component])
     # Create a set, then list, to remove duplicates

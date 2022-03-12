@@ -13,7 +13,6 @@ Bundle::Bundle(const string &path) {
     int num_count = 0;
 
     vector<int> nPointsList;
-    vector<vector<Vector3f>> PointsList;
 
     while (num_count < num) {
       int total_points;  // number of points of each fiber
@@ -28,14 +27,9 @@ Bundle::Bundle(const string &path) {
 
       num_count = num_count + 1 + (total_points * 3);
       nPointsList.emplace_back(total_points);
-      PointsList.emplace_back(Fiber);
+      this->fibers.emplace_back(Fiber);
     }
 
-    this->fibers = vector<vector<Vector3f>>(nPointsList.size());
-
-    for (int i = 0; i < (int)nPointsList.size(); i++) {
-      this->fibers[i] = PointsList[i];
-    }
   }
   file.close();
 }

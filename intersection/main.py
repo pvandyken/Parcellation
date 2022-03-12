@@ -1,4 +1,5 @@
 from pathlib import Path
+import operator as op
 import re
 import itertools as it
 from typing import Any
@@ -6,10 +7,11 @@ from typing import Any
 import typer
 import networkx as nx
 
-from intersection.cortical_intersections import CorticalIntersection
+from intersection.cortical_intersections import CorticalIntersection, Bundle
 from intersection.models import Results
 from intersection.mesh import Mesh
 from intersection.triangle_merge import merge_triangles, triangle_blob, fill_holes
+from intersection.vtk_bundles import get_vtk_bundles
 
 app = typer.Typer()
 
@@ -22,48 +24,81 @@ def main(
     # right_bundles: Path,
     out_path: Path,
     ray_length: int = 5,
+    no_blobbing: bool = False,
 ):
     surf = Mesh.load_mesh(left_surf)
     intersections = get_intersection(left_surf, left_bundles)
-    front = intersections.get_triangles_front()
-    back = intersections.get_triangles_back()
+    if no_blobbing:
+        front = intersections.get_triangles_front()
+        back = intersections.get_triangles_back()
+    else:
+        front = merge_and_fill(intersections.get_triangles_front(), surf)
+        back = merge_and_fill(intersections.get_triangles_back(), surf)
     out_path.mkdir(exist_ok=True)
     for i, path in enumerate(
-        filter(lambda x: re.search(r"\.bundles$", str(x)), left_bundles.iterdir())
+        filter(lambda x: re.search(r"\.tck$", str(x)), left_bundles.iterdir())
     ):
-        bundle_front = merge_triangles(front[i], surf)
-        bundle_back = merge_triangles(back[i], surf)
-        fill_holes(bundle_front, surf)
-        fill_holes(bundle_back, surf)
-        src_triangles = surf.filter_triangles(bundle_front)
-        dest_triangles = surf.filter_triangles(bundle_back)
+        src_triangles = surf.filter_triangles(front[i])
+        dest_triangles = surf.filter_triangles(back[i])
         src_triangles.save_vtk(out_path / (path.with_suffix(".src.vtk").name))
         dest_triangles.save_vtk(out_path / (path.with_suffix(".dest.vtk").name))
-        # print(out_path/(path.with_suffix(".src.vtk").name))
-        # print(out_path/(path.with_suffix(".dest.vtk").name))
+
+
+def merge_and_fill(triangles: list[list[int]], mesh: Mesh):
+    merged = [merge_triangles(intersection, mesh) for intersection in triangles]
+    for intersection in merged:
+        fill_holes(intersection, mesh)
+    return merged
 
 
 def get_intersection(surf_path: Path, bundles_path: Path):
     surf = Mesh.load_mesh(surf_path)
-    intersections = CorticalIntersection.from_bundles(surf.data, str(bundles_path), 6)
+    bundles = get_vtk_bundles(bundles_path)
+
+    intersections = CorticalIntersection(surf.data, bundles, 6)
     return intersections
 
 
-def get_fiber_graph(intersections: CorticalIntersection, threshold: float):
-    fronts = intersections.get_triangles_front()
-    backs = intersections.get_triangles_back()
+def get_overlap_graph(fronts: list[list[int]], backs: list[list[int]], threshold: float):
+    G = nx.DiGraph()
 
-    G = nx.Graph()
-
-    for i, front_back in enumerate(zip(fronts, backs)):
-        front, back = front_back
-        G.add_node(i, front=front, back=back)
+    for i, triangles in enumerate(it.chain(fronts, backs)):
+        G.add_node(
+            i,
+            triangles=triangles,
+            index=i % len(fronts),
+            position="front" if i < len(fronts) else "back",
+            size=len(triangles),
+        )
 
     for a, b in it.combinations(G, 2):
-        for a_inter, b_inter in it.product(G.nodes[a].values(), G.nodes[b].values()):
-            if get_overlap(a_inter, b_inter) > threshold:
-                G.add_edge(a, b)
-                break
+        if G.nodes[a]["index"] != G.nodes[b]["index"]:
+            a_triangles = G.nodes[a]["triangles"]
+            b_triangles = G.nodes[b]["triangles"]
+            if len(a_triangles) > len(b_triangles):
+                order = (a, b)
+            else:
+                order = (b, a)
+            G.add_edge(*order, weight=get_overlap(a_triangles, b_triangles))
+
+    for node in sorted(G.nodes(data="size"), key=op.itemgetter(1)):  # type: ignore
+        edges = sorted(
+            G.in_edges(node[0], data="weight"),  # type: ignore
+            key=op.itemgetter(2),
+            reverse=True
+        )
+        if not len(edges):
+            continue
+        for edge in edges[1:]:
+            G.remove_edge(*edge[:2])
+        
+        try:
+            if edges[0][2] < threshold:  # type: ignore
+                G.remove_edge(*edges[0][:2])
+        except Exception as E:
+            print(edges)
+            raise E
+
     return G
 
 
@@ -80,20 +115,9 @@ def triangle(surface: Path, out: Path):
     mesh.filter_triangles(list(blob)).save_vtk(out)
 
 
-@app.command()
-def test(txt_file: Path, surface: Path, out_dir: Path):
-    results = Results.from_out_file(txt_file)
-    surf = Mesh.from_file(surface)
-    src_triangles = surf.filter_triangles(results.init_triangles)
-    dest_triangles = surf.filter_triangles(results.end_triangles)
-    out_dir.mkdir(exist_ok=True)
-    src_triangles.save_vtk(out_dir / "src.vtk")
-    dest_triangles.save_vtk(out_dir / "dest.vtk")
-
-
 if __name__ == "__main__":
     main(
         Path("data/mnt/smoothwm.surf.gii.gii"),
-        Path("data/bundles"),
-        Path("data/mnt/out-filled"),
+        Path("data/bundles-tck"),
+        Path("data/mnt/out-dipy"),
     )

@@ -25,17 +25,17 @@ using namespace Eigen;
 class CorticalIntersection {
  public:
   CorticalIntersection() : mesh{Mesh()} {};
-  CorticalIntersection(const Mesh &mesh, vector<Bundle> &bundles,
+  CorticalIntersection(const Mesh &mesh, vector<Bundle> bundles,
                        const int &nPtsLine);
 
   CorticalIntersection(const Mesh &mesh,
                        vector<BundleIntersections> &interceptions)
       : mesh{mesh}, front{interceptions} {};
 
+  const Mesh &mesh;
   vector<BundleIntersections> front;
   vector<BundleIntersections> back;
   vector<vector<int>> fibIndex;
-  const Mesh &mesh;
 
   const vector<map<int, int>> &getTrianglesIntersected(
       fn<void> const &sigintHander = []() {});
@@ -45,7 +45,7 @@ class CorticalIntersection {
 
   static CorticalIntersection fromBundles(
     Mesh const& mesh, string bundle_dir,
-    const int nPtsLine);
+    const int nPtsLine, bool alignOrientation = false);
 
  private:
   vector<map<int, int>> trianglesIntersected;

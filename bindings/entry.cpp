@@ -8,6 +8,7 @@
 #include <tuple>
 #include <vector>
 
+#include "../src/bundles.h"
 #include "../src/intersection.h"
 #include "../src/io.h"
 #include "../src/mesh.h"
@@ -95,11 +96,15 @@ PYBIND11_MODULE(cortical_intersections, m) {
            "Get triangles adjacent to a specific point");
 
   py::class_<CorticalIntersection>(m, "CorticalIntersection")
-      .def(py::init<>())
+      .def(py::init<Mesh&, vector<Bundle>, int>())
       .def_static("from_bundles", &CorticalIntersection::fromBundles,
                   "Construct intersections from bundles")
       .def("get_triangles_front", &CorticalIntersection::getTrianglesFront,
            "Get Intersected Triangles")
       .def("get_triangles_back", &CorticalIntersection::getTrianglesBack,
            "Get Intersected Triangles");
+
+  py::class_<Bundle>(m, "Bundle")
+      .def(py::init<vector<vector<Vector3f>>>(),
+           "Bundles of white-matter fibers");
 }

@@ -28,6 +28,7 @@ class Mesh {
                                          vector<int> exclude);
 
   const vector<int> &getTrianglesOfPoint(int point);
+  const vector<int> getTrianglesOfPoint(vector<int> points);
  private:
   vector<vector<int>> trianglesOfPointsIndex;
   const vector<int> getTrianglesOfPoint(VectorXi points);

@@ -312,7 +312,7 @@ const bool CorticalIntersection::getMeshAndFiberIntersection(
 }
 
 CorticalIntersection::CorticalIntersection(const Mesh &mesh,
-                                           vector<Bundle> &bundles,
+                                           vector<Bundle> bundles,
                                            const int &nPtsLine)
     : front{BundleIntersections::fromRange(bundles.size())},
       back{BundleIntersections::fromRange(bundles.size())},
@@ -618,13 +618,15 @@ const vector<vector<int>> CorticalIntersection::getTrianglesBack() {
 
 CorticalIntersection CorticalIntersection::fromBundles(
     Mesh const&mesh, string bundle_dir,
-    const int nPtsLine) {
+    const int nPtsLine, bool alignOrientation) {
   // omp_set_num_threads(4);
   vector<Bundle> bundles;
 
   IO::read_bundles(bundle_dir, bundles);
-  for (auto &bundle : bundles) {
-    Orientation::alignOrientation(bundle.fibers);
+  if (alignOrientation) {
+    for (auto &bundle : bundles) {
+      Orientation::alignOrientation(bundle.fibers);
+    }
   }
   CorticalIntersection intersection(mesh, bundles, nPtsLine);
   return intersection;
