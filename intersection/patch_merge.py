@@ -7,8 +7,8 @@ from typing import Any, Iterable
 import networkx as nx
 
 
-def merge_overlapping(G: nx.DiGraph, threshold: int):
-    root = itx.one(set(G.nodes) - set(list(zip(*G.edges))[1]))
+def merge_overlapping(G: nx.DiGraph, threshold: int) -> tuple[set[int], ...]:
+
 
     def recurse(root: int) -> tuple[set[int], ...]:
         root_triangles: set[int] = set(G.nodes[root]["triangles"])
@@ -26,7 +26,10 @@ def merge_overlapping(G: nx.DiGraph, threshold: int):
             all_triangles.update(G.nodes[child]["triangles"])
         return all_triangles, *secondary_patches, *child_secondaries
 
-    return recurse(root)
+    if len(G) > 1:
+        root = itx.one(set(G.nodes) - set(list(zip(*G.edges))[1]))
+        return recurse(root)
+    return (set(itx.one(G.nodes(data="triangles"))[1]),)  # type: ignore
 
 
 def get_overlap_graph(
