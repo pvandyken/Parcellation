@@ -86,6 +86,17 @@ def triangle_blob(core: int, iterations: int, mesh: Mesh):
     return result
 
 
+def get_open_ended(patch: list[int], mesh: Mesh):
+    patch_set = set(patch)
+    open_ended: set[int] = set()
+    for triangle in patch:
+        for neighbor in mesh.data.get_triangle_neighbors(triangle):
+            if neighbor in patch_set:
+                continue
+            open_ended.add(triangle)
+            break
+
+
 def fill_holes(patch: list[int], mesh: Mesh):
     patch_set = set(patch)
     open_ended: set[int] = set()

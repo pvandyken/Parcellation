@@ -1,5 +1,6 @@
 from typing import Any, overload
 import numpy as np
+import networkx as nx
 
 def intersection_core(
     vertices: np.ndarray[Any, np.dtype[np.float32]],
@@ -17,10 +18,12 @@ class CorticalIntersection:
         mesh: "MeshData",
         bundle_dir: str,
         ray_length: int,
-        align_orientation: bool = ...
+        align_orientation: bool = ...,
     ) -> CorticalIntersection: ...
     def get_triangles_front(self) -> list[list[int]]: ...
     def get_triangles_back(self) -> list[list[int]]: ...
+    @property
+    def graph(self) -> nx.DiGraph: ...
 
 class MeshData:
     def __init__(
@@ -32,19 +35,19 @@ class MeshData:
     polygons: np.ndarray[Any, np.dtype[np.int32]]
 
     @overload
-    def get_triangle_neighbors(self, triangle: int) -> list[int]: ...
+    def get_triangle_neighbors(
+        self, triangle: int, edge_adjacent: bool = ...
+    ) -> list[int]: ...
     @overload
     def get_triangle_neighbors(self, triangle: list[int]) -> list[int]: ...
     @overload
     def get_triangle_neighbors(
         self, triangle: list[int], exclude: list[int]
     ) -> list[int]: ...
-
     @overload
     def get_triangles_of_point(self, point: int) -> list[int]: ...
     @overload
     def get_triangles_of_point(self, point: list[int]) -> list[int]: ...
-
 
 class Bundle:
     def __init__(self, fibers: list[list[np.ndarray[Any, np.dtype[np.float32]]]]): ...

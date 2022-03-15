@@ -9,6 +9,10 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <cppitertools/chain.hpp>
+#include <cppitertools/enumerate.hpp>
 
 #include "bundleIntersection.h"
 #include "bundles.h"
@@ -21,6 +25,7 @@
 
 using namespace std;
 using namespace Eigen;
+namespace py = pybind11;
 
 class CorticalIntersection {
  public:
@@ -42,6 +47,8 @@ class CorticalIntersection {
 
   const vector<vector<int>> getTrianglesFront();
   const vector<vector<int>> getTrianglesBack();
+
+  py::object getOverlapGraph();
 
   static CorticalIntersection fromBundles(
     Mesh const& mesh, string bundle_dir,

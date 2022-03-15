@@ -298,9 +298,9 @@ const bool CorticalIntersection::getMeshAndFiberIntersection(
       return false;
     }
     findInt = getMeshAndFiberEndIntersection(
-        fiber[nPoints - 1], fiber[nPoints - 1 - i], i, nPtsLine, N, npbp,
-        index, step, cubeNotEmpty, centroidIndex, almacen, vertex, polygons,
-        FnInd, FnPtInt);
+        fiber[nPoints - 1], fiber[nPoints - 1 - i], i, nPtsLine, N, npbp, index,
+        step, cubeNotEmpty, centroidIndex, almacen, vertex, polygons, FnInd,
+        FnPtInt);
     if (findInt) break;
   }
 
@@ -602,7 +602,7 @@ const vector<map<int, int>> &CorticalIntersection::getTrianglesIntersected(
 const vector<vector<int>> CorticalIntersection::getTriangles(
     vector<BundleIntersections> const &intersections) {
   vector<vector<int>> result;
-  for (auto const& intersection : intersections) {
+  for (auto const &intersection : intersections) {
     result.push_back(intersection.triangles);
   }
   return result;
@@ -616,9 +616,10 @@ const vector<vector<int>> CorticalIntersection::getTrianglesBack() {
   return getTriangles(back);
 }
 
-CorticalIntersection CorticalIntersection::fromBundles(
-    Mesh const&mesh, string bundle_dir,
-    const int nPtsLine, bool alignOrientation) {
+CorticalIntersection CorticalIntersection::fromBundles(Mesh const &mesh,
+                                                       string bundle_dir,
+                                                       const int nPtsLine,
+                                                       bool alignOrientation) {
   // omp_set_num_threads(4);
   vector<Bundle> bundles;
 
@@ -630,4 +631,21 @@ CorticalIntersection CorticalIntersection::fromBundles(
   }
   CorticalIntersection intersection(mesh, bundles, nPtsLine);
   return intersection;
+}
+
+py::object CorticalIntersection::getOverlapGraph() {
+  using namespace pybind11::literals;
+  py::object DiGraph = py::module_::import("networkx").attr("DiGraph");
+  py::object G = DiGraph();
+
+  auto fronts = this->getTrianglesFront();
+  auto backs = this->getTrianglesBack();
+  for (auto &&[i, triangles] : iter::enumerate(iter::chain(fronts, backs))) {
+    py::list tri_list = py::cast(triangles);
+    G.attr("add_node")(i, "triangles"_a = tri_list,
+                       "index"_a = (i % fronts.size()),
+                       "position"_a = (i < fronts.size() ? "front" : "back"),
+                       "size"_a = triangles.size());
+  }
+  return G;
 }

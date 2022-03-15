@@ -59,51 +59,6 @@ def get_intersection(surf_path: Path, bundles_path: Path):
     return intersections
 
 
-def get_overlap_graph(fronts: list[list[int]], backs: list[list[int]], threshold: float):
-    G = nx.DiGraph()
-
-    for i, triangles in enumerate(it.chain(fronts, backs)):
-        G.add_node(
-            i,
-            triangles=triangles,
-            index=i % len(fronts),
-            position="front" if i < len(fronts) else "back",
-            size=len(triangles),
-        )
-
-    for a, b in it.combinations(G, 2):
-        if G.nodes[a]["index"] != G.nodes[b]["index"]:
-            a_triangles = G.nodes[a]["triangles"]
-            b_triangles = G.nodes[b]["triangles"]
-            if len(a_triangles) > len(b_triangles):
-                order = (a, b)
-            else:
-                order = (b, a)
-            G.add_edge(*order, weight=get_overlap(a_triangles, b_triangles))
-
-    for node in sorted(G.nodes(data="size"), key=op.itemgetter(1)):  # type: ignore
-        edges = sorted(
-            G.in_edges(node[0], data="weight"),  # type: ignore
-            key=op.itemgetter(2),
-            reverse=True
-        )
-        if not len(edges):
-            continue
-        for edge in edges[1:]:
-            G.remove_edge(*edge[:2])
-        
-        try:
-            if edges[0][2] < threshold:  # type: ignore
-                G.remove_edge(*edges[0][:2])
-        except Exception as E:
-            print(edges)
-            raise E
-
-    return G
-
-
-def get_overlap(x: list[Any], y: list[Any]):
-    return len(set(x).intersection(y)) / min(len(set(x)), len(set(y)))
 
 
 @app.command()

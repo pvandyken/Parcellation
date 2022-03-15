@@ -79,8 +79,9 @@ PYBIND11_MODULE(cortical_intersections, m) {
       .def_readonly("vertices", &Mesh::vertices)
       .def_readonly("polygons", &Mesh::polygons)
       .def("get_triangle_neighbors",
-           py::overload_cast<int>(&Mesh::getTriangleNeighbors),
-           "Get triangle neighbors")
+           py::overload_cast<int, bool>(&Mesh::getTriangleNeighbors),
+           "Get triangle neighbors", py::arg("triangle"),
+           py::arg("edge_adjacent") = false)
       .def("get_triangle_neighbors",
            py::overload_cast<vector<int>>(&Mesh::getTriangleNeighbors),
            "Get triangle neighbors")
@@ -96,13 +97,16 @@ PYBIND11_MODULE(cortical_intersections, m) {
            "Get triangles adjacent to a specific point");
 
   py::class_<CorticalIntersection>(m, "CorticalIntersection")
-      .def(py::init<Mesh&, vector<Bundle>, int>())
+      .def(py::init<Mesh &, vector<Bundle>, int>())
       .def_static("from_bundles", &CorticalIntersection::fromBundles,
                   "Construct intersections from bundles")
       .def("get_triangles_front", &CorticalIntersection::getTrianglesFront,
            "Get Intersected Triangles")
       .def("get_triangles_back", &CorticalIntersection::getTrianglesBack,
-           "Get Intersected Triangles");
+           "Get Intersected Triangles")
+      .def_property_readonly("graph", &CorticalIntersection::getOverlapGraph,
+                             "Generate a networkx directed graph containing "
+                             "each interection as a node");
 
   py::class_<Bundle>(m, "Bundle")
       .def(py::init<vector<vector<Vector3f>>>(),
