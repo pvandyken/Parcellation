@@ -10,7 +10,8 @@ extensions = [
             "src/orientation.cpp",
             "src/bundles.cpp",
             "src/mesh.cpp",
-            "bindings/entry.cpp"
+            "bindings/entry.cpp",
+            "src/parcellation.cpp",
         ],
         include_dirs = [
             "extern/pybind11/include",

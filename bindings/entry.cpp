@@ -13,6 +13,7 @@
 #include "../src/io.h"
 #include "../src/mesh.h"
 #include "../src/orientation.h"
+#include "../src/parcellation.h"
 
 using namespace Eigen;
 namespace py = pybind11;
@@ -108,4 +109,9 @@ PYBIND11_MODULE(cortical_intersections, m) {
   py::class_<Bundle>(m, "Bundle")
       .def(py::init<vector<vector<Vector3f>>>(),
            "Bundles of white-matter fibers");
+
+  py::class_<Parcellation>(m, "Parcellation")
+      .def(py::init<vector<unordered_set<int>>>(), "Get connectomes")
+      .def("get_connectome", &Parcellation::getConnectome,
+           "Get connectome from a CorticalIntersection Object");
 }
