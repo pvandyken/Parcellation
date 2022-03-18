@@ -1,4 +1,15 @@
 #include "intersection.h"
+#include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <math.h>
+
+#include <pybind11/stl.h>
+#include <cppitertools/chain.hpp>
+#include <cppitertools/enumerate.hpp>
+
+#include "io.h"
+
 
 namespace {
 // ============ Producto Punto =============
@@ -568,7 +579,7 @@ const vector<map<int, int>> &CorticalIntersection::getTrianglesIntersected(
       // "back" portion of the loop
       const size_t bundleId = i % maxIndex;
 
-      set<int> visited;
+      unordered_set<int> visited;
       for (auto triangle : allIntersections[i].triangles) {
         // If we've seen this triangle before, we know the current bundle
         // already are recorded in trianglesIntersected, so we add increment
@@ -599,20 +610,22 @@ const vector<map<int, int>> &CorticalIntersection::getTrianglesIntersected(
   return this->trianglesIntersected;
 }
 
-const vector<vector<int>> CorticalIntersection::getTriangles(
+vector<const vector<int> *> CorticalIntersection::getTriangles(
     vector<BundleIntersections> const &intersections) {
-  vector<vector<int>> result;
+  vector<const vector<int> *> result;
+  // for (auto i = intersections.begin(); i<intersections.end(); i++) {
   for (auto const &intersection : intersections) {
-    result.push_back(intersection.triangles);
+    const vector<int> *triangle_ptr = &(intersection.triangles);
+    result.push_back(triangle_ptr);
   }
   return result;
 }
 
-const vector<vector<int>> CorticalIntersection::getTrianglesFront() {
+vector<const vector<int> *> CorticalIntersection::getTrianglesFront() {
   return getTriangles(front);
 }
 
-const vector<vector<int>> CorticalIntersection::getTrianglesBack() {
+vector<const vector<int> *> CorticalIntersection::getTrianglesBack() {
   return getTriangles(back);
 }
 
@@ -633,19 +646,28 @@ CorticalIntersection CorticalIntersection::fromBundles(Mesh const &mesh,
   return intersection;
 }
 
-py::object CorticalIntersection::getOverlapGraph() {
+py::object CorticalIntersection::getGlobbedGraph(int radius) {
   using namespace pybind11::literals;
+  // Imports
   py::object DiGraph = py::module_::import("networkx").attr("DiGraph");
+  py::module_ triangle_merge =
+      py::module_::import("intersection.triangle_merge");
+  py::object merge_triangles = triangle_merge.attr("merge_triangles");
+  py::object fill_holes = triangle_merge.attr("fill_holes");
+
   py::object G = DiGraph();
 
   auto fronts = this->getTrianglesFront();
   auto backs = this->getTrianglesBack();
   for (auto &&[i, triangles] : iter::enumerate(iter::chain(fronts, backs))) {
-    py::list tri_list = py::cast(triangles);
-    G.attr("add_node")(i, "triangles"_a = tri_list,
-                       "index"_a = (i % fronts.size()),
-                       "position"_a = (i < fronts.size() ? "front" : "back"),
-                       "size"_a = triangles.size());
+    if (triangles->size() > 0) {
+      py::list merged = merge_triangles(*triangles, this->mesh, 2);
+      fill_holes(merged, this->mesh);
+      G.attr("add_node")(i, "triangles"_a = merged,
+                         "index"_a = (i % fronts.size()),
+                         "position"_a = (i < fronts.size() ? "front" : "back"),
+                         "size"_a = merged.size());
+    }
   }
   return G;
 }

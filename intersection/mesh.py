@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Iterable
 import nibabel as nib
 import numpy as np
 from numpy.typing import NDArray
@@ -18,7 +19,7 @@ class Mesh:
         self.polygons = polygons
         self.data = MeshData(vertices, polygons)
 
-    def filter_triangles(self, whitelist: list[int]):
+    def filter_triangles(self, whitelist: Iterable[int]):
         whitelist_unique = list(set(whitelist))
         triangles = np.ndarray((len(whitelist_unique), 3), self.data.polygons.dtype)
         for i in range(len(triangles)):
@@ -36,11 +37,14 @@ class Mesh:
 
 
     def save_vtk(self, name: Path):
+        save_polydata(self.polydata, str(name), binary=True)
+
+    @property
+    def polydata(self):
         pd = PolyData()
         set_polydata_triangles(pd, self.data.polygons)
         set_polydata_vertices(pd, self.data.vertices)
-        save_polydata(pd, str(name), binary=True)
-
+        return pd
 
     @classmethod
     def load_mesh(cls, name: Path):

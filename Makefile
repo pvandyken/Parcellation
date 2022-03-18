@@ -2,7 +2,7 @@ CC = c++  -fopenmp
 
 CFLAGS = -c -Wall -O0  -std=c++17 
 SRC = ${wildcard src/*.cpp}
-INCLUDE = -I extern/catch2/single_include/catch2
+INCLUDE = -I extern/catch2/single_include/catch2  -I extern/
 OBJS = ${patsubst src/%.cpp,build/tmp/%.o,${SRC}} main.cpp 
 
 all: main

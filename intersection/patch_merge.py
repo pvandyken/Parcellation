@@ -4,15 +4,50 @@ import itertools as it
 import random
 import more_itertools as itx
 import vtk
-import operator as op
-from typing import Any, Iterable, Optional, Sequence, Union
+from typing import Any, Iterable, Optional
 
 import networkx as nx
+from intersection.cortical_intersections import CorticalIntersection
 
 from intersection.mesh import Mesh
 
 
-def merge_overlapping(G: nx.DiGraph, threshold: int) -> tuple[set[int], ...]:
+def merge_parcels(parcels: list[list[int]], mesh: Mesh):
+    appender = vtk.vtkAppendPolyData()  # type: ignore
+    for i, parcel in enumerate(parcels):
+        pd = mesh.filter_triangles(parcel).polydata
+
+        arr = vtk.vtkIntArray()  # type: ignore
+        arr.SetName('parcel_idx')
+        for _ in range(0, pd.GetNumberOfCells()):  # type: ignore
+            arr.InsertNextTuple1(i)
+
+        pd.GetCellData().AddArray(arr)  # type: ignore
+
+        #print '<wm_append_clusters_to_anatomical_tracts>', cluster_vtp, ', number of fibers', pd_cluster.GetNumberOfLines()
+
+        appender.AddInputData(pd)
+
+    appender.Update()
+    return appender.GetOutput()
+
+
+def get_parcellation(G: nx.DiGraph, mesh: Mesh):
+    print("Find overlapping connections...")
+    overlap = get_overlap_graph(G, 0.5)
+    segments = it.chain.from_iterable(
+        merge_overlapping(overlap.subgraph(sub), 0.5)
+        for sub in nx.weakly_connected_components(overlap)
+    )
+    G = nx.DiGraph()
+    for i, triangles in enumerate(segments):
+        G.add_node(i, triangles=triangles, index=i, size=len(triangles))
+    G = get_overlap_graph(G, 0, mst=False)
+    print("Divide overlapping parcels...")
+    return divide_overlap(G, mesh)
+
+
+def merge_overlapping(G: nx.DiGraph, threshold: float) -> tuple[set[int], ...]:
     def recurse(root: int) -> tuple[set[int], ...]:
         root_triangles: set[int] = set(G.nodes[root]["triangles"])
         all_triangles = copy.copy(root_triangles)
@@ -21,7 +56,7 @@ def merge_overlapping(G: nx.DiGraph, threshold: int) -> tuple[set[int], ...]:
         for child in G.successors(root):
             if G.out_degree(child):
                 merged, *child_secondaries = recurse(child)
-                if not get_overlap(merged, root_triangles) > threshold:
+                if not _get_overlap(merged, root_triangles) > threshold:
                     secondary_patches.append(merged)
                     continue
                 all_triangles.update(merged)
@@ -35,18 +70,7 @@ def merge_overlapping(G: nx.DiGraph, threshold: int) -> tuple[set[int], ...]:
     return (set(itx.one(G.nodes(data="triangles"))[1]),)  # type: ignore
 
 
-
-AnyGraph = Union[nx.DiGraph, nx.Graph]
-
-
-def segment_nodes(segments: list[Sequence[int]]):
-    G = nx.DiGraph()
-    for i, triangles in enumerate(segments):
-        G.add_node(i, triangles=triangles, index=i, size=len(triangles))
-    return G
-
-
-def add_overlap_connections(G: AnyGraph):
+def add_overlap_connections(G: nx.DiGraph):
     for a, b in it.combinations(G, 2):
         if G.nodes[a]["index"] != G.nodes[b]["index"]:
             a_triangles = G.nodes[a]["triangles"]
@@ -55,10 +79,10 @@ def add_overlap_connections(G: AnyGraph):
                 order = (a, b)
             else:
                 order = (b, a)
-            G.add_edge(*order, weight=get_overlap(a_triangles, b_triangles))
+            G.add_edge(*order, weight=_get_overlap(a_triangles, b_triangles))
 
 
-def threshold_graph(G: AnyGraph, threshold: int):
+def threshold_graph(G: nx.DiGraph, threshold: float):
     to_remove: set[tuple[int, int]] = set()
     for u, v, weight in G.edges(data="weight"):  # type: ignore
         if weight <= threshold:  # type: ignore
@@ -67,31 +91,19 @@ def threshold_graph(G: AnyGraph, threshold: int):
         G.remove_edge(*edge)
 
 
-def get_overlap_graph(G: nx.DiGraph, threshold: float):
+def get_overlap_graph(G: nx.DiGraph, threshold: float, mst: bool = True):
     add_overlap_connections(G)
 
-    for node in sorted(G.nodes(data="size"), key=op.itemgetter(1)):  # type: ignore
-        edges = sorted(
-            G.in_edges(node[0], data="weight"),  # type: ignore
-            key=op.itemgetter(2),
-            reverse=True,
-        )
-        if not len(edges):
-            continue
-        for edge in edges[1:]:
-            G.remove_edge(*edge[:2])
-
-        try:
-            if edges[0][2] <= threshold:  # type: ignore
-                G.remove_edge(*edges[0][:2])
-        except Exception as E:
-            print(edges)
-            raise E
-
+    if mst:
+        oG = nx.maximum_branching(G, preserve_attrs=True)
+        G.clear_edges()
+        G.add_weighted_edges_from(oG.edges(data="weight"))
+    threshold_graph(G, threshold)
     return G
 
 
-def get_overlap(x: Iterable[Any], y: Iterable[Any]):
+
+def _get_overlap(x: Iterable[Any], y: Iterable[Any]):
     if not isinstance(x, set):
         x = set(x)
     if not isinstance(y, set):
@@ -106,22 +118,9 @@ class Assignment(UserList[int]):
         self.over = over
 
 
-def divide_overlap(
-    G: nx.DiGraph, mesh: Mesh, src_weight: int, rate: float, threshold: float
-):
+def divide_overlap(G: nx.DiGraph, mesh: Mesh):
     assigned: list[Assignment] = [
-        *it.chain.from_iterable(
-            diffusion_division(
-                G,
-                a,
-                b,
-                mesh,
-                src_weight,
-                rate,
-                threshold,
-            )
-            for a, b in G.edges
-        )
+        *it.chain.from_iterable(diffusion_division(G, a, b, mesh) for a, b in G.edges)
     ]
     segments: list[list[int]] = []
     for node in G.nodes:
@@ -131,16 +130,9 @@ def divide_overlap(
     return segments
 
 
-def diffusion_division(
-    G: nx.DiGraph,
-    parent_a: int,
-    parent_b: int,
-    mesh: Mesh,
-    src_weight: int,
-    rate: float,
-    threshold: float,
-):
-    print(f"Doing edge ({parent_a}, {parent_b})")
+def diffusion_division(G: nx.DiGraph, parent_a: int, parent_b: int, mesh: Mesh):
+    rate = 0.3
+    src_weight = 100
     a_triangles = G.nodes[parent_a]["triangles"]
     b_triangles = G.nodes[parent_b]["triangles"]
     all_triangles = set(a_triangles) | set(b_triangles)
@@ -180,9 +172,7 @@ def diffusion_division(
 
                 # Calculate eflux (only to adjacent neighbors within the overlap or
                 # parent)
-                num_neighbors = len(
-                    set(neighbors[triangle]) & all_triangles
-                )
+                num_neighbors = len(set(neighbors[triangle]) & all_triangles)
                 next_weights[triangle] -= curr_weights[triangle] * rate * num_neighbors
 
                 # If the new weight is above the threshold, we save a signal to finish
@@ -192,17 +182,32 @@ def diffusion_division(
         a_weights |= next_a_weights
         b_weights |= next_b_weights
 
-
     # Find final assignments
+    assign_arr = vtk.vtkIntArray()  # type: ignore
+    assign_arr.SetName('assignment')
+
     assign_a = Assignment(to=parent_a, over=parent_b)
     assign_b = Assignment(to=parent_b, over=parent_a)
     for triangle in overlap:
         if a_weights[triangle] > b_weights[triangle]:
             assign_a.append(triangle)
+            assign_arr.InsertNextTuple1(1)
         elif a_weights[triangle] < b_weights[triangle]:
             assign_b.append(triangle)
+            assign_arr.InsertNextTuple1(0)
         else:
             # If both are equally weighted, decide by coin toss
-            random.choice([assign_a, assign_b]).append(triangle)
+            choice = random.choice([assign_a, assign_b])
+            choice.append(triangle)
+            if choice is assign_a:
+                assign_arr.InsertNextTuple1(1)
+            else:
+                assign_arr.InsertNextTuple1(0)
 
+    a_arr = vtk.vtkFloatArray()
+    b_arr = vtk.vtkFloatArray()
+    for triangle in overlap:
+        a_arr.InsertNextTuple(a_weights[triangle])
+        b_arr.InsertNextTuple(b_weights[triangle])
+    pd.GetCellData().AddArray(assign_arr)  # type: ignore
     return assign_a, assign_b

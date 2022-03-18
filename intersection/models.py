@@ -77,10 +77,14 @@ class Mesh:
         return [[*self._find_triangles_from_point(point)] for point in self.points]
 
     def save_vtk(self, name: Path):
+        save_polydata(self.polydata, str(name), binary=True)
+
+    @property
+    def polydata(self):
         pd = PolyData()
         set_polydata_triangles(pd, self.triangles)
         set_polydata_vertices(pd, self.points)
-        save_polydata(pd, str(name), binary=True)
+        return pd
 
     def get_labels(self, annotations: "Annotations", triangles: list[int]):
         for i in triangles:

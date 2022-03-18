@@ -1,24 +1,16 @@
 #pragma once
 
 #include <Eigen/Dense>
-#include <algorithm>
-#include <fstream>
 #include <functional>
-#include <iostream>
 #include <map>
-#include <set>
+#include <unordered_set>
 #include <string>
 #include <vector>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <cppitertools/chain.hpp>
-#include <cppitertools/enumerate.hpp>
 
 #include "bundleIntersection.h"
 #include "bundles.h"
-#include "io.h"
 #include "orientation.h"
-#include "math.h"
 #include "mesh.h"
 #include "types.h"
 #include "utils.h"
@@ -45,10 +37,10 @@ class CorticalIntersection {
   const vector<map<int, int>> &getTrianglesIntersected(
       fn<void> const &sigintHander = []() {});
 
-  const vector<vector<int>> getTrianglesFront();
-  const vector<vector<int>> getTrianglesBack();
+  vector<const vector<int> *> getTrianglesFront();
+  vector<const vector<int> *> getTrianglesBack();
 
-  py::object getOverlapGraph();
+  py::object getGlobbedGraph(int radius = 2);
 
   static CorticalIntersection fromBundles(
     Mesh const& mesh, string bundle_dir,
@@ -57,7 +49,7 @@ class CorticalIntersection {
  private:
   vector<map<int, int>> trianglesIntersected;
 
-  const vector<vector<int>> getTriangles(
+  vector<const vector<int> *> getTriangles(
       vector<BundleIntersections> const &intersections);
 
   const bool getMeshAndFiberEndIntersection(

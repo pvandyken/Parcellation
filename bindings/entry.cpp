@@ -100,13 +100,10 @@ PYBIND11_MODULE(cortical_intersections, m) {
       .def(py::init<Mesh &, vector<Bundle>, int>())
       .def_static("from_bundles", &CorticalIntersection::fromBundles,
                   "Construct intersections from bundles")
-      .def("get_triangles_front", &CorticalIntersection::getTrianglesFront,
-           "Get Intersected Triangles")
-      .def("get_triangles_back", &CorticalIntersection::getTrianglesBack,
-           "Get Intersected Triangles")
-      .def_property_readonly("graph", &CorticalIntersection::getOverlapGraph,
-                             "Generate a networkx directed graph containing "
-                             "each interection as a node");
+      .def("get_globbed_graph", &CorticalIntersection::getGlobbedGraph,
+           "Generate a networkx directed graph containing "
+           "each interection as a node",
+           py::arg("radius") = 2);
 
   py::class_<Bundle>(m, "Bundle")
       .def(py::init<vector<vector<Vector3f>>>(),

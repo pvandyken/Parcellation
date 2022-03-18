@@ -12,13 +12,14 @@ def get_vtk_bundles(folder: Path):
     bundles = [nibstream.load(path).streamlines for path in folder.iterdir()]
     for bundle in bundles:
         orient_fibers(bundle)
-    return [Bundle([fiber for fiber in bundle]) for bundle in bundles]
+    return [Bundle([fiber for fiber in bundle]) for bundle in bundles if len(bundle)]
 
 
 def orient_fibers(streamlines: nibstream.ArraySequence):
-    feature = dsm.ResampleFeature(nb_points=100)
-    metric = dsm.AveragePointwiseEuclideanMetric(feature)
-    qb = QuickBundles(np.inf, metric=metric)
-    cluster = qb.cluster(streamlines)
-    centroid = cluster.centroids[0]
-    dts.orient_by_streamline(streamlines, centroid, in_place=True)
+    if len(streamlines):
+        feature = dsm.ResampleFeature(nb_points=100)
+        metric = dsm.AveragePointwiseEuclideanMetric(feature)
+        qb = QuickBundles(np.inf, metric=metric)
+        cluster = qb.cluster(streamlines)
+        centroid = cluster.centroids[0]
+        dts.orient_by_streamline(streamlines, centroid, in_place=True)
