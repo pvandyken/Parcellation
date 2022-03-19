@@ -16,6 +16,7 @@ extensions = [
         include_dirs = [
             "extern/pybind11/include",
             "/usr/local/include",
+            "extern/eigen",
             "extern"
         ],
         extra_compile_args=["-O3", "-fopenmp", "-std=c++17"],

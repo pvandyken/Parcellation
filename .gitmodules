@@ -8,3 +8,6 @@
 [submodule "extern/cppitertools"]
 	path = extern/cppitertools
 	url = https://github.com/ryanhaining/cppitertools.git
+[submodule "extern/eigen"]
+	path = extern/eigen
+	url = https://gitlab.com/libeigen/eigen.git
