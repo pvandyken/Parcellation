@@ -17,7 +17,7 @@ class Mesh:
             vertices = vertices.reshape((0, 3))
         self.vertices = vertices
         self.polygons = polygons
-        self.data = MeshData(vertices, polygons)
+        # self.data = MeshData(vertices, polygons)
 
     def filter_triangles(self, whitelist: Iterable[int]):
         whitelist_unique = list(set(whitelist))

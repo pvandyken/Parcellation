@@ -1,12 +1,15 @@
-#include <algorithm>
-#include <unordered_set>
-
-#include <cppitertools/combinations.hpp>
-#include <cppitertools/filter.hpp>
-#include <pybind11/pybind11.h>
-#include <pybind11/eigen.h>
-
 #include "mesh.h"
+
+#include <pybind11/eigen.h>
+#include <pybind11/pybind11.h>
+
+#include <algorithm>
+#include <cppitertools/chain.hpp>
+#include <cppitertools/combinations.hpp>
+#include <cppitertools/enumerate.hpp>
+#include <cppitertools/filter.hpp>
+#include <cppitertools/range.hpp>
+#include <unordered_set>
 
 typedef Eigen::MatrixX3i MatrixI;
 typedef Eigen::MatrixX3f MatrixF;
@@ -21,10 +24,50 @@ py::array get_nib_data(const std::string& path, const std::string& item) {
 }  // namespace
 
 Mesh::Mesh(const std::string& name)
-    : vertexData{get_nib_data(name, "triangle")},
-      polygonData{get_nib_data(name, "pointset")},
-      vertices{vertexData.cast<EigenDRef<const MatrixF>>()},
-      polygons{polygonData.cast<EigenDRef<const MatrixI>>()} {}
+    : vertices{v.cast<MatrixF>()}, polygons{p.cast<MatrixI>()} {}
+
+const Mesh Mesh::filterTriangles(std::vector<int> whitelist) {
+  using Eigen::all;
+
+  // Remove duplicates from triangles
+  std::sort(whitelist.begin(), whitelist.end());
+  whitelist.erase(std::unique(whitelist.begin(), whitelist.end()),
+                  whitelist.end());
+
+  // Get the triangles we want
+  Eigen::MatrixX3i triangles(whitelist.size(), 3);
+  for (auto&& i : iter::range(whitelist.size())) {
+    triangles(i, all) = this->polygons(whitelist[i], all);
+  }
+
+  // Find the points referenced by the triangles, and remove duplicates
+  auto neededPointChain = iter::chain.from_iterable(triangles.rowwise());
+  auto neededPoints =
+      std::vector<int>(neededPointChain.begin(), neededPointChain.end());
+  std::sort(neededPoints.begin(), neededPoints.end());
+  neededPoints.erase(std::unique(neededPoints.begin(), neededPoints.end()),
+                     neededPoints.end());
+
+  // Reindex the triangles as 0, 1, 2,...
+  std::unordered_map<int, int> pointsIndex;
+  for (auto&& [i, point] : iter::enumerate(neededPoints)) {
+    pointsIndex[point] = i;
+  }
+  // Transfer the new indices to our triangle array
+  for (auto triangle : triangles.rowwise()) {
+    for (auto& x : triangle) {
+      x = pointsIndex[x];
+    }
+  }
+
+  // Get the needed points as a new object
+  Eigen::MatrixX3f points(neededPoints.size(), 3);
+  for (auto&& [i, point] : iter::enumerate(neededPoints)) {
+    points(i, all) = this->vertices(point, all);
+  }
+
+  return Mesh(points, triangles);
+}
 
 const std::vector<int>& Mesh::getTrianglesOfPoint(int point) {
   if (this->trianglesOfPointsIndex.size() == 0) {

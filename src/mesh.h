@@ -1,30 +1,27 @@
 #pragma once
 
-#include <string>
-#include <vector>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
 
 #include <Eigen/Dense>
-#include <pybind11/pybind11.h>
-#include <pybind11/numpy.h>
+#include <string>
+#include <vector>
 
 #include "types.h"
 
 namespace py = pybind11;
 
 class Mesh {
- private:
-  py::array vertexData;
-  py::array polygonData;
-
-  std::vector<std::vector<int>> trianglesOfPointsIndex;
-  const std::vector<int> getTrianglesOfPoint(Eigen::VectorXi points);
-
  public:
   Mesh() : vertices{Eigen::MatrixX3f()}, polygons{Eigen::MatrixX3i()} {};
   Mesh(const std::string& name);
+  Mesh(const Eigen::MatrixX3f vertices, const Eigen::MatrixX3i polygons)
+      : vertices{vertices}, polygons{polygons} {};
 
-  EigenDRef<const Eigen::MatrixX3f> vertices;
-  EigenDRef<const Eigen::MatrixX3i> polygons;
+  const Eigen::MatrixX3f vertices;
+  const Eigen::MatrixX3i polygons;
+
+  const Mesh filterTriangles(std::vector<int> whitelist);
 
   const std::vector<int> getTriangleNeighbors(int triangle,
                                               bool edgeAdjacent = false);
@@ -36,4 +33,8 @@ class Mesh {
   const std::vector<int> getTrianglesOfPoint(std::vector<int> points);
 
   static Mesh from_file(const std::string& name);
+
+ private:
+  std::vector<std::vector<int>> trianglesOfPointsIndex;
+  const std::vector<int> getTrianglesOfPoint(Eigen::VectorXi points);
 };

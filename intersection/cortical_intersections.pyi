@@ -32,6 +32,7 @@ class MeshData:
     vertices: np.ndarray[Any, np.dtype[np.float32]]
     polygons: np.ndarray[Any, np.dtype[np.int32]]
 
+    def filter_triangles(self, whitelist: list[int]) -> MeshData: ...
     @overload
     def get_triangle_neighbors(
         self, triangle: int, edge_adjacent: bool = ...

@@ -76,9 +76,13 @@ PYBIND11_MODULE(cortical_intersections, m) {
   // m.def("intersection_core", &intersectionCore, "Find the intersections!");
 
   py::class_<Mesh>(m, "MeshData")
-      .def(py::init<const string&>())
+      .def(py::init<const string &>())
+      .def_readonly("v", &Mesh::v)
+      .def_readonly("p", &Mesh::p)
       .def_readonly("vertices", &Mesh::vertices)
       .def_readonly("polygons", &Mesh::polygons)
+      .def("filter_triangles", &Mesh::filterTriangles,
+           "Get a subset of the original mesh", py::arg("whitelist"))
       .def("get_triangle_neighbors",
            py::overload_cast<int, bool>(&Mesh::getTriangleNeighbors),
            "Get triangle neighbors", py::arg("triangle"),
