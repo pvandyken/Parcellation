@@ -13,17 +13,17 @@ def intersection_core(
 ) -> tuple[list[list[int]], list[list[int]]]: ...
 
 class CorticalIntersection:
-    def __init__(self, mesh: "MeshData", bundles: list["Bundle"], ray_length: int): ...
+    def __init__(self, mesh: "Mesh", bundles: list["Bundle"], ray_length: int): ...
     @staticmethod
     def from_bundles(
-        mesh: "MeshData",
+        mesh: "Mesh",
         bundle_dir: str,
         ray_length: int,
         align_orientation: bool = ...,
     ) -> CorticalIntersection: ...
     def get_globbed_graph(self, radius=2) -> nx.DiGraph: ...
 
-class MeshData:
+class Mesh:
     def __init__(
         self,
         vertices: np.ndarray[Any, np.dtype[np.float32]],
@@ -32,7 +32,7 @@ class MeshData:
     vertices: np.ndarray[Any, np.dtype[np.float32]]
     polygons: np.ndarray[Any, np.dtype[np.int32]]
 
-    def filter_triangles(self, whitelist: list[int]) -> MeshData: ...
+    def filter_triangles(self, whitelist: list[int]) -> Mesh: ...
     @overload
     def get_triangle_neighbors(
         self, triangle: int, edge_adjacent: bool = ...

@@ -75,7 +75,7 @@ PYBIND11_MODULE(cortical_intersections, m) {
       "cortex";
   // m.def("intersection_core", &intersectionCore, "Find the intersections!");
 
-  py::class_<Mesh>(m, "MeshData")
+  py::class_<Mesh>(m, "Mesh")
       .def(py::init<const string &>())
       .def_property_readonly("polydata", &Mesh::getPolydata,
                              "Mesh as a vtk Polydata object")
