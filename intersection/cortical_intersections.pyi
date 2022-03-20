@@ -1,5 +1,6 @@
 from typing import Any, overload
 import numpy as np
+from numpy.typing import NDArray
 import networkx as nx
 
 def intersection_core(
@@ -48,3 +49,9 @@ class MeshData:
 
 class Bundle:
     def __init__(self, fibers: list[list[np.ndarray[Any, np.dtype[np.float32]]]]): ...
+
+class Parcellation:
+    def __init__(self, parcels: list[set[int]]): ...
+    def get_connectome(
+        self, intersections: CorticalIntersection
+    ) -> NDArray[np.int32]: ...

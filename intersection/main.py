@@ -3,7 +3,7 @@ from pathlib import Path
 import typer
 import fury.io as fio
 
-from intersection.cortical_intersections import CorticalIntersection
+from intersection.cortical_intersections import CorticalIntersection, Parcellation
 from intersection.mesh import Mesh
 from intersection.patch_merge import get_parcellation, merge_parcels
 from intersection.triangle_merge import triangle_blob
@@ -22,8 +22,10 @@ def main(
 ):
     surf = Mesh.load_mesh(left_surf)
     G = get_intersection(left_surf, left_bundles)
-    atlas = merge_parcels(get_parcellation(G, surf), surf)
+    parcels = get_parcellation(G, surf)
+    atlas = merge_parcels(parcels, surf)
     fio.save_polydata(atlas, str(out_path))
+    return atlas
 
 
 def get_intersection(surf_path: Path, bundles_path: Path):
@@ -31,7 +33,6 @@ def get_intersection(surf_path: Path, bundles_path: Path):
     bundles = get_vtk_bundles(bundles_path)
 
     return CorticalIntersection(surf.data, bundles, 6).get_globbed_graph(2)
-
 
 
 

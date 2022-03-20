@@ -14,7 +14,6 @@ extensions = [
             "src/parcellation.cpp",
         ],
         include_dirs = [
-            "extern/pybind11/include",
             "/usr/local/include",
             "extern/eigen",
             "extern"

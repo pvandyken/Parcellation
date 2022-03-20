@@ -3,26 +3,28 @@ import copy
 import itertools as it
 import random
 import more_itertools as itx
-import vtk
+import vtkmodules.all as vtk
+import fury.utils
 from typing import Any, Iterable, Optional
 
 import networkx as nx
-from intersection.cortical_intersections import CorticalIntersection
+from intersection.cortical_intersections import Parcellation
 
 from intersection.mesh import Mesh
 
 
-def merge_parcels(parcels: list[list[int]], mesh: Mesh):
-    appender = vtk.vtkAppendPolyData()  # type: ignore
+def merge_parcels(parcels: list[set[int]], mesh: Mesh):
+    
+    appender = vtk.vtkAppendPolyData()
     for i, parcel in enumerate(parcels):
         pd = mesh.filter_triangles(parcel).polydata
 
-        arr = vtk.vtkIntArray()  # type: ignore
+        arr = vtk.vtkIntArray()
         arr.SetName('parcel_idx')
-        for _ in range(0, pd.GetNumberOfCells()):  # type: ignore
+        for _ in range(0, pd.GetNumberOfCells()):
             arr.InsertNextTuple1(i)
 
-        pd.GetCellData().AddArray(arr)  # type: ignore
+        pd.GetCellData().AddArray(arr)
 
         #print '<wm_append_clusters_to_anatomical_tracts>', cluster_vtp, ', number of fibers', pd_cluster.GetNumberOfLines()
 
@@ -122,11 +124,11 @@ def divide_overlap(G: nx.DiGraph, mesh: Mesh):
     assigned: list[Assignment] = [
         *it.chain.from_iterable(diffusion_division(G, a, b, mesh) for a, b in G.edges)
     ]
-    segments: list[list[int]] = []
+    segments: list[set[int]] = []
     for node in G.nodes:
         lost = set().union(*filter(lambda a: a.over == node, assigned))
         current = G.nodes[node]["triangles"]
-        segments.append(list(set(current) - set(lost)))
+        segments.append(set(current) - set(lost))
     return segments
 
 
