@@ -23,6 +23,10 @@ class Mesh {
 
   const Mesh filterTriangles(std::vector<int> whitelist);
 
+  py::object getPolydata();
+
+  void saveVtk(const std::string path, bool binary = false);
+
   const std::vector<int> getTriangleNeighbors(int triangle,
                                               bool edgeAdjacent = false);
   const std::vector<int> getTriangleNeighbors(std::vector<int> triangles);

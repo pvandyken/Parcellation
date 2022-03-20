@@ -77,12 +77,14 @@ PYBIND11_MODULE(cortical_intersections, m) {
 
   py::class_<Mesh>(m, "MeshData")
       .def(py::init<const string &>())
-      .def_readonly("v", &Mesh::v)
-      .def_readonly("p", &Mesh::p)
+      .def_property_readonly("polydata", &Mesh::getPolydata,
+                             "Mesh as a vtk Polydata object")
       .def_readonly("vertices", &Mesh::vertices)
       .def_readonly("polygons", &Mesh::polygons)
       .def("filter_triangles", &Mesh::filterTriangles,
            "Get a subset of the original mesh", py::arg("whitelist"))
+      .def("save_vtk", &Mesh::saveVtk, "Save mesh as .vtk file",
+           py::arg("path"), py::arg("binary") = false)
       .def("get_triangle_neighbors",
            py::overload_cast<int, bool>(&Mesh::getTriangleNeighbors),
            "Get triangle neighbors", py::arg("triangle"),
