@@ -87,7 +87,7 @@ bool ray_triangle_intersection(const float ray_near[], const float ray_dir[],
   return true;
 }
 
-vector<vector<float>> multiple_vertices(const float *triangle[3]) {
+vector<vector<float>> multiple_vertices(const vector<Vector3f> triangle) {
   vector<vector<float>> pt(6, vector<float>(3));
   // float **pt = new float*[6];
   // for(int i=0; i<6; i++)
@@ -106,7 +106,7 @@ vector<vector<float>> multiple_vertices(const float *triangle[3]) {
   return pt;
 }
 
-vector<vector<vector<float>>> multiple_triangles(const float *triangles[1][3],
+vector<vector<vector<float>>> multiple_triangles(const vector<vector<Vector3f>> triangles,
                                                  int &len,
                                                  const int polys[][3]) {
   vector<vector<vector<float>>> new_triangles(
@@ -130,7 +130,7 @@ vector<vector<vector<float>>> multiple_triangles(const float *triangles[1][3],
   return new_triangles;
 }
 
-vector<vector<vector<float>>> segment_triangles(const float *triangles[1][3]) {
+vector<vector<vector<float>>> segment_triangles(const vector<vector<Vector3f>> triangles) {
   /*
   Split each triangle into four sub triangles
   and finds the centroid of each sub-triangle
@@ -149,7 +149,7 @@ vector<vector<vector<float>>> segment_triangles(const float *triangles[1][3]) {
 vector<vector<float>> get_triangle_centroid(
     vector<vector<vector<float>>> const triangles, const int &N) {
   vector<vector<float>> centroid(int(pow(4, N)), vector<float>(3));
-  int len = 1;
+  int len = pow(4, N);
   for (int i = 0; i < len; i++) {
     for (int j = 0; j < 3; j++) {
       float sum = 0;
@@ -329,8 +329,8 @@ CorticalIntersection::CorticalIntersection(const Mesh &mesh,
       back{BundleIntersections::fromRange(bundles.size())},
       fibIndex{vector<vector<int>>(bundles.size())},
       mesh{mesh} {
-  const EigenDRef<const MatrixX3f> &vertex = mesh.vertices;
-  const EigenDRef<const MatrixX3i> &polygons = mesh.polygons;
+  const Ref<const MatrixX3f> vertex = mesh.vertices;
+  const Ref<const MatrixX3i> polygons = mesh.polygons;
 
   int N = 1;
 
@@ -457,13 +457,15 @@ CorticalIntersection::CorticalIntersection(const Mesh &mesh,
   cout << "Segmenting polygons..." << endl;
 #pragma omp parallel for schedule(dynamic)
   for (int i = 0; i < polygons.rows(); i++) {
-    const float *triangles[1][3];
+    vector<vector<Vector3f>> triangles(1);
     // triangles[0] = new float*[3];
 
-    for (int j = 0; j < 3; j++)
-      triangles[0][j] = vertex(polygons(i, j), all).data();
+    for (int j = 0; j < 3; j++) {
+      triangles[0].push_back(vertex(polygons(i, j), all));
+    }
 
     vector<vector<vector<float>>> subTriangles = segment_triangles(triangles);
+
     vector<vector<float>> centroid = get_triangle_centroid(subTriangles, N);
 
     for (int j = 0; j < pow(4, N); j++) {
