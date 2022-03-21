@@ -2,7 +2,7 @@ import itertools as it
 import more_itertools as itx
 from typing import Any, Iterable, NamedTuple, TypeVar
 import networkx as nx
-from intersection.cortical_intersections import MeshData
+from intersection.cortical_intersections import Mesh
 import attr
 
 
@@ -47,11 +47,11 @@ class Edge:
         return cls(*(set(points_a) & set(points_b)))
 
     @classmethod
-    def from_triangle(cls, triangle: int, mesh: MeshData):
+    def from_triangle(cls, triangle: int, mesh: Mesh):
         return [cls(a, b) for a, b in it.combinations(mesh.polygons[triangle], 2)]
 
 
-def merge_triangles(triangles: list[int], mesh: MeshData, radius: int = 2):
+def merge_triangles(triangles: list[int], mesh: Mesh, radius: int = 2):
     G = nx.Graph()
     G.add_nodes_from(triangles)
     all_triangles = set(triangles)
@@ -74,7 +74,7 @@ def merge_triangles(triangles: list[int], mesh: MeshData, radius: int = 2):
     return [*{*it.chain.from_iterable(visited[x] for x in largest_component)}]
 
 
-def triangle_blob(core: int, iterations: int, mesh: MeshData):
+def triangle_blob(core: int, iterations: int, mesh: Mesh):
     result = set()
     blob = [core]
     exclusion = []
@@ -86,7 +86,7 @@ def triangle_blob(core: int, iterations: int, mesh: MeshData):
     return result
 
 
-def get_open_ended(patch: list[int], mesh: MeshData):
+def get_open_ended(patch: list[int], mesh: Mesh):
     patch_set = set(patch)
     open_ended: set[int] = set()
     for triangle in patch:
@@ -97,7 +97,7 @@ def get_open_ended(patch: list[int], mesh: MeshData):
             break
 
 
-def fill_holes(patch: list[int], mesh: MeshData):
+def fill_holes(patch: list[int], mesh: Mesh):
     patch_set = set(patch)
     open_ended: set[int] = set()
     for triangle in patch:
@@ -146,7 +146,7 @@ EdgeLoopItems = NamedTuple(
 
 def find_edge_loop(
     start_edge: Edge,
-    mesh: MeshData,
+    mesh: Mesh,
     open_edges: dict[int, list[Edge]],
     open_ended_triangles: set[int],
 ):
@@ -216,7 +216,7 @@ T = TypeVar("T")
 S = TypeVar("S")
 
 
-def get_radially_sorted_blob(center: int, mesh: MeshData):
+def get_radially_sorted_blob(center: int, mesh: Mesh):
     neighbors = mesh.get_triangles_of_point(center)
     triangle_to_edge: dict[int, list[Edge]] = {}
     edge_to_triangle: dict[Edge, list[int]] = {}
@@ -256,7 +256,7 @@ def get_radially_sorted_blob(center: int, mesh: MeshData):
     return edge_chain, triangle_chain
 
 
-def get_contained_triangles(ring: list[Edge], patch: set[int], mesh: MeshData):
+def get_contained_triangles(ring: list[Edge], patch: set[int], mesh: Mesh):
     def recurse(ring: set[Edge], contained_triangles: set[int]) -> set[int]:
         open_triangles = {
             *it.chain.from_iterable(
@@ -289,7 +289,7 @@ def get_contained_triangles(ring: list[Edge], patch: set[int], mesh: MeshData):
     return recurse(set(ring), set())
 
 
-def get_adjacent_triangles(points: Iterable[int], mesh: MeshData):
+def get_adjacent_triangles(points: Iterable[int], mesh: Mesh):
     adj_triangles = [mesh.get_triangles_of_point(point) for point in points]
     for a, b in it.combinations(adj_triangles, 2):
         yield set(a) & set(b)

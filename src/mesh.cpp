@@ -27,6 +27,12 @@ Mesh::Mesh(const std::string& name)
     : vertices{get_nib_data(name, "pointset").cast<MatrixF>()},
       polygons{get_nib_data(name, "triangle").cast<MatrixI>()} {}
 
+Mesh::Mesh(const std::filesystem::path name)
+    : vertices{get_nib_data(name.lexically_normal().string(), "pointset")
+                   .cast<MatrixF>()},
+      polygons{get_nib_data(name.lexically_normal().string(), "triangle")
+                   .cast<MatrixI>()} {}
+
 const Mesh Mesh::filterTriangles(std::vector<int> whitelist) {
   using Eigen::all;
 
@@ -81,11 +87,19 @@ py::object Mesh::getPolydata() {
   return pd;
 }
 
-void Mesh::saveVtk(const std::string path, bool binary) {
+void Mesh::saveVtk(const std::variant<std::string, std::filesystem::path> path,
+                   bool binary) {
   using namespace pybind11::literals;
+  std::string name;
+  if (auto str_ptr = std::get_if<std::string>(&path)) {
+    name = *str_ptr;
+  } else {
+    auto path_ptr = std::get<std::filesystem::path>(path);
+    name = path_ptr.lexically_normal().string();
+  }
   py::object save_polydata =
       py::module_::import("fury.io").attr("save_polydata");
-  save_polydata(this->getPolydata(), path, "binary"_a = binary);
+  save_polydata(this->getPolydata(), name, "binary"_a = binary);
 }
 
 const std::vector<int>& Mesh::getTrianglesOfPoint(int point) {

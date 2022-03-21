@@ -8,16 +8,15 @@ import fury.utils
 from typing import Any, Iterable, Optional
 
 import networkx as nx
-from intersection.cortical_intersections import Parcellation
+from intersection.cortical_intersections import Parcellation, Mesh
 
-from intersection.mesh import Mesh
 
 
 def merge_parcels(parcels: list[set[int]], mesh: Mesh):
     
     appender = vtk.vtkAppendPolyData()
     for i, parcel in enumerate(parcels):
-        pd = mesh.filter_triangles(parcel).polydata
+        pd = mesh.filter_triangles(list(parcel)).polydata
 
         arr = vtk.vtkIntArray()
         arr.SetName('parcel_idx')
@@ -145,7 +144,7 @@ def diffusion_division(G: nx.DiGraph, parent_a: int, parent_b: int, mesh: Mesh):
     a_weights: dict[int, float] = {}
     b_weights: dict[int, float] = {}
     for triangle in overlap:
-        neighbors[triangle] = mesh.data.get_triangle_neighbors(
+        neighbors[triangle] = mesh.get_triangle_neighbors(
             triangle, edge_adjacent=True
         )
         for neighbor in neighbors[triangle]:

@@ -1,7 +1,11 @@
-from typing import Any, overload
+from pathlib import Path
+from typing import Any, Union, overload
+
+import networkx as nx
 import numpy as np
 from numpy.typing import NDArray
-import networkx as nx
+from fury.utils import PolyData
+
 
 def intersection_core(
     vertices: np.ndarray[Any, np.dtype[np.float32]],
@@ -24,14 +28,13 @@ class CorticalIntersection:
     def get_globbed_graph(self, radius=2) -> nx.DiGraph: ...
 
 class Mesh:
-    def __init__(
-        self,
-        vertices: np.ndarray[Any, np.dtype[np.float32]],
-        polygons: np.ndarray[Any, np.dtype[np.int32]],
-    ): ...
+    def __init__(self, name: Union[str, Path]): ...
     vertices: np.ndarray[Any, np.dtype[np.float32]]
     polygons: np.ndarray[Any, np.dtype[np.int32]]
 
+    @property
+    def polydata(self) -> PolyData: ...
+    def save_vtk(self, path: Union[str, Path], binary: bool = ...) -> None: ...
     def filter_triangles(self, whitelist: list[int]) -> Mesh: ...
     @overload
     def get_triangle_neighbors(

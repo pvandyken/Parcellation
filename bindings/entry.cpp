@@ -1,12 +1,15 @@
-#include <Python.h>
+#include <filesystem>
+#include <tuple>
+#include <vector>
+
+#include <Eigen/Dense>
 #include <omp.h>
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/stl/filesystem.h>
+#include <Python.h>
 
-#include <Eigen/Dense>
-#include <tuple>
-#include <vector>
 
 #include "../src/bundles.h"
 #include "../src/intersection.h"
@@ -77,6 +80,7 @@ PYBIND11_MODULE(cortical_intersections, m) {
 
   py::class_<Mesh>(m, "Mesh")
       .def(py::init<const string &>())
+      .def(py::init<const std::filesystem::path>())
       .def_property_readonly("polydata", &Mesh::getPolydata,
                              "Mesh as a vtk Polydata object")
       .def_readonly("vertices", &Mesh::vertices)

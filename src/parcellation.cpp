@@ -32,4 +32,5 @@ Eigen::MatrixXi Parcellation::getConnectome(
       result(fParcel, bParcel) += 1;
     }
   }
+  return result;
 }

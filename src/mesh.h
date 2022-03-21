@@ -4,7 +4,9 @@
 #include <pybind11/pybind11.h>
 
 #include <Eigen/Dense>
+#include <filesystem>
 #include <string>
+#include <variant>
 #include <vector>
 
 #include "types.h"
@@ -15,6 +17,7 @@ class Mesh {
  public:
   Mesh() : vertices{Eigen::MatrixX3f()}, polygons{Eigen::MatrixX3i()} {};
   Mesh(const std::string& name);
+  Mesh(const std::filesystem::path name);
   Mesh(const Eigen::MatrixX3f vertices, const Eigen::MatrixX3i polygons)
       : vertices{vertices}, polygons{polygons} {};
 
@@ -25,7 +28,8 @@ class Mesh {
 
   py::object getPolydata();
 
-  void saveVtk(const std::string path, bool binary = false);
+  void saveVtk(const std::variant<std::string, std::filesystem::path> path,
+               bool binary = false);
 
   const std::vector<int> getTriangleNeighbors(int triangle,
                                               bool edgeAdjacent = false);
