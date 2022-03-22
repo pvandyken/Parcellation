@@ -23,7 +23,7 @@ class CorticalIntersection {
  public:
   CorticalIntersection() : mesh{Mesh()} {};
   CorticalIntersection(const Mesh &mesh, vector<Bundle> bundles,
-                       const int &nPtsLine);
+                       const int &nPtsLine, int threads = 1);
 
   CorticalIntersection(const Mesh &mesh,
                        vector<BundleIntersections> &interceptions)

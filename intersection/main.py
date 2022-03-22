@@ -19,10 +19,11 @@ def main(
     left_bundles: Path,
     # right_bundles: Path,
     out_path: Path,
-    raw: bool = False
+    raw: bool = False,
+    threads: int = 1
 ):
     surf = Mesh(left_surf)
-    intersection = get_intersection(left_surf, left_bundles)
+    intersection = get_intersection(left_surf, left_bundles, threads)
     if raw:
         save_src_dest(surf, out_path, *intersection.triangles)
         return 0
@@ -43,10 +44,10 @@ def save_src_dest(
         mesh.filter_triangles(back).save_vtk(out_path / f"cluster_{i}.dest.vtk")
 
 
-def get_intersection(mesh: Path, bundles_path: Path):
+def get_intersection(mesh: Path, bundles_path: Path, threads: int = 1):
     bundles = get_vtk_bundles(bundles_path)
 
-    return CorticalIntersection(Mesh(mesh), bundles, 6)
+    return CorticalIntersection(Mesh(mesh), bundles, 6, threads=threads)
 
 
 @app.command()

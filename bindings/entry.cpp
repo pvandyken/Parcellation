@@ -107,7 +107,9 @@ PYBIND11_MODULE(cortical_intersections, m) {
            "Get triangles adjacent to a specific point");
 
   py::class_<CorticalIntersection>(m, "CorticalIntersection")
-      .def(py::init<Mesh &, vector<Bundle>, int>(), py::keep_alive<1, 2>())
+      .def(py::init<Mesh &, vector<Bundle>, int, int>(), py::arg("mesh"),
+           py::arg("bundles"), py::arg("ray_length"), py::arg("threads") = 1,
+           py::keep_alive<1, 2>())
       .def_static("from_bundles", &CorticalIntersection::fromBundles,
                   "Construct intersections from bundles")
       .def_property_readonly("triangles",
@@ -128,7 +130,10 @@ PYBIND11_MODULE(cortical_intersections, m) {
       .def(py::init<vector<unordered_set<int>>>(), "Get connectomes")
       .def("get_connectome", &Parcellation::getConnectome,
            "Get connectome from a CorticalIntersection Object")
-      .def("__iter__", [](Parcellation &self) {
-           return py::make_iterator(self.begin(), self.end());
-      }, py::keep_alive<0, 1>());
+      .def(
+          "__iter__",
+          [](Parcellation &self) {
+            return py::make_iterator(self.begin(), self.end());
+          },
+          py::keep_alive<0, 1>());
 }

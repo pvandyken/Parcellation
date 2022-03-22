@@ -1,15 +1,16 @@
 #include "intersection.h"
-#include <algorithm>
-#include <fstream>
-#include <iostream>
-#include <math.h>
 
+#include <math.h>
+#include <omp.h>
 #include <pybind11/stl.h>
+
+#include <algorithm>
 #include <cppitertools/chain.hpp>
 #include <cppitertools/enumerate.hpp>
+#include <fstream>
+#include <iostream>
 
 #include "io.h"
-
 
 namespace {
 // ============ Producto Punto =============
@@ -106,9 +107,8 @@ vector<vector<float>> multiple_vertices(const vector<Vector3f> triangle) {
   return pt;
 }
 
-vector<vector<vector<float>>> multiple_triangles(const vector<vector<Vector3f>> triangles,
-                                                 int &len,
-                                                 const int polys[][3]) {
+vector<vector<vector<float>>> multiple_triangles(
+    const vector<vector<Vector3f>> triangles, int &len, const int polys[][3]) {
   vector<vector<vector<float>>> new_triangles(
       len * 4, vector<vector<float>>(3, vector<float>(3)));
 
@@ -130,7 +130,8 @@ vector<vector<vector<float>>> multiple_triangles(const vector<vector<Vector3f>> 
   return new_triangles;
 }
 
-vector<vector<vector<float>>> segment_triangles(const vector<vector<Vector3f>> triangles) {
+vector<vector<vector<float>>> segment_triangles(
+    const vector<vector<Vector3f>> triangles) {
   /*
   Split each triangle into four sub triangles
   and finds the centroid of each sub-triangle
@@ -324,11 +325,12 @@ const bool CorticalIntersection::getMeshAndFiberIntersection(
 
 CorticalIntersection::CorticalIntersection(const Mesh &mesh,
                                            vector<Bundle> bundles,
-                                           const int &nPtsLine)
+                                           const int &nPtsLine, int threads)
     : front{BundleIntersections::fromRange(bundles.size())},
       back{BundleIntersections::fromRange(bundles.size())},
       fibIndex{vector<vector<int>>(bundles.size())},
       mesh{mesh} {
+  omp_set_num_threads(threads);
   const Ref<const MatrixX3f> vertex = mesh.vertices;
   const Ref<const MatrixX3i> polygons = mesh.polygons;
 

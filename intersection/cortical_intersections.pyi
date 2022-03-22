@@ -6,7 +6,6 @@ import numpy as np
 from numpy.typing import NDArray
 from fury.utils import PolyData
 
-
 def intersection_core(
     vertices: np.ndarray[Any, np.dtype[np.float32]],
     polygons: np.ndarray[Any, np.dtype[np.int32]],
@@ -17,7 +16,9 @@ def intersection_core(
 ) -> tuple[list[list[int]], list[list[int]]]: ...
 
 class CorticalIntersection:
-    def __init__(self, mesh: "Mesh", bundles: list["Bundle"], ray_length: int): ...
+    def __init__(
+        self, mesh: "Mesh", bundles: list["Bundle"], ray_length: int, threads: int = ...
+    ): ...
     @property
     def triangles(self) -> Tuple[List[List[int]], List[List[int]]]: ...
     @staticmethod
