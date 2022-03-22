@@ -8,12 +8,13 @@ build = 'build.py'
 [tool.poetry.dependencies]
 python = "^3.9"
 Cython = "^0.29.28"
-nibabel = "^3.2.2"
+nibabel = "^3.2.1"
 typer = "^0.3.0"
 attrs = "^21.4.0"
 fury = "^0.8.0"
 more-itertools = "^8.12.0"
 networkx = "^2.7.0"
+dipy = "^1.4.1"
 
 [tool.poetry.dev-dependencies]
 black = "^21.12b0"
