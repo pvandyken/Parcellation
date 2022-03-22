@@ -1,9 +1,10 @@
+from typing import List
 from pathlib import Path
 
 import typer
 import fury.io as fio
 
-from intersection.cortical_intersections import CorticalIntersection, Mesh
+from intersection.cortical_intersections import CorticalIntersection, Mesh, Parcellation
 from intersection.patch_merge import get_parcellation, merge_parcels
 from intersection.triangle_merge import triangle_blob
 from intersection.vtk_bundles import get_vtk_bundles
@@ -18,23 +19,34 @@ def main(
     left_bundles: Path,
     # right_bundles: Path,
     out_path: Path,
+    raw: bool = False
 ):
     surf = Mesh(left_surf)
-    G = get_intersection(left_surf, left_bundles)
+    intersection = get_intersection(left_surf, left_bundles)
+    if raw:
+        save_src_dest(surf, out_path, *intersection.triangles)
+        return 0
+
+    G = intersection.get_globbed_graph(2)
     parcels = get_parcellation(G, surf)
     atlas = merge_parcels(parcels, surf)
     fio.save_polydata(atlas, str(out_path))
-    return atlas
+    return 0
+    # return Parcellation(parcels)
 
 
-def get_intersection(surf_path: Path, bundles_path: Path):
-    surf = Mesh(surf_path)
+def save_src_dest(
+    mesh: Mesh, out_path: Path, fronts: List[List[int]], backs: List[List[int]]
+):
+    for i, front, back in zip(range(len(fronts)), fronts, backs):
+        mesh.filter_triangles(front).save_vtk(out_path / f"cluster_{i}.src.vtk")
+        mesh.filter_triangles(back).save_vtk(out_path / f"cluster_{i}.dest.vtk")
+
+
+def get_intersection(mesh: Path, bundles_path: Path):
     bundles = get_vtk_bundles(bundles_path)
 
-    return CorticalIntersection(surf, bundles, 6).get_globbed_graph(2)
-
-
-
+    return CorticalIntersection(Mesh(mesh), bundles, 6)
 
 
 @app.command()

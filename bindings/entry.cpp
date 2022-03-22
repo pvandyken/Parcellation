@@ -1,15 +1,14 @@
-#include <filesystem>
-#include <tuple>
-#include <vector>
-
-#include <Eigen/Dense>
+#include <Python.h>
 #include <omp.h>
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/stl/filesystem.h>
-#include <Python.h>
 
+#include <Eigen/Dense>
+#include <filesystem>
+#include <tuple>
+#include <vector>
 
 #include "../src/bundles.h"
 #include "../src/intersection.h"
@@ -79,8 +78,8 @@ PYBIND11_MODULE(cortical_intersections, m) {
   // m.def("intersection_core", &intersectionCore, "Find the intersections!");
 
   py::class_<Mesh>(m, "Mesh")
-      .def(py::init<const string &>())
-      .def(py::init<const std::filesystem::path>())
+      .def(py::init<const string &>(), py::arg("name"))
+      .def(py::init<const std::filesystem::path>(), py::arg("name"))
       .def_property_readonly("polydata", &Mesh::getPolydata,
                              "Mesh as a vtk Polydata object")
       .def_readonly("vertices", &Mesh::vertices)
@@ -108,9 +107,14 @@ PYBIND11_MODULE(cortical_intersections, m) {
            "Get triangles adjacent to a specific point");
 
   py::class_<CorticalIntersection>(m, "CorticalIntersection")
-      .def(py::init<Mesh &, vector<Bundle>, int>())
+      .def(py::init<Mesh &, vector<Bundle>, int>(), py::keep_alive<1, 2>())
       .def_static("from_bundles", &CorticalIntersection::fromBundles,
                   "Construct intersections from bundles")
+      .def_property_readonly("triangles",
+                             [](CorticalIntersection &self) {
+                               return py::make_tuple(self.getTrianglesFront(),
+                                                     self.getTrianglesBack());
+                             })
       .def("get_globbed_graph", &CorticalIntersection::getGlobbedGraph,
            "Generate a networkx directed graph containing "
            "each interection as a node",
@@ -123,5 +127,8 @@ PYBIND11_MODULE(cortical_intersections, m) {
   py::class_<Parcellation>(m, "Parcellation")
       .def(py::init<vector<unordered_set<int>>>(), "Get connectomes")
       .def("get_connectome", &Parcellation::getConnectome,
-           "Get connectome from a CorticalIntersection Object");
+           "Get connectome from a CorticalIntersection Object")
+      .def("__iter__", [](Parcellation &self) {
+           return py::make_iterator(self.begin(), self.end());
+      }, py::keep_alive<0, 1>());
 }

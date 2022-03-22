@@ -3,6 +3,14 @@
 #include <cppitertools/enumerate.hpp>
 #include <cppitertools/zip.hpp>
 
+std::vector<std::unordered_set<int>>::const_iterator Parcellation::begin() {
+  return this->parcels.begin();
+}
+
+std::vector<std::unordered_set<int>>::const_iterator Parcellation::end() {
+  return this->parcels.end();
+}
+
 int Parcellation::getTriangleMembership(const int triangle) {
   if (this->triangleMembership.size() == 0) {
     for (auto&& [i, parcel] : iter::enumerate(this->parcels)) {
@@ -30,6 +38,7 @@ Eigen::MatrixXi Parcellation::getConnectome(
       int fParcel = this->getTriangleMembership(fTri);
       int bParcel = this->getTriangleMembership(bTri);
       result(fParcel, bParcel) += 1;
+      result(bParcel, fParcel) += 1;
     }
   }
   return result;

@@ -1,4 +1,6 @@
 import itertools as it
+import multiprocessing as mp
+import threading as thr
 import more_itertools as itx
 from typing import Any, Iterable, NamedTuple, TypeVar
 import networkx as nx
@@ -107,8 +109,11 @@ def fill_holes(patch: list[int], mesh: Mesh):
             open_ended.add(triangle)
             break
 
+
+    # Get open edges
     open_edges: dict[int, list[Edge]] = {}
-    for triangle in open_ended:
+    open_edges_lock = thr.Lock()
+    def get_open_edges(triangle: int):
         triangle_open_edges: list[Edge] = []
         points = mesh.polygons[triangle]
         for pair in get_adjacent_triangles(points, mesh):
@@ -118,8 +123,15 @@ def fill_holes(patch: list[int], mesh: Mesh):
                     Edge.mutual_edge(mesh.polygons[neighbor], points)
                 )
         if triangle_open_edges:
+            open_edges_lock.acquire()
             open_edges[triangle] = triangle_open_edges
+            open_edges_lock.release()
 
+    with mp.Pool(4) as pool:
+        for triangle in open_ended:
+            pool.apply_async(get_open_edges, (triangle,))
+
+    # Find edge loops
     visited: set[Edge] = set()
     loops: list[list[Edge]] = []
     for edge in it.chain.from_iterable(open_edges.values()):

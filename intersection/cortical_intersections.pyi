@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Union, overload
+from typing import Any, Iterator, List, Union, overload, Tuple
 
 import networkx as nx
 import numpy as np
@@ -18,6 +18,8 @@ def intersection_core(
 
 class CorticalIntersection:
     def __init__(self, mesh: "Mesh", bundles: list["Bundle"], ray_length: int): ...
+    @property
+    def triangles(self) -> Tuple[List[List[int]], List[List[int]]]: ...
     @staticmethod
     def from_bundles(
         mesh: "Mesh",
@@ -59,3 +61,4 @@ class Parcellation:
     def get_connectome(
         self, intersections: CorticalIntersection
     ) -> NDArray[np.int32]: ...
+    def __iter__(self) -> Iterator[set[int]]: ...

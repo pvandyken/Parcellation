@@ -18,8 +18,8 @@ extensions = [
             "extern/eigen",
             "extern"
         ],
-        extra_compile_args=["-O3",  "-std=c++17"],
-        # extra_link_args=["-fopenmp"]
+        extra_compile_args=["-O3", "-fopenmp", "-std=c++17"],
+        extra_link_args=["-fopenmp"]
     )
 ]
 
