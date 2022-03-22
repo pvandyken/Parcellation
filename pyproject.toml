@@ -13,7 +13,7 @@ typer = "^0.3.0"
 attrs = "^21.4.0"
 fury = "^0.8.0"
 more-itertools = "^8.12.0"
-networkx = "^2.7.1"
+networkx = "^2.7.0"
 
 [tool.poetry.dev-dependencies]
 black = "^21.12b0"
