@@ -130,6 +130,8 @@ PYBIND11_MODULE(cortical_intersections, m) {
       .def(py::init<vector<unordered_set<int>>>(), "Get connectomes")
       .def("get_connectome", &Parcellation::getConnectome,
            "Get connectome from a CorticalIntersection Object")
+      .def("get_triangle_membership", &Parcellation::getTriangleMembership)
+      .def("__contains__", &Parcellation::contains)
       .def(
           "__iter__",
           [](Parcellation &self) {

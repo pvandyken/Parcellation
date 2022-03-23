@@ -16,6 +16,7 @@ class Parcellation {
 
   int getTriangleMembership(const int triangle);
   Eigen::MatrixXi getConnectome(CorticalIntersection const& intersections);
+  bool contains(const int triangle);
 
   std::vector<std::unordered_set<int>>::const_iterator begin();
   std::vector<std::unordered_set<int>>::const_iterator end();
@@ -23,6 +24,8 @@ class Parcellation {
  private:
   const std::vector<std::unordered_set<int>> parcels;
   std::unordered_map<int, int> triangleMembership;
+  void initTriangleMembership();
+  bool _contains(const int triangle);
 };
 
 #endif
