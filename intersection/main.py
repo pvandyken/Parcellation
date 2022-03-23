@@ -1,4 +1,5 @@
 from typing import List
+import pickle
 from pathlib import Path
 
 import typer
@@ -16,20 +17,23 @@ app = typer.Typer()
 def main(
     left_surf: Path,
     left_bundles: Path,
-    out_path: Path,
+    out_atlas: Path,
+    out_connectome: Path,
     raw: bool = False,
     threads: int = 1
 ):
     surf = Mesh(left_surf)
     intersection = get_intersection(left_surf, left_bundles, threads)
     if raw:
-        save_src_dest(surf, out_path, *intersection.triangles)
+        save_src_dest(surf, out_atlas, *intersection.triangles)
         return 0
 
     G = intersection.get_globbed_graph(2)
     parcels = get_parcellation(G, surf)
     atlas = merge_parcels(parcels, surf)
-    fio.save_polydata(atlas, str(out_path))
+    fio.save_polydata(atlas, str(out_atlas))
+    with out_connectome.open('wb') as f:
+        pickle.dump(parcels.get_connectome(intersection), f)
     return 0
     # return Parcellation(parcels)
 
