@@ -9,7 +9,7 @@ import nibabel.streamlines as nibstream
 from intersection.cortical_intersections import Bundle
 
 def get_vtk_bundles(folder: Path):
-    bundles = [nibstream.load(path).streamlines for path in folder.iterdir()]
+    bundles = [nibstream.load(path).streamlines for path in folder.glob("*.tck")]
     for bundle in bundles:
         orient_fibers(bundle)
     return [Bundle([fiber for fiber in bundle]) for bundle in bundles if len(bundle)]

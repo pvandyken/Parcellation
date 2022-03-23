@@ -15,9 +15,7 @@ app = typer.Typer()
 @app.command()
 def main(
     left_surf: Path,
-    # right_hem: Path,
     left_bundles: Path,
-    # right_bundles: Path,
     out_path: Path,
     raw: bool = False,
     threads: int = 1
