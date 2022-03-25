@@ -30,6 +30,7 @@ class CorticalIntersection {
       : mesh{mesh}, front{interceptions} {};
 
   const Mesh &mesh;
+  vector<Bundle> bundles;
   vector<BundleIntersections> front;
   vector<BundleIntersections> back;
   vector<vector<int>> fibIndex;
@@ -41,6 +42,10 @@ class CorticalIntersection {
   vector<const vector<int> *> getTrianglesBack();
 
   py::object getGlobbedGraph(int radius = 2);
+
+  const string getBundlePath(int bundle) {
+    return this->bundles[bundle].path;
+  }
 
   static CorticalIntersection fromBundles(
     Mesh const& mesh, string bundle_dir,

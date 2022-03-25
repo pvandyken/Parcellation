@@ -1,6 +1,6 @@
 #include "bundles.h"
 
-Bundle::Bundle(const string &path) {
+Bundle::Bundle(const string &path) : path{path} {
   ifstream file(path, ios::in | ios::binary);
   cout << "Reading file: " << path << endl;
 

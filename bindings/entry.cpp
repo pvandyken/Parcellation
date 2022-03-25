@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "../src/bundles.h"
+#include "../src/connectome.h"
 #include "../src/intersection.h"
 #include "../src/io.h"
 #include "../src/mesh.h"
@@ -120,22 +121,30 @@ PYBIND11_MODULE(cortical_intersections, m) {
       .def("get_globbed_graph", &CorticalIntersection::getGlobbedGraph,
            "Generate a networkx directed graph containing "
            "each interection as a node",
-           py::arg("radius") = 2);
+           py::arg("radius") = 2)
+      .def("get_bundle_path", &CorticalIntersection::getBundlePath);
 
   py::class_<Bundle>(m, "Bundle")
       .def(py::init<vector<vector<Vector3f>>>(),
+           "Bundles of white-matter fibers")
+      .def(py::init<vector<vector<Vector3f>>, const string>(),
            "Bundles of white-matter fibers");
 
   py::class_<Parcellation>(m, "Parcellation")
       .def(py::init<vector<unordered_set<int>>>(), "Get connectomes")
-      .def("get_connectome", &Parcellation::getConnectome,
-           "Get connectome from a CorticalIntersection Object")
       .def("get_triangle_membership", &Parcellation::getTriangleMembership)
       .def("__contains__", &Parcellation::contains)
+      .def("__len__", &Parcellation::size)
       .def(
           "__iter__",
           [](Parcellation &self) {
             return py::make_iterator(self.begin(), self.end());
           },
           py::keep_alive<0, 1>());
+
+  py::class_<Connectome>(m, "Connectome")
+      .def(py::init<CorticalIntersection const&, Parcellation const&>())
+      .def("get_bundles_of_edge", &Connectome::getBundlesOfEdge)
+      .def_property_readonly("lost_fibers", &Connectome::getLostFibers)
+      .def_readonly("matrix", &Connectome::matrix);
 }

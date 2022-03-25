@@ -12,6 +12,7 @@ extensions = [
             "src/mesh.cpp",
             "bindings/entry.cpp",
             "src/parcellation.cpp",
+            "src/connectome.cpp",
         ],
         include_dirs = [
             "/usr/local/include",

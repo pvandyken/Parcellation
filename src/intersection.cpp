@@ -324,12 +324,13 @@ const bool CorticalIntersection::getMeshAndFiberIntersection(
 }
 
 CorticalIntersection::CorticalIntersection(const Mesh &mesh,
-                                           vector<Bundle> bundles,
+                                           vector<Bundle> _bundles,
                                            const int &nPtsLine, int threads)
-    : front{BundleIntersections::fromRange(bundles.size())},
+    : mesh{mesh},
+      bundles{_bundles},
+      front{BundleIntersections::fromRange(bundles.size())},
       back{BundleIntersections::fromRange(bundles.size())},
-      fibIndex{vector<vector<int>>(bundles.size())},
-      mesh{mesh} {
+      fibIndex{vector<vector<int>>(bundles.size())} {
   omp_set_num_threads(threads);
   const Ref<const MatrixX3f> vertex = mesh.vertices;
   const Ref<const MatrixX3i> polygons = mesh.polygons;

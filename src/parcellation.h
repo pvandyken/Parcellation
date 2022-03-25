@@ -14,18 +14,20 @@ class Parcellation {
   Parcellation(const std::vector<std::unordered_set<int>> parcels)
     : parcels{parcels} {};
 
-  int getTriangleMembership(const int triangle);
-  Eigen::MatrixXi getConnectome(CorticalIntersection const& intersections);
-  bool contains(const int triangle);
+  const int getTriangleMembership(const int triangle) const;
+  const bool contains(const int triangle) const;
+  const size_t size() const{
+    return this->parcels.size();
+  }
 
   std::vector<std::unordered_set<int>>::const_iterator begin();
   std::vector<std::unordered_set<int>>::const_iterator end();
 
  private:
   const std::vector<std::unordered_set<int>> parcels;
-  std::unordered_map<int, int> triangleMembership;
-  void initTriangleMembership();
-  bool _contains(const int triangle);
+  mutable std::unordered_map<int, int> triangleMembership;
+  const void initTriangleMembership() const;
+  const bool _contains(const int triangle) const;
 };
 
 #endif
