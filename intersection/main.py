@@ -5,7 +5,7 @@ from pathlib import Path
 import typer
 import fury.io as fio
 
-from intersection.cortical_intersections import CorticalIntersection, Mesh, Parcellation
+from intersection.cortical_intersections import CorticalIntersection, Mesh, Connectome
 from intersection.patch_merge import get_parcellation, merge_parcels
 from intersection.triangle_merge import triangle_blob
 from intersection.vtk_bundles import get_vtk_bundles
@@ -33,7 +33,8 @@ def main(
     atlas = merge_parcels(parcels, surf)
     fio.save_polydata(atlas, str(out_atlas))
     with out_connectome.open('wb') as f:
-        pickle.dump(parcels.get_connectome(intersection), f)
+        connectome = Connectome(intersection, parcels)
+        pickle.dump(connectome, f)
     return 0
     # return Parcellation(parcels)
 

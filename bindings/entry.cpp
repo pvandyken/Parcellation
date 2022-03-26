@@ -143,7 +143,8 @@ PYBIND11_MODULE(cortical_intersections, m) {
           py::keep_alive<0, 1>());
 
   py::class_<Connectome>(m, "Connectome")
-      .def(py::init<CorticalIntersection const &, Parcellation const &>())
+      .def(py::init<CorticalIntersection const &, Parcellation const &>(),
+           py::arg("intersection"), py::arg("parcellation"))
       .def("get_bundles_of_edge", &Connectome::getBundlesOfEdge)
       .def_property_readonly("lost_fibers", &Connectome::getLostFibers)
       .def_readonly("matrix", &Connectome::matrix)
