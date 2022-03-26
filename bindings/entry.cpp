@@ -143,8 +143,21 @@ PYBIND11_MODULE(cortical_intersections, m) {
           py::keep_alive<0, 1>());
 
   py::class_<Connectome>(m, "Connectome")
-      .def(py::init<CorticalIntersection const&, Parcellation const&>())
+      .def(py::init<CorticalIntersection const &, Parcellation const &>())
       .def("get_bundles_of_edge", &Connectome::getBundlesOfEdge)
       .def_property_readonly("lost_fibers", &Connectome::getLostFibers)
-      .def_readonly("matrix", &Connectome::matrix);
+      .def_readonly("matrix", &Connectome::matrix)
+      .def(py::pickle(
+          [](const Connectome &self) {  // __getstate__
+            return py::make_tuple(self.matrix, self.getBundleComp(),
+                                  self.getLostFibers());
+          },
+          [](py::tuple t) {  // __setstate__
+            if (t.size() != 3) throw std::runtime_error("Invalid state!");
+
+            Connectome c(t[0].cast<Eigen::MatrixXi>(),
+                         t[1].cast<Connectome::bundleCompType>(),
+                         t[2].cast<int>());
+            return c;
+          }));
 }

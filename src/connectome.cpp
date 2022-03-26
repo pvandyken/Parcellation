@@ -35,7 +35,7 @@ Connectome::Connectome(CorticalIntersection const& intersections,
 }
 
 const umap<int, int> Connectome::getBundlesOfEdge(
-    const std::pair<int, int>& edge) {
+    const std::pair<int, int>& edge) const{
   std::pair<int, int> oEdge{std::min(edge.first, edge.second),
                             std::max(edge.first, edge.second)};
   if (this->bundleComp.find(this->bcKey(oEdge)) ==
@@ -44,7 +44,7 @@ const umap<int, int> Connectome::getBundlesOfEdge(
                             std::to_string(edge.second) +
                             ") not found in connectome");
   }
-  return this->bundleComp[this->bcKey(oEdge)];
+  return this->bundleComp.at(this->bcKey(oEdge));
   // int total;
   // for (auto& [bundle, count] : this->bundleComp[this->bcKey(oEdge)]) {
   //   total += count;
