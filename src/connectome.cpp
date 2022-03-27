@@ -14,7 +14,7 @@ using umap = std::unordered_map<T, S>;
 Connectome::Connectome(CorticalIntersection const& intersections,
                        Parcellation const& parcellation)
     : matrix{Eigen::MatrixXi::Zero(parcellation.size(), parcellation.size())},
-      bundleComp{{}} {
+      bundleComp{{}}, lostFibers{0} {
   for (auto&& [bundleId, front, back] :
        iter::zip(iter::count(), intersections.front, intersections.back)) {
     for (auto&& [fTri, bTri] : iter::zip(front.triangles, back.triangles)) {
