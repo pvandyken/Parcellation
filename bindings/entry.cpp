@@ -105,12 +105,23 @@ PYBIND11_MODULE(cortical_intersections, m) {
            "Get triangles adjacent to a specific point")
       .def("get_triangles_of_point",
            py::overload_cast<vector<int>>(&Mesh::getTrianglesOfPoint),
-           "Get triangles adjacent to a specific point");
+           "Get triangles adjacent to a specific point")
+      .def(py::pickle(
+          [](Mesh &self) {
+            return py::make_tuple(self.vertices, self.polygons);
+          },
+          [](py::tuple t) {
+            if (t.size() != 2) throw std::runtime_error("Invalid state!");
+            Mesh m(t[0].cast<Eigen::MatrixX3f>(), t[1].cast<Eigen::MatrixX3i>());
+            return m;
+          }));
 
   py::class_<CorticalIntersection>(m, "CorticalIntersection")
       .def(py::init<Mesh &, vector<Bundle>, int, int>(), py::arg("mesh"),
            py::arg("bundles"), py::arg("ray_length"), py::arg("threads") = 1,
            py::keep_alive<1, 2>())
+      .def_property_readonly(
+          "mesh", [](CorticalIntersection &self) { return self.mesh; })
       .def_static("from_bundles", &CorticalIntersection::fromBundles,
                   "Construct intersections from bundles")
       .def_property_readonly("triangles",
