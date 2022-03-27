@@ -20,7 +20,7 @@ def main(
     out_atlas: Path,
     out_connectome: Path,
     raw: bool = False,
-    threads: int = 1
+    threads: int = 1,
 ):
     surf = Mesh(left_surf)
     intersection = get_intersection(left_surf, left_bundles, threads)
@@ -28,13 +28,14 @@ def main(
         save_src_dest(surf, out_atlas, *intersection.triangles)
         return 0
 
+    bundle_paths = [bundle.path for bundle in intersection.bundles]
     G = intersection.get_globbed_graph(2)
     parcels = get_parcellation(G, surf)
     atlas = merge_parcels(parcels, surf)
     fio.save_polydata(atlas, str(out_atlas))
-    with out_connectome.open('wb') as f:
+    with out_connectome.open("wb") as f:
         connectome = Connectome(intersection, parcels)
-        pickle.dump(connectome, f)
+        pickle.dump({"connectome": connectome, "bundle_paths": bundle_paths}, f)
     return 0
     # return Parcellation(parcels)
 

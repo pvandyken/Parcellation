@@ -112,7 +112,8 @@ PYBIND11_MODULE(cortical_intersections, m) {
           },
           [](py::tuple t) {
             if (t.size() != 2) throw std::runtime_error("Invalid state!");
-            Mesh m(t[0].cast<Eigen::MatrixX3f>(), t[1].cast<Eigen::MatrixX3i>());
+            Mesh m(t[0].cast<Eigen::MatrixX3f>(),
+                   t[1].cast<Eigen::MatrixX3i>());
             return m;
           }));
 
@@ -120,6 +121,7 @@ PYBIND11_MODULE(cortical_intersections, m) {
       .def(py::init<Mesh &, vector<Bundle>, int, int>(), py::arg("mesh"),
            py::arg("bundles"), py::arg("ray_length"), py::arg("threads") = 1,
            py::keep_alive<1, 2>())
+      .def_readonly("bundles", &CorticalIntersection::bundles)
       .def_property_readonly(
           "mesh", [](CorticalIntersection &self) { return self.mesh; })
       .def_static("from_bundles", &CorticalIntersection::fromBundles,
@@ -138,6 +140,7 @@ PYBIND11_MODULE(cortical_intersections, m) {
   py::class_<Bundle>(m, "Bundle")
       .def(py::init<vector<vector<Vector3f>>>(),
            "Bundles of white-matter fibers")
+      .def_readonly("path", &Bundle::path)
       .def(py::init<vector<vector<Vector3f>>, const string>(),
            "Bundles of white-matter fibers");
 
